@@ -5,7 +5,7 @@
 ## 🤩 Know about me
 
 - ✨ I am **Rahul Mishra** (he/him)
-- 🎓 I am a 18 yo
+- 🎓 I am a 19 yo
 - 💰 I am currently working at [@un](https://github.com/un)
 - ❤️ I love to tweak around new technology and explore them
 - 💻 I use Arch btw
