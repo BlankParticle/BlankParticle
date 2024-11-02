@@ -1,15 +1,14 @@
 ![Blank Particle's Banner](./Banner.png)
 
-<h1 align="center">Hello, <image src="https://em-content.zobj.net/source/microsoft-teams/363/waving-hand_1f44b.png" height="27px"> Welcome to my Github Profile</h1>
+<h1 align="center">Hello, <image src="https://cdn.discordapp.com/emojis/1095012855285293067.gif?size=48&quality=lossless" height="27px"> Welcome to my Github Profile</h1>
 
-## 🤩 Know about me
+## 👀 About me
 
 - ✨ I am **Rahul Mishra** (he/him)
-- 🎓 I am a 19 yo
-- 💰 I am currently working at [@un](https://github.com/un)
+- 🎓 I am 19 yo
 - ❤️ I love to tweak around new technology and explore them
-- 💻 I use Arch btw
+- 💻 MacOS
 
-## 🚀 My Skills
-
-[![My Skills are HTML, CSS, JS, TS, Node JS, Svelte, React, Next JS, Tailwind CSS, My SQL, Mongo DB, VS Code, Git, Rust and Linux](https://skillicons.dev/icons?i=html,css,js,ts,nodejs,svelte,react,nextjs,tailwindcss,mysql,mongodb,vscode,git,rust,linux)](https://skillicons.dev)
+## 🏗️ What I work on
+- FullStack JS Stuff
+- Email Tech
