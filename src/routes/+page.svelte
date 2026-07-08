@@ -156,6 +156,63 @@
 
   <section class="flex animate-reveal flex-col gap-2 py-12 [animation-delay:540ms] motion-reduce:animate-none sm:py-16">
     <div class="flex items-baseline justify-between gap-4 pb-4">
+      <h2 class="font-display text-3xl font-extrabold tracking-tight text-violet sm:text-4xl">Where I've worked</h2>
+      <span class="text-xs font-bold tracking-[0.18em] text-orange-deep uppercase">the paper trail</span>
+    </div>
+    <ol class="flex flex-col">
+      {#each data.work as job (job.company)}
+        <li class="border-t-2 border-dashed border-violet/35 last:border-b-2">
+          <details class="group">
+            <summary
+              class="flex cursor-pointer list-none items-center gap-4 py-5 sm:gap-6 [&::-webkit-details-marker]:hidden"
+            >
+              <span
+                class="shrink-0 text-lg font-bold text-orange-deep transition-transform duration-200 ease-out group-open:rotate-90"
+                aria-hidden="true">→</span
+              >
+              <img
+                src={job.logo}
+                alt="{job.company} logo"
+                loading="lazy"
+                class="size-10 shrink-0 -rotate-2 rounded-md border-2 border-ink bg-ink object-cover shadow-[2px_2px_0_var(--color-violet)]"
+              />
+              <span class="flex min-w-0 flex-1 flex-col gap-1">
+                <span class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <a
+                    href={job.url}
+                    class="font-display text-xl font-bold text-violet-deep decoration-orange decoration-wavy underline-offset-4 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onclick={(e) => e.stopPropagation()}>{job.company}</a
+                  >
+                  {#if job.companySubtext}
+                    <span class="text-xs text-ink-muted/70">{job.companySubtext}</span>
+                  {/if}
+                </span>
+                <span class="text-sm text-ink-muted">
+                  {job.role} · {job.tags.join(" · ")}
+                </span>
+              </span>
+              <span class="ml-auto shrink-0 font-display text-sm font-bold text-orange-deep tabular-nums">
+                {job.date}
+              </span>
+            </summary>
+            <ul class="flex flex-col gap-2 pb-5 pl-10 sm:pl-12">
+              {#each job.points as point}
+                <li class="flex gap-2 text-sm text-ink-muted">
+                  <span class="shrink-0 font-bold text-orange-deep" aria-hidden="true">→</span>
+                  <span>{point}</span>
+                </li>
+              {/each}
+            </ul>
+          </details>
+        </li>
+      {/each}
+    </ol>
+  </section>
+
+  <section class="flex animate-reveal flex-col gap-2 pb-12 [animation-delay:585ms] motion-reduce:animate-none sm:pb-16">
+    <div class="flex items-baseline justify-between gap-4 pb-4">
       <h2 class="font-display text-3xl font-extrabold tracking-tight text-violet sm:text-4xl">Things I built</h2>
       <span class="text-xs font-bold tracking-[0.18em] text-orange-deep uppercase">hot off the press</span>
     </div>
