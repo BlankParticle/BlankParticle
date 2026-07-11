@@ -1,0 +1,10 @@
+{
+  "name": "@blankparticle/static.rx2.dev",
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.110.0"
+  }
+}
