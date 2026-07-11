@@ -1,9 +1,10 @@
 import fs from "node:fs";
-import React from "react";
+
 import { ImageResponse } from "@takumi-rs/image-response";
+import React from "react";
 
 const DOMAIN = "blankparticle.com";
-const PROFILE_PATH = new URL("../static/me.png", import.meta.url);
+const PROFILE_PATH = new URL("../public/me.png", import.meta.url);
 const profileDataUrl = `data:image/png;base64,${fs.readFileSync(PROFILE_PATH).toString("base64")}`;
 
 const DEVICE_PIXEL_RATIO = 2.5;
@@ -164,6 +165,6 @@ const response = new ImageResponse(<OgImage />, {
 });
 
 const arrayBuffer = await response.arrayBuffer();
-const outputPath = new URL("../static/og-image.webp", import.meta.url);
+const outputPath = new URL("../public/og-image.webp", import.meta.url);
 fs.writeFileSync(outputPath, Buffer.from(arrayBuffer));
 console.log(outputPath.pathname);

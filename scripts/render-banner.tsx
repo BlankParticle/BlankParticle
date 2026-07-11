@@ -1,8 +1,9 @@
 import fs from "node:fs";
-import React from "react";
-import { ImageResponse } from "@takumi-rs/image-response";
 
-const PROFILE_PATH = new URL("../static/me.png", import.meta.url);
+import { ImageResponse } from "@takumi-rs/image-response";
+import React from "react";
+
+const PROFILE_PATH = new URL("../public/me.png", import.meta.url);
 const profileDataUrl = `data:image/png;base64,${fs.readFileSync(PROFILE_PATH).toString("base64")}`;
 
 const DEVICE_PIXEL_RATIO = 2.5;

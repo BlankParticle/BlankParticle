@@ -3,9 +3,11 @@ node_modules
 # Output
 .output
 .vercel
-/.svelte-kit
 /build
+/dist
 .wrangler
+.tanstack
+src/routeTree.gen.ts
 
 # OS
 .DS_Store

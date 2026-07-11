@@ -44,12 +44,12 @@
 
 @layer base {
   html {
-    @apply scroll-smooth font-body text-ink antialiased;
+    @apply font-body text-ink scroll-smooth antialiased;
     overflow-x: clip;
   }
 
   body {
-    @apply relative min-h-screen bg-paper;
+    @apply bg-paper relative min-h-screen;
   }
 
   /* paper grain, one cheap SVG turbulence layer */

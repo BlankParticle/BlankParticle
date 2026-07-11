@@ -1,20 +1,16 @@
-# `@blankparticle/www`
+![BlankParticle's Banner](./public/banner.png)
 
-Source code of my personal website.
+## 👀 About me
 
-## 🏗️ Tech Stack
+- ✨ Hi <image src="https://cdn.discordapp.com/emojis/1095012855285293067.gif?size=48&quality=lossless" height="16px">, I am **Rahul**
+- 🧑‍💻 I work at [iterate.com](https://iterate.com)
 
-- [Svelte v5 & SvelteKit](https://svelte.dev)
-- [TailwindCSS](https://tailwindcss.com)
-- [Cloudflare Pages](https://developers.cloudflare.com/pages/)
+## 🏗️ What I work on
 
-## Running Locally
+- 🧩 Building things with **TypeScript**
+- ☁️ Cloudflare and infrastructure stuff
+- ✨ Doing cool stuff with AI
 
-```bash
-pnpm install
-pnpm dev
-```
+---
 
-## License
-
-Licensed under the [MIT License](LICENSE).
+💫 <https://blankparticle.com>
