@@ -2,7 +2,7 @@ import tanstackHandler from "@tanstack/react-start/server-entry";
 import { Hono } from "hono";
 import { trimTrailingSlash } from "hono/trailing-slash";
 
-import { socials } from "./lib/data.ts";
+import { socials, sshPublicKeys } from "./lib/data.ts";
 
 export type CloudflareEnv = {
   TARGET_DOMAIN: string;
@@ -30,6 +30,15 @@ app.use("*", async (c, next) => {
   const match = socials.find((social) => social.shortLink.includes(path));
   if (match) return c.redirect(match.url, 301);
   return next();
+});
+
+app.get("/keys", async (c) => {
+  if (typeof c.req.query("json") === "string") return c.json(sshPublicKeys);
+  return c.text(
+    Object.entries(sshPublicKeys)
+      .map(([username, [publicKey, email]]) => `${username} ${publicKey} ${email}`)
+      .join("\n"),
+  );
 });
 
 app.use("*", async (c) =>

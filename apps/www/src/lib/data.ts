@@ -143,3 +143,14 @@ export const socials: Social[] = [
     showAsSticker: false,
   },
 ];
+
+export const sshPublicKeys = {
+  BlankParticle: [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHNDqiCnWAUMPjj4Q2Y2EjQrr6vF0etV1FCP3Nrus3ek",
+    "hello@blankparticle.com",
+  ],
+  TechnicallyAnna: [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPF+GIrErl9gIe0E4tUE6+mQAQ0afuvoEbowZQ5bn9rd",
+    "anna@blankparticle.com",
+  ],
+};
