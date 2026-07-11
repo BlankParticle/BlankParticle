@@ -1,17 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Fragment, useState } from "react";
 
-import ContactDialog from "../components/contact-dialog";
 import LiveTime from "../components/live-time";
 import PushButton from "../components/push-button";
 import SocialSticker from "../components/social-sticker";
-import Confirm from "../icons/confirm";
-import { copyText } from "../lib/clipboard";
 import { projects, socials, workHistory } from "../lib/data.ts";
-
-const DOMAIN = "blankparticle.com";
-const email = `hello@${DOMAIN}`;
-const discordUser = "blankparticle";
 
 const tickerWords = [
   "curious",
@@ -31,6 +24,7 @@ const tickerWords = [
   "shipping on fridays",
   "fixing other people's problems",
 ];
+
 const stickerTilts = [
   "-rotate-2",
   "rotate-1",
@@ -41,6 +35,7 @@ const stickerTilts = [
   "rotate-1",
   "-rotate-2",
 ];
+
 const stickerInks = [
   "border-violet text-violet hover:bg-violet hover:shadow-[4px_4px_0_var(--color-orange)]",
   "border-orange-deep text-orange-deep hover:bg-orange-deep hover:shadow-[4px_4px_0_var(--color-violet)]",
@@ -54,15 +49,13 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const age = new Date().getFullYear() - 2005;
 
-  const [emailCopied, setEmailCopied] = useState(false);
-  const [emailOpen, setEmailOpen] = useState(false);
-  const [discordOpen, setDiscordOpen] = useState(false);
+  const [openModal, setOpenModal] = useState<string | null>(null);
 
   return (
     <>
       <main className="mx-auto max-w-4xl px-5 pb-16 sm:px-8">
         <header className="animate-reveal border-violet/35 text-violet flex flex-wrap items-center justify-between gap-2 border-b-2 border-dashed py-4 text-xs font-bold tracking-[0.18em] uppercase motion-reduce:animate-none">
-          <span>{DOMAIN}</span>
+          <span>blankparticle.com</span>
           <span className="text-orange-deep hidden sm:inline">est. 2005 · 100% handmade</span>
           <span>
             my time: <LiveTime /> ist
@@ -97,13 +90,8 @@ function HomePage() {
               , and forever taking software apart to see how it works.
             </p>
             <div className="animate-reveal flex flex-wrap items-center gap-4 pt-2 [animation-delay:360ms] motion-reduce:animate-none">
-              <PushButton
-                variant="violet"
-                aria-live="polite"
-                aria-atomic="true"
-                onClick={() => copyText(email, setEmailCopied)}
-              >
-                {emailCopied ? <Confirm /> : "email me"}
+              <PushButton variant="violet" onClick={() => setOpenModal("Email")}>
+                email me
               </PushButton>
               <PushButton href="/cal" variant="orange">
                 book a call
@@ -268,33 +256,13 @@ function HomePage() {
               .map((social, i) => {
                 const tilt = stickerTilts[i % stickerTilts.length];
                 const ink = stickerInks[i % stickerInks.length];
-                if (social.label === "Email")
-                  return (
-                    <SocialSticker
-                      key={social.label}
-                      name={social.label}
-                      tilt={tilt}
-                      ink={ink}
-                      onClick={() => setEmailOpen(true)}
-                    />
-                  );
-                if (social.label === "Discord")
-                  return (
-                    <SocialSticker
-                      key={social.label}
-                      name={social.label}
-                      tilt={tilt}
-                      ink={ink}
-                      onClick={() => setDiscordOpen(true)}
-                    />
-                  );
                 return (
                   <SocialSticker
                     key={social.label}
                     name={social.label}
                     tilt={tilt}
                     ink={ink}
-                    href={`/${social.shortLink[0]}`}
+                    {...(social.modal ? { onClick: () => setOpenModal(social.label) } : { href: social.shortLink[0] })}
                   />
                 );
               })}
@@ -324,25 +292,12 @@ function HomePage() {
         </footer>
       </main>
 
-      <ContactDialog
-        open={emailOpen}
-        onClose={() => setEmailOpen(false)}
-        title="Drop me a line"
-        description="Copy my email and reach out whenever you like."
-        value={email}
-        copyLabel="Copy email"
-      />
-
-      <ContactDialog
-        open={discordOpen}
-        onClose={() => setDiscordOpen(false)}
-        title="Let's connect on Discord"
-        description="Add me as a friend with my username below."
-        value={discordUser}
-        copyLabel="Copy Discord username"
-        actionHref="/discord"
-        actionLabel="Open in Discord"
-      />
+      {socials.map(
+        (social) =>
+          social.modal && (
+            <social.modal key={social.label} open={openModal === social.label} onClose={() => setOpenModal(null)} />
+          ),
+      )}
     </>
   );
 }

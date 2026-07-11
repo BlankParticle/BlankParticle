@@ -11,6 +11,7 @@ export type CloudflareEnv = {
 const app = new Hono<{ Bindings: CloudflareEnv }>();
 
 app.use(async (c, next) => {
+  if (import.meta.env.DEV) return next();
   const url = new URL(c.req.url);
   if (url.hostname !== c.env.TARGET_DOMAIN) {
     url.hostname = c.env.TARGET_DOMAIN;

@@ -1,3 +1,7 @@
+import type { ComponentType } from "react";
+
+import { DiscordModal, EmailModal, type SocialModalProps } from "../components/social-modals";
+
 export const workHistory = [
   {
     role: "Software Engineer",
@@ -73,11 +77,20 @@ export const projects = [
   },
 ];
 
-export const socials = [
+export interface Social {
+  label: string;
+  url: string;
+  shortLink: string[];
+  showAsSticker?: boolean;
+  modal?: ComponentType<SocialModalProps>;
+}
+
+export const socials: Social[] = [
   {
     label: "Email",
     url: "https://mail.google.com/",
     shortLink: ["/email"],
+    modal: EmailModal,
   },
   {
     label: "Twitter",
@@ -88,6 +101,7 @@ export const socials = [
     label: "Discord",
     url: "https://discord.com/users/1096392763144159252",
     shortLink: ["/discord"],
+    modal: DiscordModal,
   },
   {
     label: "GitHub",
