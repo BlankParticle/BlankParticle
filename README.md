@@ -1,4 +1,4 @@
-![BlankParticle's Banner](./public/banner.png)
+![BlankParticle's Banner](./.github/assets/banner.png)
 
 ## 👀 About me
 

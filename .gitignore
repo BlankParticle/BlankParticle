@@ -3,11 +3,10 @@ node_modules
 # Output
 .output
 .vercel
-/build
-/dist
+build
+dist
 .wrangler
 .tanstack
-src/routeTree.gen.ts
 
 # OS
 .DS_Store

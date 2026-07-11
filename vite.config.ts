@@ -1,38 +1,81 @@
-import { cloudflare } from "@cloudflare/vite-plugin";
-import tailwindcss from "@tailwindcss/vite";
-import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-import viteReact from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig } from "vite-plus";
 
 export default defineConfig({
-  plugins: [
-    cloudflare({
-      viteEnvironment: { name: "ssr" },
-      config: {
-        name: "www",
-        compatibility_date: "2026-07-11",
-        compatibility_flags: ["nodejs_compat"],
-        main: "src/worker.ts",
-        routes: [
-          "blankparticle.com",
-          "www.blankparticle.com",
-          "blankparticle.in",
-          "www.blankparticle.in",
-          "rx2.dev",
-        ].map((pattern) => ({ custom_domain: true, pattern })),
-        vars: {
-          TARGET_DOMAIN: "blankparticle.com",
-        },
-        observability: {
-          enabled: true,
+  fmt: {
+    useTabs: false,
+    singleQuote: false,
+    trailingComma: "all",
+    printWidth: 120,
+    sortTailwindcss: true,
+    sortImports: true,
+    sortPackageJson: true,
+    ignorePatterns: ["**/routeTree.gen.ts"],
+  },
+  lint: {
+    plugins: ["typescript", "react"],
+    categories: {
+      correctness: "off",
+    },
+    env: {
+      builtin: true,
+      browser: true,
+      node: true,
+    },
+    ignorePatterns: ["build/", "dist/", "**/routeTree.gen.ts"],
+    rules: {
+      "@typescript-eslint/ban-ts-comment": "error",
+      "no-array-constructor": "error",
+      "@typescript-eslint/no-duplicate-enum-values": "error",
+      "@typescript-eslint/no-empty-object-type": "error",
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-extra-non-null-assertion": "error",
+      "@typescript-eslint/no-misused-new": "error",
+      "@typescript-eslint/no-namespace": "error",
+      "@typescript-eslint/no-non-null-asserted-optional-chain": "error",
+      "@typescript-eslint/no-require-imports": "error",
+      "@typescript-eslint/no-this-alias": "error",
+      "@typescript-eslint/no-unnecessary-type-constraint": "error",
+      "@typescript-eslint/no-unsafe-declaration-merging": "error",
+      "@typescript-eslint/no-unsafe-function-type": "error",
+      "no-unused-expressions": "error",
+      "no-unused-vars": "error",
+      "@typescript-eslint/no-wrapper-object-types": "error",
+      "@typescript-eslint/prefer-as-const": "error",
+      "@typescript-eslint/prefer-namespace-keyword": "error",
+      "@typescript-eslint/triple-slash-reference": "error",
+      "react/jsx-key": "error",
+      "react/jsx-no-duplicate-props": "error",
+      "react/jsx-no-undef": "error",
+      "react/no-children-prop": "error",
+      "react/no-danger-with-children": "error",
+      "react/no-direct-mutation-state": "error",
+      "react/rules-of-hooks": "error",
+      "react/exhaustive-deps": "warn",
+    },
+    overrides: [
+      {
+        files: ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
+        rules: {
+          "constructor-super": "off",
+          "no-class-assign": "off",
+          "no-const-assign": "off",
+          "no-dupe-class-members": "off",
+          "no-dupe-keys": "off",
+          "no-func-assign": "off",
+          "no-import-assign": "off",
+          "no-new-native-nonconstructor": "off",
+          "no-obj-calls": "off",
+          "no-redeclare": "off",
+          "no-setter-return": "off",
+          "no-this-before-super": "off",
+          "no-unsafe-negation": "off",
+          "no-var": "error",
+          "no-with": "off",
+          "prefer-const": "error",
+          "prefer-rest-params": "error",
+          "prefer-spread": "error",
         },
       },
-    }),
-    tailwindcss(),
-    tanstackStart(),
-    viteReact(),
-  ],
-  server: { allowedHosts: ["anna"] },
-  resolve: { tsconfigPaths: true },
-  clearScreen: false,
+    ],
+  },
 });

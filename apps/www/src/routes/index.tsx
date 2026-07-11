@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Fragment, useState } from "react";
 
-import LiveTime from "../components/live-time";
-import PushButton from "../components/push-button";
-import SocialSticker from "../components/social-sticker";
+import LiveTime from "../components/live-time.tsx";
+import PushButton from "../components/push-button.tsx";
+import SocialSticker from "../components/social-sticker.tsx";
 import { projects, socials, workHistory } from "../lib/data.ts";
 
 const tickerWords = [
