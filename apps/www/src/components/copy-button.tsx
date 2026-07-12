@@ -1,20 +1,16 @@
-import { useState } from "react";
+import { useState, type PropsWithChildren } from "react";
 
-import Confirm from "../icons/confirm";
-import Copy from "../icons/copy";
+import { ConfirmIcon, CopyIcon } from "../assets/icons.tsx";
+import { Button } from "./ui/button.tsx";
 
-interface Props {
-  value: string;
-  label: string;
-}
-
-export default function CopyButton({ value, label }: Props) {
+export function CopyButton({ value, label }: PropsWithChildren<{ value: string; label: string }>) {
   const [copied, setCopied] = useState(false);
 
   return (
-    <button
-      type="button"
-      className="border-ink bg-violet text-paper ml-auto grid size-9 shrink-0 cursor-pointer place-items-center rounded-md border-2 shadow-[3px_3px_0_var(--color-ink)] transition-transform duration-150 ease-out hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0_var(--color-ink)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
+    <Button
+      variant="violet"
+      size="icon-lg"
+      className="ml-auto shrink-0 rounded-md"
       aria-label={label}
       aria-live="polite"
       onClick={() =>
@@ -25,7 +21,7 @@ export default function CopyButton({ value, label }: Props) {
           .finally(() => setTimeout(() => setCopied(false), 2000))
       }
     >
-      {copied ? <Confirm /> : <Copy />}
-    </button>
+      {copied ? <ConfirmIcon /> : <CopyIcon />}
+    </Button>
   );
 }

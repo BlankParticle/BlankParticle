@@ -6,6 +6,9 @@
     "types": ["vite/client", "@cloudflare/workers-types"],
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   }
 }

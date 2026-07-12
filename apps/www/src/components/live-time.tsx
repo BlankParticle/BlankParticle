@@ -6,7 +6,7 @@ const formatter = Intl.DateTimeFormat("en-IN", {
   hourCycle: "h23",
 });
 
-export default function LiveTime() {
+export function LiveTime() {
   const [date, setDate] = useState<Date | null>(null);
 
   useEffect(() => {

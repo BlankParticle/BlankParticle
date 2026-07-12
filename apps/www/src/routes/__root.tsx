@@ -1,7 +1,9 @@
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
-import appCss from "../app.css?url";
+import { NotFound } from "@/components/not-found.tsx";
+
+import appCss from "@/app.css?url";
 
 const title = "blankparticle";
 const description = "Hello, I am Rahul Mishra, aka BlankParticle";
@@ -32,6 +34,7 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: appCss },
     ],
   }),
+  notFoundComponent: NotFound,
   shellComponent: RootDocument,
 });
 

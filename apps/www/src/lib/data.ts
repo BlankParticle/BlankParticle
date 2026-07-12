@@ -1,12 +1,16 @@
 import type { ComponentType } from "react";
 
+import IterateLogo from "../assets/companies/iterate.png";
+import OrchidLogo from "../assets/companies/orchidhq.png";
+import UnLogo from "../assets/companies/un.png";
+import { DiscordIcon, GitHubIcon, GmailIcon, HashnodeIcon, LinkedInIcon, XIcon } from "../assets/social-icons.tsx";
 import { DiscordModal, EmailModal, type SocialModalProps } from "../components/social-modals";
 
 export const workHistory = [
   {
     role: "Software Engineer",
     company: "Iterate",
-    logo: "https://github.com/iterate.png",
+    logo: IterateLogo,
     url: "https://iterate.com",
     date: "Jun 2025 — Present",
     tags: ["Full-time", "Remote · UK"],
@@ -21,7 +25,7 @@ export const workHistory = [
     role: "Software Engineer",
     company: "Orchid",
     companySubtext: "prev. Mail0",
-    logo: "https://github.com/Mail-0.png",
+    logo: OrchidLogo,
     url: "https://orchid.ai/",
     date: "Feb 2025 — May 2025",
     tags: ["Contract", "Remote · US"],
@@ -35,7 +39,7 @@ export const workHistory = [
     role: "Software Engineer",
     company: "Unproprietary Corporation",
     companySubtext: "u22n",
-    logo: "https://github.com/un.png",
+    logo: UnLogo,
     url: "https://github.com/un",
     date: "Feb 2024 — Sep 2024",
     tags: ["Part-time", "Remote · US"],
@@ -82,39 +86,51 @@ export interface Social {
   url: string;
   shortLink: string[];
   showAsSticker?: boolean;
+  icon?: ComponentType;
+  iconBackground?: string;
   modal?: ComponentType<SocialModalProps>;
 }
 
 export const socials: Social[] = [
   {
     label: "Email",
+    icon: GmailIcon,
     url: "https://mail.google.com/",
     shortLink: ["/email"],
     modal: EmailModal,
   },
   {
     label: "Twitter",
+    iconBackground: "bg-black",
+    icon: XIcon,
     url: "https://x.com/blankparticle",
     shortLink: ["/x", "/twitter"],
   },
   {
     label: "Discord",
+    iconBackground: "bg-[#5865F2]",
+    icon: DiscordIcon,
     url: "https://discord.com/users/1096392763144159252",
     shortLink: ["/discord"],
     modal: DiscordModal,
   },
   {
     label: "GitHub",
+    iconBackground: "bg-[#1b1f23]",
+    icon: GitHubIcon,
     url: "https://github.com/BlankParticle",
     shortLink: ["/gh", "/github"],
   },
   {
     label: "Blog",
+    icon: HashnodeIcon,
     url: "https://blog.blankparticle.in",
     shortLink: ["/blog"],
   },
   {
     label: "LinkedIn",
+    iconBackground: "bg-[#0A66C2]",
+    icon: LinkedInIcon,
     url: "https://www.linkedin.com/in/blankparticle",
     shortLink: ["/linkedin"],
   },

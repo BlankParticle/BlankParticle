@@ -32,6 +32,9 @@ export default defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  define: {
+    "import.meta.env.VITE_GIT_HASH": JSON.stringify(process.env.WORKERS_CI_COMMIT_SHA?.slice(0, 7) ?? "development"),
+  },
   server: { allowedHosts: ["anna"] },
   resolve: { tsconfigPaths: true },
   clearScreen: false,

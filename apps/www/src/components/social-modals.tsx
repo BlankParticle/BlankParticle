@@ -1,9 +1,8 @@
-import { useEffect } from "react";
+import { CopyButton } from "./copy-button.tsx";
+import { Button } from "./ui/button.tsx";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog.tsx";
 
-import CopyButton from "./copy-button";
-import PushButton from "./push-button";
-
-interface Props {
+interface ContactDialogProps {
   open: boolean;
   onClose: () => void;
   title: string;
@@ -13,60 +12,35 @@ interface Props {
   actions?: { label: string; href: string }[];
 }
 
-export default function ContactDialog({ open, onClose, title, description, value, copyLabel, actions }: Props) {
-  useEffect(() => {
-    if (!open) return;
-    const onKeyDown = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
-
-  if (!open) return null;
-
+export function ContactDialog({ open, onClose, title, description, value, copyLabel, actions }: ContactDialogProps) {
   return (
-    <div
-      className="bg-ink/40 fixed inset-0 z-50 flex items-center justify-center p-5"
-      role="presentation"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div
-        className="border-ink bg-paper relative flex w-full max-w-md flex-col gap-5 rounded-lg border-2 p-6 shadow-[6px_6px_0_var(--color-ink)]"
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        tabIndex={-1}
-      >
-        <button
-          type="button"
-          className="border-ink bg-paper text-ink hover:bg-orange-deep hover:text-paper absolute -top-2.5 -right-2.5 grid size-8 cursor-pointer place-items-center rounded-full border-2 text-sm font-bold transition-colors duration-150"
-          aria-label="Close"
-          onClick={onClose}
-        >
-          ✕
-        </button>
-        <h2 className="font-display text-violet text-2xl font-extrabold tracking-tight">{title}</h2>
-        <p className="text-ink-muted text-sm">{description}</p>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
         <div className="border-violet/50 bg-lime/20 flex items-center gap-3 rounded-md border-2 border-dashed px-4 py-3">
           <span className="text-ink min-w-0 truncate font-bold">{value}</span>
           <CopyButton value={value} label={copyLabel} />
         </div>
         {actions && actions.length > 0 && (
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <DialogFooter>
             {actions.map((action) => (
-              <PushButton
+              <Button
                 key={action.label}
-                href={action.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 text-center whitespace-nowrap"
+                variant="violet"
+                className="flex-1 whitespace-nowrap"
+                nativeButton={false}
+                render={<a href={action.href} target="_blank" rel="noopener noreferrer" />}
               >
                 {action.label}
-              </PushButton>
+              </Button>
             ))}
-          </div>
+          </DialogFooter>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -80,8 +54,8 @@ export function EmailModal({ open, onClose }: SocialModalProps) {
     <ContactDialog
       open={open}
       onClose={onClose}
-      title="Drop me a line"
-      description="Send me an email, I will get back to you as soon as possible."
+      title="Send me an email"
+      description="I will get back to you as soon as possible."
       value={`hello@blankparticle.com`}
       copyLabel="Copy email"
       actions={[

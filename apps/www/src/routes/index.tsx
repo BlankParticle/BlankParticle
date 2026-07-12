@@ -1,10 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 
-import LiveTime from "../components/live-time.tsx";
-import PushButton from "../components/push-button.tsx";
-import SocialSticker from "../components/social-sticker.tsx";
-import { projects, socials, workHistory } from "../lib/data.ts";
+import { CloudflareWorkersIcon, GitHubIcon, TanStackIcon } from "@/assets/social-icons.tsx";
+import { AppIcon } from "@/components/app-icon.tsx";
+import { FooterCallout } from "@/components/footer-callout.tsx";
+import { LiveTime } from "@/components/live-time.tsx";
+import { Marquee } from "@/components/marquee.tsx";
+import { SocialSticker } from "@/components/social-sticker.tsx";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { projects, socials, workHistory } from "@/lib/data.ts";
 
 const tickerWords = [
   "curious",
@@ -74,7 +79,7 @@ function HomePage() {
               also known as
               <a
                 href="/gh"
-                className="text-ink before:bg-lime relative mx-1 inline-block font-bold before:absolute before:inset-x-[-3px] before:inset-y-[1px] before:-z-10 before:-rotate-1 hover:before:rotate-1"
+                className="text-ink before:bg-lime relative mx-1 inline-block font-bold before:absolute before:inset-x-[-3px] before:inset-y-px before:-z-10 before:-rotate-1 hover:before:rotate-1"
               >
                 @blankparticle
               </a>
@@ -90,19 +95,23 @@ function HomePage() {
               , and forever taking software apart to see how it works.
             </p>
             <div className="animate-reveal flex flex-wrap items-center gap-4 pt-2 [animation-delay:360ms] motion-reduce:animate-none">
-              <PushButton variant="violet" onClick={() => setOpenModal("Email")}>
+              <Button variant="violet" onClick={() => setOpenModal("Email")}>
                 email me
-              </PushButton>
-              <PushButton href="/cal" variant="orange">
+              </Button>
+              <Button variant="orange" nativeButton={false} render={<a href="/cal" />}>
                 book a call
-              </PushButton>
-              <PushButton href="/resume" variant="violet-outline" target="_blank" rel="noopener noreferrer">
+              </Button>
+              <Button
+                variant="violet-outline"
+                nativeButton={false}
+                render={<a href="/resume" target="_blank" rel="noopener noreferrer" />}
+              >
                 my resume
-              </PushButton>
+              </Button>
             </div>
           </div>
 
-          <figure className="animate-reveal relative order-first shrink-0 self-center [animation-delay:270ms] motion-reduce:animate-none md:order-none md:self-auto">
+          <figure className="animate-reveal group relative order-first shrink-0 self-center [animation-delay:270ms] motion-reduce:animate-none md:order-0 md:self-auto">
             <span
               className="text-orange absolute -top-6 -right-6 size-28 rounded-full bg-[radial-gradient(currentColor_1px,transparent_1.5px)] bg-size-[9px_9px]"
               aria-hidden="true"
@@ -114,7 +123,7 @@ function HomePage() {
             <img
               src="/me.png"
               alt="Rahul, cut out and stuck on the page like a sticker"
-              className="border-paper relative size-40 rotate-2 rounded-2xl border-4 object-cover shadow-[0_0_0_2px_var(--color-ink)] transition-transform duration-300 ease-out select-none hover:rotate-0 sm:size-48"
+              className="border-paper relative size-40 rotate-2 rounded-2xl border-4 object-cover shadow-[0_0_0_2px_var(--color-ink)] transition-transform duration-300 ease-out select-none group-hover:rotate-0 sm:size-48"
             />
             <figcaption className="border-ink bg-lime absolute -bottom-3 left-1/2 w-max -translate-x-1/2 -rotate-2 border-2 px-2 py-0.5 text-xs font-bold tracking-widest uppercase">
               that's me
@@ -122,26 +131,7 @@ function HomePage() {
           </figure>
         </section>
 
-        <div
-          className="animate-reveal border-ink bg-violet mx-[calc(50%-50vw)] overflow-hidden border-y-2 py-2 [animation-delay:450ms] motion-reduce:animate-none"
-          aria-hidden="true"
-        >
-          <div className="animate-marquee flex w-max motion-reduce:animate-none">
-            {[0, 1, 2, 3, 4, 5].map((half) => (
-              <span
-                key={half}
-                className="text-paper flex shrink-0 items-center text-sm font-extrabold tracking-[0.2em] whitespace-nowrap uppercase"
-              >
-                {tickerWords.map((word) => (
-                  <Fragment key={word}>
-                    <span className="px-3">{word}</span>
-                    <span>★</span>
-                  </Fragment>
-                ))}
-              </span>
-            ))}
-          </div>
-        </div>
+        <Marquee tickers={tickerWords} />
 
         <section className="animate-reveal flex flex-col gap-2 py-12 [animation-delay:540ms] motion-reduce:animate-none sm:py-16">
           <div className="flex items-baseline justify-between gap-4 pb-4">
@@ -150,47 +140,41 @@ function HomePage() {
             </h2>
             <span className="text-orange-deep text-xs font-bold tracking-[0.18em] uppercase">the paper trail</span>
           </div>
-          <ol className="flex flex-col">
+          <Accordion>
             {workHistory.map((work) => (
-              <li key={work.company} className="border-violet/35 border-t-2 border-dashed last:border-b-2">
-                <details className="group">
-                  <summary className="flex cursor-pointer list-none items-center gap-4 py-5 sm:gap-6 [&::-webkit-details-marker]:hidden">
-                    <span
-                      className="text-orange-deep shrink-0 text-lg font-bold transition-transform duration-200 ease-out group-open:rotate-90"
-                      aria-hidden="true"
-                    >
-                      →
-                    </span>
+              <AccordionItem key={work.company} value={work.company}>
+                <AccordionTrigger>
+                  <AppIcon className="bg-ink size-10 -rotate-2 p-0.5 shadow-[2px_2px_0_var(--color-violet),inset_0_1px_1px_rgba(255,255,255,0.35),inset_0_0_0_1px_rgba(0,0,0,0.15)]">
                     <img
                       src={work.logo}
                       alt={`${work.company} logo`}
                       loading="lazy"
-                      className="border-ink bg-ink size-10 shrink-0 -rotate-2 rounded-md border-2 object-cover shadow-[2px_2px_0_var(--color-violet)]"
+                      className="size-full rounded-[22%] object-cover"
                     />
-                    <span className="flex min-w-0 flex-1 flex-col gap-1">
-                      <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                        <a
-                          href={work.url}
-                          className="font-display text-violet-deep decoration-orange text-xl font-bold decoration-wavy underline-offset-4 hover:underline"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {work.company}
-                        </a>
-                        {work.companySubtext && (
-                          <span className="text-ink-muted/70 text-xs">{work.companySubtext}</span>
-                        )}
-                      </span>
-                      <span className="text-ink-muted text-sm">
-                        {work.role} · {work.tags.join(" · ")}
-                      </span>
+                  </AppIcon>
+                  <span className="flex min-w-0 flex-1 flex-col gap-1">
+                    <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                      <a
+                        href={work.url}
+                        className="font-display text-violet-deep decoration-orange text-xl font-bold decoration-wavy underline-offset-4 hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {work.company}
+                      </a>
+                      {work.companySubtext && <span className="text-ink-muted/70 text-xs">{work.companySubtext}</span>}
                     </span>
-                    <span className="font-display text-orange-deep ml-auto shrink-0 text-sm font-bold tabular-nums">
-                      {work.date}
+                    <span className="text-ink-muted text-sm">
+                      {work.role} · {work.tags.join(" · ")}
                     </span>
-                  </summary>
-                  <ul className="flex flex-col gap-2 pb-5 pl-10 sm:pl-12">
+                  </span>
+                  <span className="font-display text-orange-deep ml-auto shrink-0 text-sm font-bold tabular-nums">
+                    {work.date}
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <ul className="flex flex-col gap-2">
                     {work.points.map((point) => (
                       <li key={point} className="text-ink-muted flex gap-2 text-sm">
                         <span className="text-orange-deep shrink-0 font-bold" aria-hidden="true">
@@ -200,10 +184,10 @@ function HomePage() {
                       </li>
                     ))}
                   </ul>
-                </details>
-              </li>
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </ol>
+          </Accordion>
         </section>
 
         <section className="animate-reveal flex flex-col gap-2 pb-12 [animation-delay:585ms] motion-reduce:animate-none sm:pb-16">
@@ -226,7 +210,7 @@ function HomePage() {
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span className="flex min-w-0 flex-col gap-1">
-                    <span className="font-display text-violet-deep group-hover:decoration-orange text-xl font-bold break-words underline decoration-transparent decoration-2 underline-offset-4 transition-colors duration-200">
+                    <span className="font-display text-violet-deep group-hover:decoration-orange text-xl font-bold wrap-break-word underline decoration-transparent decoration-2 underline-offset-4 transition-colors duration-200">
                       {project.title}
                     </span>
                     <span className="text-ink-muted text-sm">{project.description}</span>
@@ -262,6 +246,13 @@ function HomePage() {
                     name={social.label}
                     tilt={tilt}
                     ink={ink}
+                    icon={
+                      social.icon ? (
+                        <AppIcon className={social.iconBackground}>
+                          <social.icon />
+                        </AppIcon>
+                      ) : null
+                    }
                     {...(social.modal ? { onClick: () => setOpenModal(social.label) } : { href: social.shortLink[0] })}
                   />
                 );
@@ -270,25 +261,41 @@ function HomePage() {
         </section>
 
         <footer className="animate-reveal border-violet/35 flex flex-col items-center gap-4 border-t-2 border-dashed pt-6 text-center text-xs font-bold [animation-delay:720ms] motion-reduce:animate-none sm:flex-row sm:flex-wrap sm:justify-between sm:text-left">
-          <a
+          <FooterCallout
+            icon={
+              <AppIcon className="size-9 bg-[#1b1f23] [&_svg]:size-6!">
+                <GitHubIcon />
+              </AppIcon>
+            }
             href="/gh/BlankParticle"
-            className="text-violet decoration-orange underline decoration-wavy underline-offset-4"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Made with 💜 by BlankParticle
-          </a>
-          <span className="border-orange-deep text-orange-deep order-last -rotate-2 rounded border-2 border-dashed px-2 py-1 tracking-[0.18em] uppercase sm:order-none">
-            printed on the internet
-          </span>
-          <a
+            label="Made with 💜 by BlankParticle"
+            subtext={`build commit ${import.meta.env.VITE_GIT_HASH}`}
+            subtextHref={
+              import.meta.env.VITE_GIT_HASH === "development"
+                ? `https://github.com/BlankParticle/BlankParticle`
+                : `https://github.com/BlankParticle/BlankParticle/commit/${import.meta.env.VITE_GIT_HASH}`
+            }
+          />
+          <FooterCallout
+            icon={
+              <AppIcon className="size-9 [&_svg]:size-6!">
+                <CloudflareWorkersIcon />
+              </AppIcon>
+            }
+            href="https://workers.cloudflare.com"
+            label="Powered by Cloudflare Workers"
+            subtext="hosted on region earth 🌏"
+          />
+          <FooterCallout
+            icon={
+              <AppIcon className="size-9 [&_svg]:size-6!">
+                <TanStackIcon />
+              </AppIcon>
+            }
             href="https://tanstack.com/start"
-            className="text-violet decoration-orange underline decoration-wavy underline-offset-4"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            🌀 Powered by TanStack Start
-          </a>
+            label="Built with TanStack Start"
+            subtext="the framework for full-stack apps"
+          />
         </footer>
       </main>
 
