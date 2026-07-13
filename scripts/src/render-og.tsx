@@ -78,7 +78,7 @@ function OgImage() {
             </span>
           </div>
           <div style={{ fontSize: 30, color: themedInk.muted }}>
-            software developer at <span style={{ fontWeight: 700, color: themedInk.orangeDeep }}>Iterate</span>
+            software developer <span style={{ fontWeight: 700, color: themedInk.orangeDeep }}>open to work</span>
           </div>
         </div>
 

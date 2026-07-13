@@ -12,10 +12,10 @@ export const workHistory = [
     company: "Iterate",
     logo: IterateLogo,
     url: "https://iterate.com",
-    date: "Jun 2025 — Present",
+    date: "Jun 2025 — Jul 2026",
     tags: ["Full-time", "Remote · UK"],
     points: [
-      "Work across the stack — TanStack Start frontend, daemon backend architecture, build/deploy pipeline, and sandboxed environments for AI agents",
+      "Worked across the stack — TanStack Start frontend, daemon backend architecture, build/deploy pipeline, and sandboxed environments for AI agents",
       "Built MCP servers/clients and a custom OAuth server for authentication",
       "Built integrations like Slack bots, OAuth logins, GitHub Apps, and auth bridges/workers",
       "Built and contributed to ecosystem tooling — safe-durable-objects, workers-sdk, alchemy and more",

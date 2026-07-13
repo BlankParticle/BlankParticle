@@ -83,14 +83,14 @@ function HomePage() {
               >
                 @blankparticle
               </a>
-              online. {age} years old, software developer at{" "}
+              online. {age} years old, software developer{" "}
               <a
-                href="https://iterate.com"
+                href="/resume"
                 className="text-orange-deep decoration-orange font-bold underline decoration-wavy decoration-2 underline-offset-4"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Iterate
+                open to work
               </a>
               , and forever taking software apart to see how it works.
             </p>
