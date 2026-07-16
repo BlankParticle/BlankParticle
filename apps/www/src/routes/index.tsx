@@ -69,7 +69,6 @@ function HomePage() {
       <main className="mx-auto max-w-4xl px-5 pb-16 sm:px-8">
         <header className="animate-reveal border-violet/35 text-violet flex flex-wrap items-center justify-between gap-2 border-b-2 border-dashed py-4 text-xs font-bold tracking-[0.18em] uppercase motion-reduce:animate-none">
           <span>blankparticle.com</span>
-          <span className="text-orange-deep hidden sm:inline">est. 2005 · 100% handmade</span>
           <span>
             my time: <LiveTime /> ist
           </span>
