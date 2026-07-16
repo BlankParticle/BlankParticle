@@ -6,6 +6,7 @@
 @import "@fontsource/karla/latin-700.css";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "./typeset.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -66,11 +67,69 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
+  /* keep wavy/solid underlines continuous through descenders */
+  a {
+    text-decoration-skip-ink: none;
+  }
+
   ::selection {
     @apply bg-orange text-paper;
   }
   * {
     @apply border-border outline-ring/50;
+  }
+}
+
+/* blog prose: riso ink accents layered over typeset defaults */
+@layer components {
+  .typeset :where(a) {
+    @apply text-violet-deep decoration-orange box-decoration-clone font-bold decoration-wavy decoration-2 underline-offset-4;
+  }
+  .typeset :where(pre.shiki) {
+    /* shiki inlines the theme background; pin it to the paper palette instead */
+    background-color: var(--muted) !important;
+    @apply border-ink/15 border;
+  }
+  .typeset :where(img) {
+    @apply border-ink/60 mx-auto rounded-xl border-2;
+  }
+  .typeset :where(blockquote) {
+    @apply border-orange text-ink-muted;
+  }
+  .typeset :where(details.gist-embed) {
+    @apply border-violet/35 rounded-lg border-2 border-dashed;
+    margin-block-start: var(--typeset-flow);
+  }
+  .typeset :where(.gist-embed summary) {
+    @apply text-violet hover:bg-violet/5 flex cursor-pointer flex-wrap items-center gap-2 rounded-md px-4 py-2 text-sm font-bold select-none;
+  }
+  /* display:flex removes the native disclosure marker, so draw our own chevron */
+  .typeset :where(.gist-embed summary)::before {
+    content: "▸";
+    @apply text-orange-deep transition-transform duration-200;
+  }
+  .typeset :where(.gist-embed[open] summary)::before {
+    @apply rotate-90;
+  }
+  .typeset :where(.gist-embed summary)::after {
+    content: "click to expand";
+    @apply text-ink-muted/70 text-[0.65rem] font-normal tracking-[0.18em] uppercase;
+  }
+  .typeset :where(.gist-embed[open] summary)::after {
+    content: "collapse";
+  }
+  .typeset :where(.gist-embed summary code) {
+    @apply bg-transparent p-0;
+  }
+  .typeset :where(.gist-embed summary a) {
+    @apply text-orange-deep text-xs tracking-[0.18em] uppercase;
+  }
+  .typeset :where(.gist-embed summary)::after {
+    @apply ml-auto;
+  }
+  .typeset .gist-embed pre {
+    margin-block-start: 0;
+    @apply rounded-t-none border-x-0 border-b-0;
   }
 }
 

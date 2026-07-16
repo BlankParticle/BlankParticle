@@ -13,6 +13,15 @@ const app = new Hono<{ Bindings: CloudflareEnv }>();
 app.use(async (c, next) => {
   if (import.meta.env.DEV) return next();
   const url = new URL(c.req.url);
+
+  // handle blog redirects
+  if (["blog.blankparticle.in", "blog.blankparticle.com"].includes(url.hostname)) {
+    url.hostname = c.env.TARGET_DOMAIN;
+    url.pathname = `/blog${url.pathname}`;
+    return c.redirect(url, 301);
+  }
+
+  // Redirect all other requests to the target domain
   if (url.hostname !== c.env.TARGET_DOMAIN) {
     url.hostname = c.env.TARGET_DOMAIN;
     return c.redirect(url, 301);

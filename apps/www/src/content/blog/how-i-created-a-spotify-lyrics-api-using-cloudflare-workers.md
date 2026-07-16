@@ -1,0 +1,397 @@
+---
+title: How I created a Spotify Lyrics API using Cloudflare Workers
+description: Creating a Self Hosted Spotify Lyrics API using Cloudflare Workers
+date: 2023-06-12
+tags: cloudflare, javascript, apis, typescript, spotify
+cover: ./images/spotify-lyrics-api-cover.png
+---
+
+> UPDATE: Spotify has disabled access to lyrics on free accounts, so this no longer works
+
+**Context:** I was Working on my Portfolio when it occurred to me that I could add a custom Spotify Widget to my website, So like most developers, I ignored every prebuilt widget and tried creating my own. I thought it would be cool if I could show the lyrics of the song that I am currently listening to. But unfortunately, Spotify doesn't provide any kind of lyrics API. So I decided to take matters into my own hands and make one myself.
+
+> PS: I forgot about my Portfolio 😅, But now I at least have the API.
+
+You can visit my <s>unfinished</s>[portfolio](https://blankparticle.in) and try out [Spot-API](https://spot-api.blankparticle.in/lyrics/4PTG3Z6ehGkBFwjybzWkR8) yourself.
+
+# Finding a Solution
+
+So, as any good developer, I went to read the docs of Spotify, and I have only one thing to say, "those are bad". I couldn't find any reference to lyrics in entire docs.
+
+## Doing a little bit of Googling
+
+So, I just googled it and found this on [StackOverflow](https://stackoverflow.com/questions/73704499/get-lyrics-data-from-spotify). We can request this to get the lyrics of any given `track_id`.
+
+```typescript
+const url = `https://spclient.wg.spotify.com/color-lyrics/v2/track/${track_id}?format=json&vocalRemoval=false`;
+let req = await fetch(url, {
+  headers: {
+    "app-platform": "WebPlayer",
+    authorization: `Bearer ${ACCESS_TOKEN}`,
+  },
+});
+
+let lyrics = await req.json();
+console.log(lyrics);
+```
+
+## Finding Access Token
+
+As you can see this request would work if we had the `ACCESS_TOKEN`, and let me tell you that none of the tokens listed in Spotify docs works.  
+So, the solution is to do a little bit of observation in Spotify Web Player's Network tab, We can see that we can get an access token by requesting [https://open.spotify.com/get_access_token](https://open.spotify.com/get_access_token), but this token is very short-lived. It expires after an hour.
+
+The response looks like this,
+
+```json
+{
+  "clientId": "some-hexadecimal-number",
+  "accessToken": "some-random-token",
+  "accessTokenExpirationTimestampMs": 1686510137991,
+  "isAnonymous": false
+}
+```
+
+## Renewing Access Token
+
+We could just request again, but trying to do that from a `fetch` function returns a `accessToken` which is anonymous, that token is not useful. So how do we get a proper `accessToken`?
+
+### Enter Spotify User Cookie
+
+Spotify User Cookie known as `sp_dc` is a Cookie that can be used to control your whole Spotify account, it is the only way to get a token capable of using the lyrics API. But you wouldn't want this kind of thing to be embedded in your front-end code. That's why we are going to create a serverless function that can do this for us without exposing any sensitive information to the client.
+
+### Obtaining the sp_dc Cookie
+
+To obtain a `sp_dc` cookie you would likely want to create a new Spotify account so that even if your cookie gets leaked it doesn't affect you. Then you need to open a Private/Incognito Tab so that you don't accidentally log out and invalidate your Cookie.
+
+- First [Log](https://open.spotify.com/) Into your newly made account in a Private Tab
+- Then open DevTools by pressing `Ctrl+Shift+I` (or the binding specific to your OS/Browser)
+- Goto `Application` Tab in Chrome (or any other Chromium-based browser) and find the `sp_dc` Cookie and Copy the value, Alternatively goto `Storage` Tab in Firefox and do the same
+- Now close the Tab without logging out
+
+Congratulations! You have obtained a Spotify User Cookie. Now this Cookie is valid for a year or until you revoke/log out of your Spotify Account. You need to keep an eye on this and act accordingly.
+
+## Minimal Implementation
+
+After finding this I went to create a minimal solution, at that time I was working with Svelte, So I just created a Svelte Kit Project and added an API route with my findings. This Code is available in the [`legacy` branch of my repo](https://github.com/BlankParticle/spotapi/tree/legacy).
+
+<details class="gist-embed">
+<summary><code>+server.ts</code> · <a href="https://gist.github.com/BlankParticle/693a93794478fd82b97c1fcd463836f6" target="_blank" rel="noopener noreferrer">view gist →</a></summary>
+
+```typescript
+// This Code used in a SvelteKit Server API route
+import { SP_DC } from "$env/static/private";
+
+import type { RequestHandler } from "./$types";
+
+type Data = {
+  clientId: string;
+  accessToken: string;
+  accessTokenExpirationTimestampMs: number;
+  isAnonymous: boolean;
+};
+
+export const GET = (async ({ params }) => {
+  try {
+    if (!process.env.ACCESS_TOKEN || Date.now() >= Number(process.env.ACCESS_TOKEN_EXPIRY)) {
+      const data: Data = await (
+        await fetch("https://open.spotify.com/get_access_token", {
+          headers: {
+            Cookie: `sp_dc=${SP_DC}`,
+          },
+        })
+      ).json();
+      process.env.ACCESS_TOKEN = data.accessToken;
+      process.env.ACCESS_TOKEN_EXPIRY = data.accessTokenExpirationTimestampMs;
+    }
+    const url = `https://spclient.wg.spotify.com/color-lyrics/v2/track/${params.track}?format=json&vocalRemoval=false`;
+    const lyrics = await (
+      await fetch(url, {
+        headers: {
+          "app-platform": "WebPlayer",
+          authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+        },
+      })
+    ).text();
+    return new Response(lyrics === "" ? JSON.stringify({ error: "Lyrics Not found" }) : lyrics, {
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+      },
+    });
+  } catch (e) {
+    console.error(e);
+    return new Response(JSON.stringify({ error: "Unknown Error Occurred!" }), {
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+      },
+    });
+  }
+}) satisfies RequestHandler;
+```
+
+</details>
+
+As You can see this code works within a Svelte API route.
+
+## Creating a Better Solution
+
+As you can already tell deploying a SvelteKit App for only one API route is not the best idea. I opted in for Cloudflare Workers as I have been wanting to learn those. I also used the [Hono Library](https://hono.dev/) as it makes handling paths easier.
+
+So first we need to create a Cloudflare Worker Project.
+
+```bash
+pnpm create cloudflare@latest # Create a cloudflare Project
+```
+
+Then `cd` into your newly created project and install `Hono`.
+
+```bash
+pnpm add hono
+```
+
+Now, open `src/index.ts`, delete boilerplate code and create a basic app
+
+```typescript
+import { Hono } from "hono";
+
+const app = new Hono();
+
+app.get("/", async (ctx) => {
+    ctx.text("This works!")
+}
+
+export default app;
+```
+
+Now run your app locally and navigate to `https://localhost:8787/`
+
+```bash
+pnpm wrangler dev
+```
+
+If all of this works you would see "This Works!" in your browser.
+
+Now remove the `"/"` route and replace it with `"/lyrics/:track_id"`, then edit the route like this.
+
+```typescript
+app.get("/lyrics/:track_id", async (ctx) => {
+    let { track_id } = ctx.req.params();
+    ctx.text(track_id);
+}
+```
+
+If you go to `https://localhost:8787/lyrics/any-track-id` then you would see "any-track-id" on the page which means we can get parameters from the requested URL.
+
+We need to use the `SPOTIFY_COOKIE` safely in our app, so we need to create a `.dev.vars` file in the project root and our Cookie like this.
+
+```bash
+SPOTIFY_COOKIE=your-spotify-cookie
+```
+
+Then we need to edit our app like this and restart the dev server to have access to secret variables, it works like a `.env` file.
+
+```typescript
+//--snip--
+type Bindings = {
+  SPOTIFY_COOKIE: string;
+};
+
+const app = new Hono<{ Bindings: Bindings }>();
+// You can access this value in a request with `ctx.env.SPOTIFY_COOKIE`
+
+// We create these two global variables which we will need later
+let ACCESS_TOKEN: string | null = null;
+let ACCESS_TOKEN_EXPIRY: number = Date.now();
+//--snip--
+```
+
+Now we can try to request a `accessToken` like this.
+
+```typescript
+const predefinedRequestHeaders = {
+  "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/114.0",
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+  "Accept-Language": "en-US,en;q=0.5",
+  "Alt-Used": "open.spotify.com",
+  "Upgrade-Insecure-Requests": "1",
+  "Sec-Fetch-Dest": "document",
+  "Sec-Fetch-Mode": "navigate",
+  "Sec-Fetch-Site": "cross-site",
+};
+
+const raw_data = await (
+  await fetch("https://open.spotify.com/get_access_token", {
+    headers: {
+      ...predefinedRequestHeaders,
+      Cookie: `sp_dc=${ctx.env.SPOTIFY_COOKIE}`,
+    },
+  })
+).text();
+
+try {
+  const data: AccessTokenAPIData = JSON.parse(raw_data);
+  ACCESS_TOKEN = data.accessToken;
+  ACCESS_TOKEN_EXPIRY = data.accessTokenExpirationTimestampMs;
+} catch (e) {
+  console.log(e, raw_data);
+  return new Response(JSON.stringify({ error: "Unknown Error Occurred!" }), {
+    headers: { "content-type": "application/json; charset=utf-8" },
+    status: 500,
+  });
+}
+```
+
+Through this, we will get the `ACCESS_TOKEN` and `ACCESS_TOKEN_EXPIRY` and save those in global variables for caching. With this, we can skip requesting new tokens on every request.
+
+```typescript
+if (!ACCESS_TOKEN || ACCESS_TOKEN_EXPIRY <= Date.now()) {
+  // Request new token
+}
+// otherwise continue with old one
+```
+
+> Also, as you have seen we need a bunch of headers in the request which are defined in `predefinedRequestHeaders`, without these headers we will get a `403 Forbidden` error, So we need to include these with every request.
+
+Now finally we can hit the Lyrics API and retrieve the lyrics of the song.
+
+```typescript
+const url = `https://spclient.wg.spotify.com/color-lyrics/v2/track/${track_id}?format=json&vocalRemoval=false`;
+const lyrics = await (
+  await fetch(url, {
+    headers: {
+      "app-platform": "WebPlayer",
+      authorization: `Bearer ${ACCESS_TOKEN}`,
+    },
+  })
+).text();
+
+return new Response(lyrics === "" ? JSON.stringify({ error: "Lyrics are not available for this song" }) : lyrics, {
+  headers: { "content-type": "application/json; charset=utf-8" },
+  status: lyrics === "" ? 404 : 200,
+});
+```
+
+> To get the `track_id` of any song you could just share the song link and use the last part of the URL or you can set up another service that will give you the currently playing song. I am not going to cover that.
+
+And like this now we have a working Spotify Lyrics API, full code with a bunch of improvements and checks is available in [my GitHub repo](https://github.com/BlankParticle/spotapi/). Feel free to check that and suggest improvements. Also, **Star** my GitHub repo as it helps a ton.
+
+<details class="gist-embed">
+<summary><code>index.ts</code> · <a href="https://gist.github.com/BlankParticle/5ba850b05be3595a2b4dab335dc41973" target="_blank" rel="noopener noreferrer">view gist →</a></summary>
+
+```typescript
+// This Code is used in a Cloudflare Worker
+// This uses 'Hono' framework
+
+import { Hono } from "hono";
+
+type Bindings = {
+  SPOTIFY_COOKIE: string;
+};
+
+const predefinedRequestHeaders = {
+  "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/114.0",
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+  "Accept-Language": "en-US,en;q=0.5",
+  "Alt-Used": "open.spotify.com",
+  "Upgrade-Insecure-Requests": "1",
+  "Sec-Fetch-Dest": "document",
+  "Sec-Fetch-Mode": "navigate",
+  "Sec-Fetch-Site": "cross-site",
+};
+
+const predefinedResponseHeaders = {
+  "content-type": "application/json; charset=utf-8",
+};
+
+const app = new Hono<{ Bindings: Bindings }>();
+
+let ACCESS_TOKEN: string | null = null;
+let ACCESS_TOKEN_EXPIRY: number = Date.now();
+
+type AccessTokenAPIData = {
+  clientId: string;
+  accessToken: string;
+  accessTokenExpirationTimestampMs: number;
+  isAnonymous: boolean;
+};
+
+app.get("/lyrics/:track_id", async (c) => {
+  if (!c.env.SPOTIFY_COOKIE) {
+    return new Response(JSON.stringify({ error: "API hasn't been setup correctly" }), {
+      headers: predefinedResponseHeaders,
+      status: 500,
+    });
+  }
+
+  try {
+    if (!ACCESS_TOKEN || ACCESS_TOKEN_EXPIRY <= Date.now()) {
+      console.log("[DEBUG] Getting token");
+      const raw_data = await (
+        await fetch("https://open.spotify.com/get_access_token", {
+          headers: {
+            ...predefinedRequestHeaders,
+            Cookie: `sp_dc=${c.env.SPOTIFY_COOKIE}`,
+          },
+        })
+      ).text();
+      try {
+        const data: AccessTokenAPIData = JSON.parse(raw_data);
+        ACCESS_TOKEN = data.accessToken;
+        ACCESS_TOKEN_EXPIRY = data.accessTokenExpirationTimestampMs;
+      } catch (e) {
+        console.log(e, raw_data);
+        return new Response(JSON.stringify({ error: "Unknown Error Occurred!" }), {
+          headers: predefinedResponseHeaders,
+          status: 500,
+        });
+      }
+    }
+
+    const { track_id } = c.req.param();
+    const url = `https://spclient.wg.spotify.com/color-lyrics/v2/track/${track_id}?format=json&vocalRemoval=false`;
+    const lyrics = await (
+      await fetch(url, {
+        headers: {
+          "app-platform": "WebPlayer",
+          authorization: `Bearer ${ACCESS_TOKEN}`,
+        },
+      })
+    ).text();
+
+    return new Response(lyrics === "" ? JSON.stringify({ error: "Lyrics are not available for this song" }) : lyrics, {
+      headers: predefinedResponseHeaders,
+      status: lyrics === "" ? 404 : 200,
+    });
+  } catch (e) {
+    console.log(e);
+    return new Response(JSON.stringify({ error: "Unknown Error Occurred!" }), {
+      headers: predefinedResponseHeaders,
+      status: 500,
+    });
+  }
+});
+
+app.get("*", (c) =>
+  c.json(
+    {
+      error: "Bad Request, Try Requesting to /lyrics/<spotify_track_id>",
+    },
+    404,
+  ),
+);
+
+export default app;
+```
+
+</details>
+
+## The Final Part: Deployment
+
+You can check [deployment instructions](https://github.com/BlankParticle/spotapi#deploy-to-cloudflare-worker) on the GitHub repo, so I am not repeating that part here.
+
+# Conclusion
+
+As this is not a part of the Official part of Spotify API, it is advised to use this personal project only.
+
+Also, this is my first blog post so feel free to correct me, You can also connect to me via [Discord](https://blankparticle.in/discord).
+
+**it's Blank Particle, Signing Out** 👋

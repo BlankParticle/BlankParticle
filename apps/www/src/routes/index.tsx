@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { CloudflareWorkersIcon, GitHubIcon, TanStackIcon } from "@/assets/social-icons.tsx";
@@ -9,7 +9,7 @@ import { Marquee } from "@/components/marquee.tsx";
 import { SocialSticker } from "@/components/social-sticker.tsx";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { projects, socials, workHistory } from "@/lib/data.ts";
+import { personLd, projects, socials, workHistory } from "@/lib/data.ts";
 
 const tickerWords = [
   "curious",
@@ -48,6 +48,14 @@ const stickerInks = [
 ];
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({ "@context": "https://schema.org", ...personLd }),
+      },
+    ],
+  }),
   component: HomePage,
 });
 
@@ -79,7 +87,7 @@ function HomePage() {
               also known as
               <a
                 href="/gh"
-                className="text-ink before:bg-lime relative mx-1 inline-block font-bold before:absolute before:inset-x-[-3px] before:inset-y-px before:-z-10 before:-rotate-1 hover:before:rotate-1"
+                className="text-ink before:bg-lime relative mx-1 inline-block font-bold before:absolute before:-inset-x-0.75 before:inset-y-px before:-z-10 before:-rotate-1 hover:before:rotate-1"
               >
                 @blankparticle
               </a>
@@ -92,7 +100,14 @@ function HomePage() {
               >
                 open to work
               </a>
-              , and forever taking software apart to see how it works.
+              , and forever taking software apart to see how it works. Sometimes I write about it on
+              <Link
+                to="/blog"
+                className="decoration-orange hover:text-ink ml-1 underline decoration-wavy decoration-2 underline-offset-4 transition-colors"
+              >
+                the blog
+              </Link>{" "}
+              too.
             </p>
             <div className="animate-reveal flex flex-wrap items-center gap-4 pt-2 [animation-delay:360ms] motion-reduce:animate-none">
               <Button variant="violet" onClick={() => setOpenModal("Email")}>

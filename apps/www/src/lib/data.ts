@@ -122,12 +122,6 @@ export const socials: Social[] = [
     shortLink: ["/gh", "/github"],
   },
   {
-    label: "Blog",
-    icon: HashnodeIcon,
-    url: "https://blog.blankparticle.in",
-    shortLink: ["/blog"],
-  },
-  {
     label: "LinkedIn",
     iconBackground: "bg-[#0A66C2]",
     icon: LinkedInIcon,
@@ -142,6 +136,7 @@ export const socials: Social[] = [
   },
   {
     label: "Hashnode",
+    icon: HashnodeIcon,
     url: "https://hashnode.com/@BlankParticle",
     shortLink: ["/hashnode"],
     showAsSticker: false,
@@ -159,6 +154,16 @@ export const socials: Social[] = [
     showAsSticker: false,
   },
 ];
+
+export const personLd = {
+  "@type": "Person",
+  name: "Rahul Mishra",
+  alternateName: "BlankParticle",
+  url: "https://blankparticle.com",
+  image: "https://blankparticle.com/me.png",
+  jobTitle: "Software Developer",
+  sameAs: socials.filter((social) => !["Email", "Cal", "Resume"].includes(social.label)).map((social) => social.url),
+};
 
 export const sshPublicKeys = {
   BlankParticle: [

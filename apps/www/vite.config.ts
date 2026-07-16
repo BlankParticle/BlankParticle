@@ -19,6 +19,8 @@ export default defineConfig({
           "blankparticle.in",
           "www.blankparticle.in",
           "rx2.dev",
+          "blog.blankparticle.in",
+          "blog.blankparticle.com",
         ].map((pattern) => ({ custom_domain: true, pattern })),
         vars: {
           TARGET_DOMAIN: "blankparticle.com",
