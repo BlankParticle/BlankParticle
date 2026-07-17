@@ -1,14 +1,13 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 
 import { LiveTime } from "@/components/live-time.tsx";
-import { resolveBlogImage } from "@/lib/blog-images.ts";
-import { fetchBlogPost } from "@/lib/blog.ts";
+import { ALL_BLOG_POSTS } from "@/lib/blog-content.ts";
 import { personLd } from "@/lib/data.ts";
 import { formatPostDate } from "@/lib/utils.ts";
 
 export const Route = createFileRoute("/blog/$slug")({
-  loader: async ({ params }) => {
-    const post = await fetchBlogPost({ data: params.slug });
+  loader: ({ params }) => {
+    const post = ALL_BLOG_POSTS.find((post) => post.slug === params.slug);
     if (!post) throw notFound();
     return post;
   },
@@ -22,8 +21,14 @@ export const Route = createFileRoute("/blog/$slug")({
           { property: "og:type", content: "article" },
           ...(post.cover
             ? [
-                { property: "og:image", content: `https://blankparticle.com${resolveBlogImage(post.cover)}` },
-                { name: "twitter:image", content: `https://blankparticle.com${resolveBlogImage(post.cover)}` },
+                {
+                  property: "og:image",
+                  content: post.cover,
+                },
+                {
+                  name: "twitter:image",
+                  content: post.cover,
+                },
               ]
             : []),
           { name: "twitter:title", content: post.title },
@@ -43,7 +48,7 @@ export const Route = createFileRoute("/blog/$slug")({
               url: `https://blankparticle.com/blog/${post.slug}`,
               mainEntityOfPage: `https://blankparticle.com/blog/${post.slug}`,
               keywords: post.tags.join(", "),
-              ...(post.cover ? { image: `https://blankparticle.com${resolveBlogImage(post.cover)}` } : {}),
+              ...(post.cover ? { image: post.cover } : {}),
               author: personLd,
               publisher: personLd,
             }),
@@ -79,14 +84,14 @@ function BlogPostPage() {
         </div>
         {post.cover && (
           <img
-            src={resolveBlogImage(post.cover)}
+            src={post.cover}
             alt=""
             className="animate-reveal border-ink mt-6 w-full rotate-[0.5deg] rounded-2xl border-2 shadow-[4px_4px_0_var(--color-violet)] [animation-delay:180ms] motion-reduce:animate-none"
           />
         )}
         <div
           className="typeset animate-reveal pt-4 [animation-delay:270ms] motion-reduce:animate-none"
-          dangerouslySetInnerHTML={{ __html: post.html }}
+          dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </article>
 

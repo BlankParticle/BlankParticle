@@ -1,10 +1,15 @@
-export const blogImages = import.meta.glob("../content/blog/images/*", {
-  query: "?url",
-  import: "default",
-  eager: true,
-}) as Record<string, string>;
+export const ALL_IMAGES_IMPORT_MAP = Object.fromEntries(
+  Object.entries(
+    import.meta.glob("../content/blog/images/*", {
+      query: "?url",
+      eager: true,
+      import: "default",
+    }),
+  ).map(([path, url]) => [path.replace("../content/blog/", "./"), url]),
+) as Record<string, string>;
 
-/** Resolves a `./images/...` path from a blog post to its bundled asset URL. */
-export function resolveBlogImage(path: string) {
-  return blogImages[path.replace(/^\.\//, "../content/blog/")] ?? path;
-}
+export const resolveImageUrl = (relativePath: string) => {
+  const resolvedUrl = ALL_IMAGES_IMPORT_MAP[relativePath];
+  if (!resolvedUrl) throw new Error(`Failed to resolve image URL for path: ${relativePath}`);
+  return resolvedUrl;
+};

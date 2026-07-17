@@ -76,9 +76,7 @@ function OgImage() {
               @blankparticle
             </span>
           </div>
-          <div style={{ fontSize: 30, color: themedInk.muted }}>
-            software developer
-          </div>
+          <div style={{ fontSize: 30, color: themedInk.muted }}>software developer</div>
         </div>
 
         <div style={{ position: "relative", display: "flex", transform: "rotate(2deg)" }}>

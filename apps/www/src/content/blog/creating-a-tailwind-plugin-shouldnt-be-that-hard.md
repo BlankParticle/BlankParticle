@@ -2,7 +2,7 @@
 title: Creating a tailwind plugin shouldn't be that hard, right?
 description: How I built tailwind-plugin-realtime-colors and everything I learned about creating tailwind plugins along the way
 date: 2023-12-08
-tags: plugins, npm, typescript, tailwind-css
+tags: [plugins, npm, typescript, tailwind-css]
 cover: ./images/tailwind-plugin-cover.jpeg
 ---
 

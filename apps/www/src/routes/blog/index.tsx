@@ -1,16 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { LiveTime } from "@/components/live-time.tsx";
-import { fetchBlogPosts } from "@/lib/blog.ts";
+import { ALL_BLOG_POSTS } from "@/lib/blog-content.ts";
 import { personLd } from "@/lib/data.ts";
 import { formatPostDate } from "@/lib/utils.ts";
 
 export const Route = createFileRoute("/blog/")({
-  loader: () => fetchBlogPosts(),
+  loader: () => [...ALL_BLOG_POSTS].sort((a, b) => (a.date < b.date ? 1 : -1)),
   head: () => ({
     meta: [
       { title: "blog · blankparticle" },
-      { name: "description", content: "Things I wrote down so I wouldn't have to figure them out twice." },
+      {
+        name: "description",
+        content: "Things I wrote down so I wouldn't have to figure them out twice.",
+      },
     ],
     scripts: [
       {

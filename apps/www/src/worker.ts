@@ -13,6 +13,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>();
 app.use(async (c, next) => {
   if (import.meta.env.DEV) return next();
   const url = new URL(c.req.url);
+  if (url.hostname === "localhost" || url.hostname === "127.0.0.1") return next();
 
   // handle blog redirects
   if (["blog.blankparticle.in", "blog.blankparticle.com"].includes(url.hostname)) {

@@ -2,7 +2,7 @@
 title: Redirecting Your Domains using Cloudflare
 description: Learn how you can redirect your old domain to a new domain along with all sub-domains of your old domain just by using cloudflare for free
 date: 2023-08-13
-tags: dns, cloudflare, javascript, web-development
+tags: [dns, cloudflare, javascript, web-development]
 ---
 
 > I was not available for some time, so I haven't written about anything in a long time, recently I bought a [new domain](https://blankparticle.in) so I had to redirect my old domain and its subdomains to my new domain, This small blog is about how to do that.

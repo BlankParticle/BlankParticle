@@ -1,6 +1,5 @@
+import { cn } from "cnfast";
 import type { ComponentProps } from "react";
-
-import { cn } from "@/lib/utils";
 
 export function AppIcon({ className, children, ...props }: ComponentProps<"span">) {
   return (

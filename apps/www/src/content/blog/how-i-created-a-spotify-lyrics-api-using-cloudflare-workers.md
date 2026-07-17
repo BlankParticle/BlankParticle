@@ -2,7 +2,7 @@
 title: How I created a Spotify Lyrics API using Cloudflare Workers
 description: Creating a Self Hosted Spotify Lyrics API using Cloudflare Workers
 date: 2023-06-12
-tags: cloudflare, javascript, apis, typescript, spotify
+tags: [cloudflare, javascript, apis, typescript, spotify]
 cover: ./images/spotify-lyrics-api-cover.png
 ---
 

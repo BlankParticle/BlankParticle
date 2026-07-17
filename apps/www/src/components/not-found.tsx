@@ -32,7 +32,7 @@ export function NotFound() {
 
         <p className="animate-reveal text-ink-muted max-w-md text-base [animation-delay:180ms] motion-reduce:animate-none">
           This page got lost in the print run. Maybe it was never
-          <span className="text-ink before:bg-lime relative mx-1 inline-block font-bold before:absolute before:inset-x-[-3px] before:inset-y-px before:-z-10 before:-rotate-1">
+          <span className="text-ink before:bg-lime relative mx-1 inline-block font-bold before:absolute before:-inset-x-0.75 before:inset-y-px before:-z-10 before:-rotate-1">
             printed
           </span>
           at all.
