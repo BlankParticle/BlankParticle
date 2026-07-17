@@ -16,11 +16,11 @@
     "@fontsource/bricolage-grotesque": "^5.2.10",
     "@fontsource/karla": "^5.2.8",
     "@shikijs/rehype": "^4.3.1",
-    "@tanstack/react-router": "^1.170.17",
-    "@tanstack/react-start": "^1.168.27",
+    "@tanstack/react-router": "^1.170.18",
+    "@tanstack/react-start": "^1.168.28",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "hono": "^4.12.29",
+    "hono": "^4.12.30",
     "lucide-react": "^1.24.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
@@ -37,8 +37,8 @@
     "unified": "^11.0.5"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.44.0",
-    "@cloudflare/workers-types": "^5.20260710.1",
+    "@cloudflare/vite-plugin": "^1.45.0",
+    "@cloudflare/workers-types": "^5.20260716.1",
     "@tailwindcss/vite": "4.3.2",
     "@types/node": "^26.1.1",
     "@types/react": "^19.2.17",
@@ -48,6 +48,6 @@
     "tailwindcss-spring": "^1.0.1",
     "typescript": "^6.0.3",
     "vite": "8.1.3",
-    "wrangler": "^4.110.0"
+    "wrangler": "^4.111.0"
   }
 }

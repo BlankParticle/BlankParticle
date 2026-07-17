@@ -36,7 +36,6 @@ function OgImage() {
         }}
       >
         <div>BLANKPARTICLE.COM</div>
-        <div style={{ color: themedInk.orangeDeep }}>EST. 2005 · 100% HANDMADE</div>
       </div>
 
       <div
@@ -78,7 +77,7 @@ function OgImage() {
             </span>
           </div>
           <div style={{ fontSize: 30, color: themedInk.muted }}>
-            software developer <span style={{ fontWeight: 700, color: themedInk.orangeDeep }}>open to work</span>
+            software developer
           </div>
         </div>
 
