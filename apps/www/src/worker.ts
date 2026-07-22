@@ -1,60 +1,41 @@
 import tanstackHandler from "@tanstack/react-start/server-entry";
-import { Hono } from "hono";
-import { trimTrailingSlash } from "hono/trailing-slash";
-
-import { socials, sshPublicKeys } from "./lib/data.ts";
 
 export type CloudflareEnv = {
   TARGET_DOMAIN: string;
+  BLOG_DOMAINS: string[];
 };
 
-const app = new Hono<{ Bindings: CloudflareEnv }>();
+export default {
+  async fetch(request, env, ctx) {
+    const url = new URL(request.url);
 
-app.use(async (c, next) => {
-  if (import.meta.env.DEV) return next();
-  const url = new URL(c.req.url);
-  if (url.hostname === "localhost" || url.hostname === "127.0.0.1") return next();
+    // Trim Trailing Slash
+    if ((request.method === "GET" || request.method === "HEAD") && url.pathname !== "/" && url.pathname.endsWith("/")) {
+      url.pathname = url.pathname.slice(0, -1);
+      return Response.redirect(url, 301);
+    }
 
-  // handle blog redirects
-  if (["blog.blankparticle.in", "blog.blankparticle.com"].includes(url.hostname)) {
-    url.hostname = c.env.TARGET_DOMAIN;
-    url.pathname = `/blog${url.pathname}`;
-    return c.redirect(url, 301);
-  }
+    // Redirect to Target Domain
+    if (
+      !import.meta.env.DEV &&
+      url.hostname !== "localhost" &&
+      url.hostname !== "127.0.0.1" &&
+      url.hostname !== "::1"
+    ) {
+      if (env.BLOG_DOMAINS.includes(url.hostname)) {
+        url.hostname = env.TARGET_DOMAIN;
+        url.pathname = `/blog${url.pathname}`;
+        return Response.redirect(url, 301);
+      }
 
-  // Redirect all other requests to the target domain
-  if (url.hostname !== c.env.TARGET_DOMAIN) {
-    url.hostname = c.env.TARGET_DOMAIN;
-    return c.redirect(url, 301);
-  }
-  return next();
-});
+      if (url.hostname !== env.TARGET_DOMAIN) {
+        url.hostname = env.TARGET_DOMAIN;
+        return Response.redirect(url, 301);
+      }
+    }
 
-app.use(trimTrailingSlash());
-
-app.use("*", async (c, next) => {
-  const path = c.req.path;
-  if (path.startsWith("/gh/") || path.startsWith("/github/"))
-    return c.redirect(`https://github.com/BlankParticle/${path.slice(path.lastIndexOf("/") + 1)}`, 301);
-
-  const match = socials.find((social) => social.shortLink.includes(path));
-  if (match) return c.redirect(match.url, 301);
-  return next();
-});
-
-app.get("/keys", async (c) => {
-  if (typeof c.req.query("json") === "string") return c.json(sshPublicKeys);
-  return c.text(
-    Object.entries(sshPublicKeys)
-      .map(([username, [publicKey, email]]) => `${username} ${publicKey} ${email}`)
-      .join("\n"),
-  );
-});
-
-app.use("*", async (c) =>
-  tanstackHandler.fetch(c.req.raw, {
-    context: { cf: { env: c.env, ctx: c.executionCtx as ExecutionContext<unknown> } },
-  }),
-);
-
-export default app;
+    return tanstackHandler.fetch(request, {
+      context: { cf: { env, ctx } },
+    });
+  },
+} satisfies ExportedHandler<CloudflareEnv>;
