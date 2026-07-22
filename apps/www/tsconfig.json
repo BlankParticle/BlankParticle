@@ -9,8 +9,7 @@
     "resolveJsonModule": true,
     "paths": {
       "@/*": ["./src/*"],
-      "content-collections": ["./.content-collections/generated"]
+      "collections/*": ["./.source/*"]
     }
-  },
-  "exclude": ["src/content"]
+  }
 }

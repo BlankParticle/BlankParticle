@@ -3,12 +3,14 @@ title: Creating a tailwind plugin shouldn't be that hard, right?
 description: How I built tailwind-plugin-realtime-colors and everything I learned about creating tailwind plugins along the way
 date: 2023-12-08
 tags: [plugins, npm, typescript, tailwind-css]
-cover: ./images/tailwind-plugin-cover.jpeg
+cover: /images/blog/tailwind-plugin-cover.webp
 ---
+
+import { Callout } from "@/components/callout.tsx";
 
 Recently, I came across a site called [RealtimeColors.com](https://www.realtimecolors.com/), It's a pretty cool site that helps you choose colors for your site and visualize them on a real site.
 
-![A Demo of Realtime Colors](./images/realtime-colors-demo.gif)
+![A Demo of Realtime Colors](/images/blog/realtime-colors-demo.webp)
 
 The site provides an export for tailwind, but it's tedious to copy and set up everything and change the colors later. So, _as a developer myself_, I spent 2 days automating a task that would **hardly** take 2 minutes of my life. The result is [`tailwind-plugin-realtime-colors`](https://www.npmjs.com/package/tailwind-plugin-realtime-colors). Please consider [giving a star](https://github.com/BlankParticle/tailwind-plugin-realtime-colors) to the repo.
 
@@ -18,7 +20,7 @@ Sit tight, as this is gonna be a long ride.
 
 TailwindCSS provides a [Plugin API](https://tailwindcss.com/docs/plugins). It is not that intuitive, to be honest. Here is a snippet they provide on their site.
 
-```typescript
+```ts
 const plugin = require("tailwindcss/plugin");
 
 module.exports = {
@@ -32,12 +34,12 @@ module.exports = {
 
 At a glance you can't understand what the _f\*ck_ is going on, but here is what It actually means in ES6 syntax.
 
-```typescript
+```ts
 // tailwind.config.ts
 import plugin from "tailwindcss/plugin";
 
-const somePlugin = plugin(({ addUtilites }) => {
-  addUtilites(/*...*/);
+const somePlugin = plugin(({ addUtilities }) => {
+  addUtilities(/*...*/);
   //...
 });
 
@@ -52,7 +54,7 @@ export default {
 
 So, I started working on the plugin in a file called `realtime-colors.ts` in the project directory. I wanted to achieve this kind of configuration.
 
-```typescript
+```ts
 import realtimeColors from "./realtime-colors.ts";
 
 export default {
@@ -66,7 +68,7 @@ export default {
 
 I wrote some type definitions and function signatures for the starter.
 
-```typescript
+```ts
 // realtime-colors.ts
 import plugin from "tailwindcss/plugin";
 
@@ -110,7 +112,7 @@ Now I check if the first option is a `string`, then I parse the URL, extract the
 
 Now for the actual plugin, I have an arrow function called `realtimeColorsPlugin`.
 
-```typescript
+```ts
 const realtimeColorsPlugin = plugin.withOptions<RealtimeColorOptions>(
   (options) =>
     ({ addBase }) =>
@@ -137,9 +139,9 @@ A modifier is an object with keys `50|100|200|300|400|500|600|700|800|900|950`, 
 If you haven't guessed already, they take `RGB` colors and modifies the color.  
 As of version `1.1.1` of the plugin It has [2 types of modifiers](https://github.com/BlankParticle/tailwind-plugin-realtime-colors/blob/f585af8e85ffbcc64f22c3cbd3b7d678043398df/src/plugin.ts#L25), one is `realtimeColors` which uses the same algorithm as RealtimeColors.com to create the shades of the given colors. Personally, I don't like the shades created by this algorithm. So there is an alternative modifier called `tailwind` which is the default for this plugin.
 
-![](./images/realtime-colors-shades.png)
+![Shades by RealtimeColors.com](/images/blog/realtime-colors-shades.webp)
 
-![](./images/tailwind-shades.png)
+![Shades by Tailwind CSS](/images/blog/tailwind-shades.webp)
 
 You can use whatever algorithm you like, but remember the color you selected is not present in `realtimeColors` shades, but it is present in `tailwind` shades as `500`.
 
@@ -174,19 +176,19 @@ The variables are just values without the color function.
 }
 ```
 
-<div data-node-type="callout">
-<div data-node-type="callout-emoji">🚧</div>
-<div data-node-type="callout-text">At first, I wrote my own functions for color conversion, It was a mess and they were terribly inaccurate. I suggest using an established library like <a target="_blank" rel="noopener noreferrer nofollow" href="https://www.npmjs.com/package/color-convert" style="pointer-events: none"><code>color-convert</code></a> to handle these tasks.</div>
-</div>
+<Callout emoji="🚧">
+  At first, I wrote my own functions for color conversion, It was a mess and they were terribly inaccurate. I suggest
+  using an established library like [`color-convert`](https://www.npmjs.com/package/color-convert) to handle these
+  tasks.
+</Callout>
 
 #### `getTheme` function
 
 It is responsible for adding the colors in the tailwind config. If `theme` is set to `false` then it embeds the color directly in the config. Otherwise, it uses the variables from `getCSS` with the proper color function.
 
-<div data-node-type="callout">
-<div data-node-type="callout-emoji">💡</div>
-<div data-node-type="callout-text">For some reason <code>rgb</code> doesn't support alpha values with CSS Variables. This problem doesn't happen with <code>hsl</code>,<code>lch</code> or <code>lab</code>. The fix is to use <code>rgba</code> instead of <code>rgb</code>. For other formats than <code>rgba</code>, we can also use <code>&lt;alpha-value&gt;</code> like <code>hsl(var(--text) / &lt;alpha-value&gt;)</code>, even tho it works without it, but it's still recommended.</div>
-</div>
+<Callout emoji="💡">
+For some reason `rgb` doesn't support alpha values with CSS Variables. This problem doesn't happen with `hsl`,`lch` or `lab`. The fix is to use `rgba` instead of `rgb`. For other formats than `rgba`, we can also use `<alpha-value>` like `hsl(var(--text) / <alpha-value>)`, even tho it works without it, but it's still recommended.
+</Callout>
 
 And just like that you have your very own TailwindCSS Plugin. Obviously, I skipped a lot of details and implementations. You can visit my [GitHub Repo](https://github.com/BlankParticle/tailwind-plugin-realtime-colors) for the full code.
 

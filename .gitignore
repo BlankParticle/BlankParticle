@@ -24,5 +24,4 @@ vite.config.ts.timestamp-*
 
 worker-configuration.d.ts
 
-# content-collections
-.content-collections
+.source

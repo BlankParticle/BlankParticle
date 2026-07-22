@@ -1,8 +1,11 @@
+import { join } from "node:path";
+
 import { cloudflare } from "@cloudflare/vite-plugin";
-import contentCollections from "@content-collections/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
+import rsc from "@vitejs/plugin-rsc";
+import mdx from "fumadocs-mdx/vite";
 import { defineConfig } from "vite";
 
 const TARGET_DOMAIN = "blankparticle.com";
@@ -12,7 +15,7 @@ const EXTRA_DOMAINS = ["www.blankparticle.com", "blankparticle.in", "www.blankpa
 export default defineConfig({
   plugins: [
     cloudflare({
-      viteEnvironment: { name: "ssr" },
+      viteEnvironment: { name: "ssr", childEnvironments: ["rsc"] },
       config: {
         name: "www",
         compatibility_date: "2026-07-11",
@@ -28,15 +31,20 @@ export default defineConfig({
         },
       },
     }),
-    contentCollections(),
+    mdx(),
     tailwindcss(),
-    tanstackStart(),
+    tanstackStart({ rsc: { enabled: true } }),
+    rsc(),
     viteReact(),
   ],
   define: {
     "import.meta.env.VITE_GIT_HASH": JSON.stringify(process.env.WORKERS_CI_COMMIT_SHA?.slice(0, 7) ?? "development"),
   },
   server: { allowedHosts: ["anna"] },
-  resolve: { tsconfigPaths: true },
+  resolve: {
+    // Needed for MDX imports to work right now
+    alias: { "@": join(import.meta.dirname, "src") },
+    tsconfigPaths: true,
+  },
   clearScreen: false,
 });

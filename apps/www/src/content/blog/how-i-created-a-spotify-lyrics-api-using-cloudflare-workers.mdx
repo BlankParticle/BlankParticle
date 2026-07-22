@@ -3,16 +3,21 @@ title: How I created a Spotify Lyrics API using Cloudflare Workers
 description: Creating a Self Hosted Spotify Lyrics API using Cloudflare Workers
 date: 2023-06-12
 tags: [cloudflare, javascript, apis, typescript, spotify]
-cover: ./images/spotify-lyrics-api-cover.png
+cover: /images/blog/spotify-lyrics-api-cover.webp
 ---
 
-> UPDATE: Spotify has disabled access to lyrics on free accounts, so this no longer works
+import { Gist } from "@/components/gist.tsx";
+import { Callout } from "@/components/callout.tsx";
+
+<Callout emoji="⚠️">
+  **UPDATE: Spotify has disabled access to lyrics on free accounts, so this no longer works**
+</Callout>
 
 **Context:** I was Working on my Portfolio when it occurred to me that I could add a custom Spotify Widget to my website, So like most developers, I ignored every prebuilt widget and tried creating my own. I thought it would be cool if I could show the lyrics of the song that I am currently listening to. But unfortunately, Spotify doesn't provide any kind of lyrics API. So I decided to take matters into my own hands and make one myself.
 
 > PS: I forgot about my Portfolio 😅, But now I at least have the API.
 
-You can visit my <s>unfinished</s>[portfolio](https://blankparticle.in) and try out [Spot-API](https://spot-api.blankparticle.in/lyrics/4PTG3Z6ehGkBFwjybzWkR8) yourself.
+You can visit my ~~unfinished~~ [portfolio](https://blankparticle.in) and try out [Spot-API](https://spot-api.blankparticle.in/lyrics/4PTG3Z6ehGkBFwjybzWkR8) yourself.
 
 # Finding a Solution
 
@@ -22,7 +27,7 @@ So, as any good developer, I went to read the docs of Spotify, and I have only o
 
 So, I just googled it and found this on [StackOverflow](https://stackoverflow.com/questions/73704499/get-lyrics-data-from-spotify). We can request this to get the lyrics of any given `track_id`.
 
-```typescript
+```ts
 const url = `https://spclient.wg.spotify.com/color-lyrics/v2/track/${track_id}?format=json&vocalRemoval=false`;
 let req = await fetch(url, {
   headers: {
@@ -74,10 +79,9 @@ Congratulations! You have obtained a Spotify User Cookie. Now this Cookie is val
 
 After finding this I went to create a minimal solution, at that time I was working with Svelte, So I just created a Svelte Kit Project and added an API route with my findings. This Code is available in the [`legacy` branch of my repo](https://github.com/BlankParticle/spotapi/tree/legacy).
 
-<details class="gist-embed">
-<summary><code>+server.ts</code> · <a href="https://gist.github.com/BlankParticle/693a93794478fd82b97c1fcd463836f6" target="_blank" rel="noopener noreferrer">view gist →</a></summary>
+<Gist filename="+server.ts" href="https://gist.github.com/BlankParticle/693a93794478fd82b97c1fcd463836f6">
 
-```typescript
+```ts
 // This Code used in a SvelteKit Server API route
 import { SP_DC } from "$env/static/private";
 
@@ -128,7 +132,7 @@ export const GET = (async ({ params }) => {
 }) satisfies RequestHandler;
 ```
 
-</details>
+</Gist>
 
 As You can see this code works within a Svelte API route.
 
@@ -150,14 +154,14 @@ pnpm add hono
 
 Now, open `src/index.ts`, delete boilerplate code and create a basic app
 
-```typescript
+```ts
 import { Hono } from "hono";
 
 const app = new Hono();
 
 app.get("/", async (ctx) => {
-    ctx.text("This works!")
-}
+  return ctx.text("This works!");
+});
 
 export default app;
 ```
@@ -172,11 +176,11 @@ If all of this works you would see "This Works!" in your browser.
 
 Now remove the `"/"` route and replace it with `"/lyrics/:track_id"`, then edit the route like this.
 
-```typescript
+```ts
 app.get("/lyrics/:track_id", async (ctx) => {
-    let { track_id } = ctx.req.params();
-    ctx.text(track_id);
-}
+  let { track_id } = ctx.req.params();
+  return ctx.text(track_id);
+});
 ```
 
 If you go to `https://localhost:8787/lyrics/any-track-id` then you would see "any-track-id" on the page which means we can get parameters from the requested URL.
@@ -189,7 +193,7 @@ SPOTIFY_COOKIE=your-spotify-cookie
 
 Then we need to edit our app like this and restart the dev server to have access to secret variables, it works like a `.env` file.
 
-```typescript
+```ts
 //--snip--
 type Bindings = {
   SPOTIFY_COOKIE: string;
@@ -206,7 +210,7 @@ let ACCESS_TOKEN_EXPIRY: number = Date.now();
 
 Now we can try to request a `accessToken` like this.
 
-```typescript
+```ts
 const predefinedRequestHeaders = {
   "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/114.0",
   Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
@@ -242,7 +246,7 @@ try {
 
 Through this, we will get the `ACCESS_TOKEN` and `ACCESS_TOKEN_EXPIRY` and save those in global variables for caching. With this, we can skip requesting new tokens on every request.
 
-```typescript
+```ts
 if (!ACCESS_TOKEN || ACCESS_TOKEN_EXPIRY <= Date.now()) {
   // Request new token
 }
@@ -253,7 +257,7 @@ if (!ACCESS_TOKEN || ACCESS_TOKEN_EXPIRY <= Date.now()) {
 
 Now finally we can hit the Lyrics API and retrieve the lyrics of the song.
 
-```typescript
+```ts
 const url = `https://spclient.wg.spotify.com/color-lyrics/v2/track/${track_id}?format=json&vocalRemoval=false`;
 const lyrics = await (
   await fetch(url, {
@@ -274,10 +278,9 @@ return new Response(lyrics === "" ? JSON.stringify({ error: "Lyrics are not avai
 
 And like this now we have a working Spotify Lyrics API, full code with a bunch of improvements and checks is available in [my GitHub repo](https://github.com/BlankParticle/spotapi/). Feel free to check that and suggest improvements. Also, **Star** my GitHub repo as it helps a ton.
 
-<details class="gist-embed">
-<summary><code>index.ts</code> · <a href="https://gist.github.com/BlankParticle/5ba850b05be3595a2b4dab335dc41973" target="_blank" rel="noopener noreferrer">view gist →</a></summary>
+<Gist filename="index.ts" href="https://gist.github.com/BlankParticle/5ba850b05be3595a2b4dab335dc41973">
 
-```typescript
+```ts
 // This Code is used in a Cloudflare Worker
 // This uses 'Hono' framework
 
@@ -382,7 +385,7 @@ app.get("*", (c) =>
 export default app;
 ```
 
-</details>
+</Gist>
 
 ## The Final Part: Deployment
 

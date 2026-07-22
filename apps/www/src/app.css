@@ -80,56 +80,66 @@
   }
 }
 
-/* blog prose: riso ink accents layered over typeset defaults */
+/** Overrides */
 @layer components {
   .typeset :where(a) {
     @apply text-violet-deep decoration-orange box-decoration-clone font-bold decoration-wavy decoration-2 underline-offset-4;
   }
+  .typeset :where(h1, h2, h3, h4, h5, h6) > a {
+    color: inherit;
+    font-weight: inherit;
+    @apply no-underline decoration-current decoration-solid;
+  }
+  .typeset :where(h1, h2, h3, h4, h5, h6) > a:hover,
+  .typeset :where(h1, h2, h3, h4, h5, h6) > a:focus-visible {
+    @apply underline;
+  }
+  .typeset :where(h1, h2, h3, h4, h5, h6) > a::after {
+    content: "";
+    width: 0.8em;
+    height: 0.8em;
+    margin-inline-start: 0.35em;
+    vertical-align: -0.05em;
+    background-color: var(--color-orange-deep);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/%3E%3Cpath d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    opacity: 0;
+    transform: translateX(-0.2em);
+    transition:
+      opacity 150ms ease,
+      transform 150ms ease;
+    @apply inline-block;
+  }
+  .typeset :where(h1, h2, h3, h4, h5, h6) > a:hover::after,
+  .typeset :where(h1, h2, h3, h4, h5, h6) > a:focus-visible::after {
+    opacity: 1;
+    transform: translateX(0);
+  }
   .typeset :where(pre.shiki) {
-    /* shiki inlines the theme background; pin it to the paper palette instead */
-    background-color: var(--muted) !important;
+    background-color: var(--muted);
+    color: var(--shiki-light);
     @apply border-ink/15 border;
+  }
+  .typeset :where(pre.shiki span) {
+    color: var(--shiki-light);
+    font-style: var(--shiki-light-font-style);
+    font-weight: var(--shiki-light-font-weight);
+    text-decoration: var(--shiki-light-text-decoration);
+  }
+  .dark .typeset :where(pre.shiki) {
+    color: var(--shiki-dark);
+  }
+  .dark .typeset :where(pre.shiki span) {
+    color: var(--shiki-dark);
+    font-style: var(--shiki-dark-font-style);
+    font-weight: var(--shiki-dark-font-weight);
+    text-decoration: var(--shiki-dark-text-decoration);
   }
   .typeset :where(img) {
     @apply border-ink/60 mx-auto rounded-xl border-2;
   }
   .typeset :where(blockquote) {
     @apply border-orange text-ink-muted;
-  }
-  .typeset :where(details.gist-embed) {
-    @apply border-violet/35 rounded-lg border-2 border-dashed;
-    margin-block-start: var(--typeset-flow);
-  }
-  .typeset :where(.gist-embed summary) {
-    @apply text-violet hover:bg-violet/5 flex cursor-pointer flex-wrap items-center gap-2 rounded-md px-4 py-2 text-sm font-bold select-none;
-  }
-  /* display:flex removes the native disclosure marker, so draw our own chevron */
-  .typeset :where(.gist-embed summary)::before {
-    content: "▸";
-    @apply text-orange-deep transition-transform duration-200;
-  }
-  .typeset :where(.gist-embed[open] summary)::before {
-    @apply rotate-90;
-  }
-  .typeset :where(.gist-embed summary)::after {
-    content: "click to expand";
-    @apply text-ink-muted/70 text-[0.65rem] font-normal tracking-[0.18em] uppercase;
-  }
-  .typeset :where(.gist-embed[open] summary)::after {
-    content: "collapse";
-  }
-  .typeset :where(.gist-embed summary code) {
-    @apply bg-transparent p-0;
-  }
-  .typeset :where(.gist-embed summary a) {
-    @apply text-orange-deep text-xs tracking-[0.18em] uppercase;
-  }
-  .typeset :where(.gist-embed summary)::after {
-    @apply ml-auto;
-  }
-  .typeset .gist-embed pre {
-    margin-block-start: 0;
-    @apply rounded-t-none border-x-0 border-b-0;
   }
 }
 
@@ -163,7 +173,6 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* shadcn tokens mapped onto the riso palette */
 :root {
   --background: var(--color-paper);
   --foreground: var(--color-ink);

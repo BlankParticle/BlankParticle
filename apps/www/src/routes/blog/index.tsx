@@ -1,12 +1,27 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
 
 import { LiveTime } from "@/components/live-time.tsx";
-import { ALL_BLOG_POSTS } from "@/lib/blog-content.ts";
+import { blogSource } from "@/lib/blog-content.ts";
 import { personLd } from "@/lib/data.ts";
 import { formatPostDate } from "@/lib/utils.ts";
 
+const blogListLoader = createServerFn().handler(() =>
+  blogSource
+    .getPages()
+    .sort((a, b) => b.data.date.localeCompare(a.data.date))
+    .map((post) => ({
+      slug: post.slugs[0],
+      title: post.data.title,
+      description: post.data.description,
+      date: post.data.date,
+      tags: post.data.tags,
+      cover: post.data.cover,
+    })),
+);
+
 export const Route = createFileRoute("/blog/")({
-  loader: () => [...ALL_BLOG_POSTS].sort((a, b) => (a.date < b.date ? 1 : -1)),
+  loader: () => blogListLoader(),
   head: () => ({
     meta: [
       { title: "blog · blankparticle" },
@@ -90,8 +105,21 @@ function BlogIndexPage() {
                       {post.title}
                     </span>
                     <span className="text-ink-muted text-sm">{post.description}</span>
-                    <span className="text-orange-deep pt-1 text-xs font-bold tracking-[0.18em] uppercase">
-                      {formatPostDate(post.date)} · {post.tags.join(" · ")}
+                    <span className="mt-2 flex flex-wrap items-center gap-2">
+                      <time
+                        dateTime={post.date}
+                        className="text-orange-deep mr-1 text-[0.65rem] font-bold tracking-[0.16em] uppercase"
+                      >
+                        {formatPostDate(post.date)}
+                      </time>
+                      {post.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="border-violet/45 bg-lime/25 text-violet-deep rounded-full border px-2 py-0.5 text-[0.65rem] font-bold tracking-wide"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
                     </span>
                   </span>
                   <span
