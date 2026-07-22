@@ -1,5 +1,3 @@
-import { join } from "node:path";
-
 import { cloudflare } from "@cloudflare/vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
@@ -42,8 +40,6 @@ export default defineConfig({
   },
   server: { allowedHosts: ["anna"] },
   resolve: {
-    // Needed for MDX imports to work right now
-    alias: { "@": join(import.meta.dirname, "src") },
     tsconfigPaths: true,
   },
   clearScreen: false,

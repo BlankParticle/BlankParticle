@@ -1,5 +1,6 @@
 {
   "extends": "../../tsconfig.json",
+  "include": ["src", "src/**/*.mdx"],
   "compilerOptions": {
     "lib": ["esnext", "dom", "dom.iterable"],
     "jsx": "react-jsx",
