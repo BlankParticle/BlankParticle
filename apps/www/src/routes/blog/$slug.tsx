@@ -5,7 +5,7 @@ import * as v from "valibot";
 
 import { LiveTime } from "@/components/live-time.tsx";
 import { blogSource } from "@/lib/blog-content.ts";
-import { personLd } from "@/lib/data.ts";
+import { personLd, SITE_URL } from "@/lib/data.ts";
 import { formatPostDate } from "@/lib/utils.ts";
 
 const blogPageLoader = createServerFn()
@@ -29,51 +29,51 @@ const blogPageLoader = createServerFn()
 
 export const Route = createFileRoute("/blog/$slug")({
   loader: ({ params }) => blogPageLoader({ data: { slug: params.slug } }),
-  head: ({ loaderData }) => ({
-    meta: loaderData
-      ? [
-          { title: `${loaderData.post.title} · blankparticle` },
-          { name: "description", content: loaderData.post.description },
-          { property: "og:title", content: loaderData.post.title },
-          { property: "og:description", content: loaderData.post.description },
-          { property: "og:type", content: "article" },
-          ...(loaderData.post.cover
-            ? [
-                {
-                  property: "og:image",
-                  content: loaderData.post.cover,
-                },
-                {
-                  name: "twitter:image",
-                  content: loaderData.post.cover,
-                },
-              ]
-            : []),
-          { name: "twitter:title", content: loaderData.post.title },
-          { name: "twitter:description", content: loaderData.post.description },
-        ]
-      : [],
-    scripts: loaderData?.post
-      ? [
-          {
-            type: "application/ld+json",
-            children: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "BlogPosting",
-              headline: loaderData.post.title,
-              description: loaderData.post.description,
-              datePublished: loaderData.post.date,
-              url: `https://blankparticle.com/blog/${loaderData.post.slug}`,
-              mainEntityOfPage: `https://blankparticle.com/blog/${loaderData.post.slug}`,
-              keywords: loaderData.post.tags.join(", "),
-              ...(loaderData.post.cover ? { image: loaderData.post.cover } : {}),
-              author: personLd,
-              publisher: personLd,
-            }),
-          },
-        ]
-      : [],
-  }),
+  head: ({ loaderData }) => {
+    if (!loaderData) return {};
+    const { post } = loaderData;
+    const postUrl = `${SITE_URL}/blog/${post.slug}`;
+    const coverUrl = post.cover && new URL(post.cover, SITE_URL).href;
+    return {
+      meta: [
+        { title: `${post.title} · blankparticle` },
+        { name: "description", content: post.description },
+        { property: "og:title", content: post.title },
+        { property: "og:description", content: post.description },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: postUrl },
+        { property: "twitter:url", content: postUrl },
+        { property: "article:published_time", content: post.date },
+        ...(coverUrl
+          ? [
+              { property: "og:image", content: coverUrl },
+              { name: "twitter:image", content: coverUrl },
+            ]
+          : []),
+        { name: "twitter:title", content: post.title },
+        { name: "twitter:description", content: post.description },
+      ],
+      links: [{ rel: "canonical", href: postUrl }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            headline: post.title,
+            description: post.description,
+            datePublished: post.date,
+            url: postUrl,
+            mainEntityOfPage: postUrl,
+            keywords: post.tags.join(", "),
+            ...(coverUrl ? { image: coverUrl } : {}),
+            author: personLd,
+            publisher: personLd,
+          }),
+        },
+      ],
+    };
+  },
   component: BlogPostPage,
 });
 
@@ -126,7 +126,7 @@ function BlogPostPage() {
           <img
             src={post.cover}
             alt={post.title}
-            className="animate-reveal border-ink mt-8 w-full rotate-[0.5deg] rounded-2xl border-2 shadow-[4px_4px_0_var(--color-violet)] [animation-delay:230ms] motion-reduce:animate-none"
+            className="animate-reveal border-ink mt-8 aspect-40/21 w-full rotate-[0.5deg] rounded-2xl border-2 object-cover shadow-[4px_4px_0_var(--color-violet)] [animation-delay:230ms] motion-reduce:animate-none"
           />
         )}
         <div className="typeset animate-reveal pt-6 [animation-delay:300ms] motion-reduce:animate-none">{content}</div>

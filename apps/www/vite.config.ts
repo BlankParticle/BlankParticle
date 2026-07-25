@@ -38,7 +38,7 @@ export default defineConfig({
   define: {
     "import.meta.env.VITE_GIT_HASH": JSON.stringify(process.env.WORKERS_CI_COMMIT_SHA?.slice(0, 7) ?? "development"),
   },
-  server: { allowedHosts: ["anna"] },
+  server: { allowedHosts: [".blankparticle.com"] },
   resolve: {
     tsconfigPaths: true,
   },

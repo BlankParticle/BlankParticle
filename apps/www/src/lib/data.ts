@@ -6,6 +6,8 @@ import UnLogo from "../assets/companies/un.png";
 import { DiscordIcon, GitHubIcon, GmailIcon, HashnodeIcon, LinkedInIcon, XIcon } from "../assets/social-icons.tsx";
 import { DiscordModal, EmailModal, type SocialModalProps } from "../components/social-modals";
 
+export const SITE_URL = "https://blankparticle.com";
+
 export const workHistory = [
   {
     role: "Software Engineer",
@@ -159,8 +161,8 @@ export const personLd = {
   "@type": "Person",
   name: "Rahul Mishra",
   alternateName: "BlankParticle",
-  url: "https://blankparticle.com",
-  image: "https://blankparticle.com/me.png",
+  url: SITE_URL,
+  image: `${SITE_URL}/me.png`,
   jobTitle: "Software Developer",
   sameAs: socials.filter((social) => !["Email", "Cal", "Resume"].includes(social.label)).map((social) => social.url),
 };

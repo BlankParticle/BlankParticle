@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 
 import { NotFound } from "@/components/not-found.tsx";
 import { socials } from "@/lib/data.ts";
@@ -24,6 +24,9 @@ export const Route = createFileRoute("/$")({
         return destination ? Response.redirect(destination, 301) : next();
       },
     },
+  },
+  loader: () => {
+    throw notFound();
   },
   component: NotFound,
 });

@@ -3,7 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { LiveTime } from "@/components/live-time.tsx";
 import { blogSource } from "@/lib/blog-content.ts";
-import { personLd } from "@/lib/data.ts";
+import { personLd, SITE_URL } from "@/lib/data.ts";
 import { formatPostDate } from "@/lib/utils.ts";
 
 const blogListLoader = createServerFn().handler(() =>
@@ -20,16 +20,24 @@ const blogListLoader = createServerFn().handler(() =>
     })),
 );
 
+const blogTitle = "blog · blankparticle";
+const blogDescription = "Things I wrote down so I wouldn't have to figure them out twice.";
+const blogUrl = `${SITE_URL}/blog`;
+
 export const Route = createFileRoute("/blog/")({
   loader: () => blogListLoader(),
   head: () => ({
     meta: [
-      { title: "blog · blankparticle" },
-      {
-        name: "description",
-        content: "Things I wrote down so I wouldn't have to figure them out twice.",
-      },
+      { title: blogTitle },
+      { name: "description", content: blogDescription },
+      { property: "og:title", content: blogTitle },
+      { property: "og:description", content: blogDescription },
+      { property: "og:url", content: blogUrl },
+      { property: "twitter:url", content: blogUrl },
+      { name: "twitter:title", content: blogTitle },
+      { name: "twitter:description", content: blogDescription },
     ],
+    links: [{ rel: "canonical", href: blogUrl }],
     scripts: [
       {
         type: "application/ld+json",
@@ -37,8 +45,8 @@ export const Route = createFileRoute("/blog/")({
           "@context": "https://schema.org",
           "@type": "Blog",
           name: "blankparticle's blog",
-          description: "Things I wrote down so I wouldn't have to figure them out twice.",
-          url: "https://blankparticle.com/blog",
+          description: blogDescription,
+          url: blogUrl,
           author: personLd,
         }),
       },

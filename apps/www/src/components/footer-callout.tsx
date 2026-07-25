@@ -18,7 +18,7 @@ export function FooterCallout({ icon, href, label, subtext, subtextHref }: Foote
           href={href}
           className="text-violet decoration-orange decoration-wavy underline-offset-4 hover:underline"
           target="_blank"
-          rel="noopener noreferrer"
+          rel={href.startsWith("/") ? "nofollow noopener noreferrer" : "noopener noreferrer"}
         >
           {label}
         </a>

@@ -1,6 +1,7 @@
 import { remarkGfm } from "fumadocs-core/mdx-plugins/remark-gfm";
 import { applyMdxPreset, defineDocs } from "fumadocs-mdx/config";
 import autoLinkHeadings from "rehype-autolink-headings";
+import externalLinks from "rehype-external-links";
 import * as v from "valibot";
 
 export const posts = defineDocs({
@@ -21,7 +22,10 @@ export const posts = defineDocs({
         langs: ["typescript", "bash", "json", "tsx", "jsx", "diff"],
         fallbackLanguage: "typescript",
       },
-      rehypePlugins: [[autoLinkHeadings, { behavior: "wrap" }]],
+      rehypePlugins: [
+        [autoLinkHeadings, { behavior: "wrap" }],
+        [externalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] }],
+      ],
     }),
   },
 });

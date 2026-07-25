@@ -2,12 +2,12 @@ import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import { NotFound } from "@/components/not-found.tsx";
+import { SITE_URL } from "@/lib/data.ts";
 
 import appCss from "@/app.css?url";
 
 const title = "blankparticle";
-const description = "Hello, I am Rahul Mishra, aka BlankParticle";
-const url = "https://blankparticle.com";
+const description = "Personal site of Rahul Mishra, aka BlankParticle, a software developer passionate about tech";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -17,21 +17,22 @@ export const Route = createRootRoute({
       { title },
       { name: "description", content: description },
       { property: "og:title", content: title },
-      { property: "og:site_name", content: title },
-      { property: "og:url", content: url },
+      { property: "og:site_name", content: "blankparticle" },
+      { property: "og:url", content: SITE_URL },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
-      { property: "og:image", content: `${url}/og-image.webp` },
+      { property: "og:image", content: `${SITE_URL}/og-image.webp` },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "twitter:domain", content: "blankparticle.com" },
-      { property: "twitter:url", content: url },
+      { property: "twitter:url", content: SITE_URL },
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
-      { name: "twitter:image", content: `${url}/og-image.webp` },
+      { name: "twitter:image", content: `${SITE_URL}/og-image.webp` },
     ],
     links: [
       { rel: "icon", href: "/me.png" },
       { rel: "stylesheet", href: appCss },
+      { rel: "alternate", type: "application/rss+xml", title: "blankparticle's blog", href: "/rss.xml" },
     ],
   }),
   notFoundComponent: NotFound,

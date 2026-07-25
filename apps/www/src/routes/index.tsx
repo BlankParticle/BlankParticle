@@ -9,7 +9,7 @@ import { Marquee } from "@/components/marquee.tsx";
 import { SocialSticker } from "@/components/social-sticker.tsx";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { personLd, projects, socials, workHistory } from "@/lib/data.ts";
+import { personLd, projects, SITE_URL, socials, workHistory } from "@/lib/data.ts";
 
 const tickerWords = [
   "curious",
@@ -49,6 +49,7 @@ const stickerInks = [
 
 export const Route = createFileRoute("/")({
   head: () => ({
+    links: [{ rel: "canonical", href: SITE_URL }],
     scripts: [
       {
         type: "application/ld+json",
@@ -86,6 +87,7 @@ function HomePage() {
               also known as
               <a
                 href="/gh"
+                rel="nofollow"
                 className="text-ink before:bg-lime relative mx-1 inline-block font-bold before:absolute before:-inset-x-0.75 before:inset-y-px before:-z-10 before:-rotate-1 hover:before:rotate-1"
               >
                 @blankparticle
@@ -95,7 +97,7 @@ function HomePage() {
                 href="/resume"
                 className="text-orange-deep decoration-orange font-bold underline decoration-wavy decoration-2 underline-offset-4"
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="nofollow noopener noreferrer"
               >
                 open to work
               </a>
@@ -112,13 +114,13 @@ function HomePage() {
               <Button variant="violet" onClick={() => setOpenModal("Email")}>
                 email me
               </Button>
-              <Button variant="orange" nativeButton={false} render={<a href="/cal" />}>
+              <Button variant="orange" nativeButton={false} render={<a href="/cal" rel="nofollow" />}>
                 book a call
               </Button>
               <Button
                 variant="violet-outline"
                 nativeButton={false}
-                render={<a href="/resume" target="_blank" rel="noopener noreferrer" />}
+                render={<a href="/resume" target="_blank" rel="nofollow noopener noreferrer" />}
               >
                 my resume
               </Button>
@@ -218,7 +220,7 @@ function HomePage() {
                   className="group flex items-baseline gap-4 py-5 sm:gap-6"
                   href={project.url}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel={project.url.startsWith("/") ? "nofollow noopener noreferrer" : "noopener noreferrer"}
                 >
                   <span className="font-display text-orange-deep text-xl font-bold tabular-nums" aria-hidden="true">
                     {String(i + 1).padStart(2, "0")}

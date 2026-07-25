@@ -45,7 +45,7 @@ export function NotFound() {
           <Button
             variant="orange"
             nativeButton={false}
-            render={<a href="/gh" target="_blank" rel="noopener noreferrer" />}
+            render={<a href="/gh" target="_blank" rel="nofollow noopener noreferrer" />}
           >
             find me on github
           </Button>

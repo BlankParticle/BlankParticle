@@ -19,7 +19,7 @@ export function SocialSticker({ name, tilt, ink, icon, href, onClick }: Props) {
       className={cn(tilt, ink)}
       onClick={onClick}
       nativeButton={!href}
-      render={href ? <a href={href} target="_blank" rel="noopener noreferrer" /> : <button type="button" />}
+      render={href ? <a href={href} target="_blank" rel="nofollow noopener noreferrer" /> : <button type="button" />}
     >
       {icon} {name}
     </Button>
