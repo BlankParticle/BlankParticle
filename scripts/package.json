@@ -9,8 +9,8 @@
     "lint": "vpr -w lint"
   },
   "dependencies": {
-    "react": "^19.2.7",
-    "takumi-js": "^2.4.0"
+    "react": "^19.2.8",
+    "takumi-js": "^2.4.2"
   },
   "devDependencies": {
     "@fontsource/bricolage-grotesque": "^5.3.0",
