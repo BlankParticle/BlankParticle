@@ -1,9 +1,8 @@
 import tanstackHandler from "@tanstack/react-start/server-entry";
 
-export type CloudflareEnv = {
-  TARGET_DOMAIN: string;
-  BLOG_DOMAINS: string[];
-};
+import type { CloudflareEnv } from "../spec.ts";
+
+export type { CloudflareEnv } from "../spec.ts";
 
 export default {
   async fetch(request, env, ctx) {
