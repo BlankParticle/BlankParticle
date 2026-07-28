@@ -1,7 +1,7 @@
 import { createRouter } from "@tanstack/react-router";
 
+import type { MainWebsiteEnv } from "../spec.ts";
 import { routeTree } from "./routeTree.gen.ts";
-import type { CloudflareEnv } from "./worker.ts";
 
 export function getRouter() {
   return createRouter({
@@ -17,7 +17,7 @@ declare module "@tanstack/react-start" {
     server: {
       requestContext: {
         cf: {
-          env: CloudflareEnv;
+          env: MainWebsiteEnv;
           ctx: ExecutionContext;
         };
       };

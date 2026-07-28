@@ -1,4 +1,5 @@
 import * as Alchemy from "alchemy";
+import { adopt } from "alchemy/AdoptPolicy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 
@@ -16,4 +17,4 @@ export default Alchemy.Stack(
     const staticAssetWorker = yield* StaticAssetsWorker;
     return { mainWebsite, staticAssetWorker };
   }),
-);
+).pipe(adopt());

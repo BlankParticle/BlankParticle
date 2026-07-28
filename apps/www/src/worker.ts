@@ -1,8 +1,6 @@
 import tanstackHandler from "@tanstack/react-start/server-entry";
 
-import type { CloudflareEnv } from "../spec.ts";
-
-export type { CloudflareEnv } from "../spec.ts";
+import type { MainWebsiteEnv } from "../spec.ts";
 
 export default {
   async fetch(request, env, ctx) {
@@ -14,20 +12,15 @@ export default {
       return Response.redirect(url, 301);
     }
 
-    // Redirect to Target Domain
-    if (
-      !import.meta.env.DEV &&
-      url.hostname !== "localhost" &&
-      url.hostname !== "127.0.0.1" &&
-      url.hostname !== "::1"
-    ) {
+    // Redirect to Target Domain if either on Blog or Extra Domains
+    if (!import.meta.env.DEV) {
       if (env.BLOG_DOMAINS.includes(url.hostname)) {
         url.hostname = env.TARGET_DOMAIN;
         url.pathname = `/blog${url.pathname}`;
         return Response.redirect(url, 301);
       }
 
-      if (url.hostname !== env.TARGET_DOMAIN) {
+      if (env.EXTRA_DOMAINS.includes(url.hostname)) {
         url.hostname = env.TARGET_DOMAIN;
         return Response.redirect(url, 301);
       }
@@ -37,4 +30,4 @@ export default {
       context: { cf: { env, ctx } },
     });
   },
-} satisfies ExportedHandler<CloudflareEnv>;
+} satisfies ExportedHandler<MainWebsiteEnv>;

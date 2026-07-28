@@ -11,4 +11,5 @@ export const StaticAssetsWorker = Cloudflare.Worker(TARGET_DOMAIN, {
     htmlHandling: "drop-trailing-slash",
   },
   domain: [TARGET_DOMAIN],
+  url: false,
 });
