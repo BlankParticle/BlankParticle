@@ -1,10 +1,10 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src", "src/**/*.mdx"],
+  "include": ["src", "src/**/*.mdx", "spec.ts"],
   "compilerOptions": {
     "lib": ["esnext", "dom", "dom.iterable"],
     "jsx": "react-jsx",
-    "types": ["vite/client", "@cloudflare/workers-types"],
+    "types": ["vite/client", "@cloudflare/workers-types", "node"],
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,

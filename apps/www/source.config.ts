@@ -1,3 +1,5 @@
+import { join } from "node:path";
+
 import { remarkGfm } from "fumadocs-core/mdx-plugins/remark-gfm";
 import { applyMdxPreset, defineDocs } from "fumadocs-mdx/config";
 import autoLinkHeadings from "rehype-autolink-headings";
@@ -5,7 +7,7 @@ import externalLinks from "rehype-external-links";
 import * as v from "valibot";
 
 export const posts = defineDocs({
-  dir: "src/content/blog",
+  dir: join(import.meta.dirname, "src/content/blog"),
   docs: {
     schema: v.object({
       title: v.string(),
@@ -16,7 +18,10 @@ export const posts = defineDocs({
     }),
     mdxOptions: applyMdxPreset({
       remarkPlugins: [remarkGfm],
-      remarkImageOptions: { useImport: false },
+      remarkImageOptions: {
+        useImport: false,
+        publicDir: join(import.meta.dirname, "public"),
+      },
       rehypeCodeOptions: {
         themes: { light: "github-light", dark: "github-dark" },
         langs: ["typescript", "bash", "json", "tsx", "jsx", "diff"],
