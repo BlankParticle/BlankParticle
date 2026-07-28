@@ -12,8 +12,6 @@ jobs:
       - uses: voidzero-dev/setup-vp@v1
         with:
           cache: true
-      - name: Install Dependencies
-        run: vp install
       - name: Deploy
         run: vpr deploy --stage prod --yes
         env:
