@@ -1,21 +1,23 @@
 import { join } from "node:path";
 
+import * as Schema from "effect/Schema";
 import { remarkGfm } from "fumadocs-core/mdx-plugins/remark-gfm";
 import { applyMdxPreset, defineDocs } from "fumadocs-mdx/config";
 import autoLinkHeadings from "rehype-autolink-headings";
 import externalLinks from "rehype-external-links";
-import * as v from "valibot";
 
 export const posts = defineDocs({
   dir: join(import.meta.dirname, "src/content/blog"),
   docs: {
-    schema: v.object({
-      title: v.string(),
-      description: v.string(),
-      date: v.pipe(v.string(), v.isoDate()),
-      tags: v.array(v.string()),
-      cover: v.optional(v.string()),
-    }),
+    schema: Schema.toStandardSchemaV1(
+      Schema.Struct({
+        title: Schema.String,
+        description: Schema.String,
+        date: Schema.String.check(Schema.isPattern(/^\d{4}-\d{2}-\d{2}$/)),
+        tags: Schema.Array(Schema.String),
+        cover: Schema.optional(Schema.String),
+      }),
+    ),
     mdxOptions: applyMdxPreset({
       remarkPlugins: [remarkGfm],
       remarkImageOptions: {

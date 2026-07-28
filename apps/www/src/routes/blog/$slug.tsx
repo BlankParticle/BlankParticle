@@ -1,7 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { renderServerComponent } from "@tanstack/react-start/rsc";
-import * as v from "valibot";
 
 import { LiveTime } from "@/components/live-time.tsx";
 import { blogSource } from "@/lib/blog-content.ts";
@@ -9,7 +8,7 @@ import { personLd, SITE_URL } from "@/lib/data.ts";
 import { formatPostDate } from "@/lib/utils.ts";
 
 const blogPageLoader = createServerFn()
-  .validator(v.object({ slug: v.string() }))
+  .validator((data: { slug: string }) => data)
   .handler(async ({ data }) => {
     const post = blogSource.getPage([data.slug]);
     if (!post) throw notFound();
