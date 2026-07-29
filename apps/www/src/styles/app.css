@@ -5,8 +5,8 @@
 @import "@fontsource/karla/latin-400-italic.css";
 @import "@fontsource/karla/latin-700.css";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 @import "./typeset.css";
+@import "./shadcn.css";
 
 @custom-variant dark (&:is(.dark *));
 

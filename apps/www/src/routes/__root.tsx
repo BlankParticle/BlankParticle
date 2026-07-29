@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { NotFound } from "@/components/not-found.tsx";
 import { SITE_URL } from "@/lib/data.ts";
 
-import appCss from "@/app.css?url";
+import appCss from "@/styles/app.css?url";
 
 const title = "blankparticle";
 const description = "Personal site of Rahul Mishra, aka BlankParticle, a software developer passionate about tech";

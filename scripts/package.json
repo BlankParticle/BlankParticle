@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "react": "^19.2.8",
-    "takumi-js": "^2.5.0"
+    "takumi-js": "^2.5.2"
   },
   "devDependencies": {
     "@fontsource/bricolage-grotesque": "^5.3.0",
