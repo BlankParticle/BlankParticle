@@ -1,6 +1,6 @@
 import { createRouter } from "@tanstack/react-router";
 
-import type { MainWebsiteEnv } from "../spec.ts";
+import type { MainWebsiteEnv } from "../alchemy.config.ts";
 import { routeTree } from "./routeTree.gen.ts";
 
 export function getRouter() {

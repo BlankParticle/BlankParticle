@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src", "src/**/*.mdx", "spec.ts"],
+  "include": ["src", "src/**/*.mdx", "alchemy.config.ts"],
   "compilerOptions": {
     "lib": ["esnext", "dom", "dom.iterable"],
     "jsx": "react-jsx",

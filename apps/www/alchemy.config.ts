@@ -8,16 +8,12 @@ export class MainWebsite extends Cloudflare.Website.Vite<MainWebsite>()("www", {
   rootDir: import.meta.dirname,
   name: "www",
   main: "src/worker.ts",
-  env: {
-    TARGET_DOMAIN,
-    BLOG_DOMAINS,
-    EXTRA_DOMAINS,
-  },
+  env: { TARGET_DOMAIN, BLOG_DOMAINS, EXTRA_DOMAINS },
   compatibility: { flags: ["nodejs_compat"] },
   viteEnvironments: { entry: "ssr", children: ["rsc"] },
-  domain: [TARGET_DOMAIN, ...EXTRA_DOMAINS, ...BLOG_DOMAINS],
+  domain: { name: TARGET_DOMAIN, aliases: [...BLOG_DOMAINS, ...EXTRA_DOMAINS] },
   dev: { port: 5173 },
-  url: false,
+  workersDev: false,
 }) {}
 
 export type MainWebsiteEnv = Cloudflare.InferEnv<typeof MainWebsite>;

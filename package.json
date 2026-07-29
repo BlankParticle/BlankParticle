@@ -13,9 +13,9 @@
     "typecheck": "vpr -r typecheck"
   },
   "devDependencies": {
-    "@effect/platform-node": "4.0.0-beta.101",
+    "@effect/platform-node": "4.0.0-beta.102",
     "@types/node": "^26.1.1",
-    "alchemy": "https://pkg.ing/alchemy/f998d99",
+    "alchemy": "https://pkg.ing/alchemy/3306118",
     "effect": "4.0.0-beta.102",
     "tsx": "^4.23.1",
     "typescript": "^7.0.2",
