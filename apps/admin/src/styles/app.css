@@ -1,0 +1,116 @@
+@import "tailwindcss";
+@import "@fontsource/bricolage-grotesque/latin-700.css";
+@import "@fontsource/bricolage-grotesque/latin-800.css";
+@import "@fontsource/karla/latin-400.css";
+@import "@fontsource/karla/latin-700.css";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-display: "Bricolage Grotesque", "Arial Black", sans-serif;
+  --font-body: "Karla", "Helvetica Neue", Arial, sans-serif;
+
+  /* two-ink risograph palette: violet + orange on bright paper (borrowed from www) */
+  --color-paper: oklch(98% 0.005 110);
+  --color-ink: oklch(27% 0.03 300);
+  --color-ink-muted: oklch(46% 0.03 300);
+  --color-violet: oklch(45% 0.19 300);
+  --color-violet-deep: oklch(37% 0.17 300);
+  --color-orange: oklch(68% 0.19 45);
+  --color-orange-deep: oklch(50% 0.17 40);
+  --color-lime: oklch(92% 0.16 125);
+
+  --animate-indeterminate: indeterminate 1s ease-in-out infinite;
+
+  @keyframes indeterminate {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(400%);
+    }
+  }
+}
+
+@layer base {
+  html {
+    @apply text-ink overflow-x-clip scroll-smooth font-sans antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground relative min-h-screen;
+  }
+
+  /* paper grain, one cheap SVG turbulence layer */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  a {
+    text-decoration-skip-ink: none;
+  }
+
+  ::selection {
+    @apply bg-orange text-paper;
+  }
+  * {
+    @apply border-border outline-ring/50;
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-display);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+:root {
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+  --card: var(--color-paper);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-paper);
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-violet);
+  --primary-foreground: var(--color-paper);
+  --secondary: var(--color-lime);
+  --secondary-foreground: var(--color-ink);
+  --muted: oklch(94% 0.01 110);
+  --muted-foreground: var(--color-ink-muted);
+  --accent: var(--color-lime);
+  --accent-foreground: var(--color-ink);
+  --destructive: var(--color-orange-deep);
+  --border: var(--color-ink);
+  --input: var(--color-ink);
+  --ring: var(--color-orange);
+  --radius: 0.5rem;
+}

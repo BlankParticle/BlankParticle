@@ -1,13 +1,8 @@
 import * as Alchemy from "alchemy";
 import { adopt } from "alchemy/AdoptPolicy";
 import * as Cloudflare from "alchemy/Cloudflare";
-import * as Output from "alchemy/Output";
-import * as Config from "effect/Config";
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Record from "effect/Record";
-
-class EmailNotVerifiedError extends Data.TaggedError("EmailNotVerified")<{ email: string }> {}
 
 type DNSRecordDefinition = Omit<Cloudflare.DNS.RecordProps, "zoneId"> & { id: string };
 
@@ -87,53 +82,11 @@ const SetupZones = Effect.gen(function* () {
   return zones;
 });
 
-type Zones = Effect.Success<typeof SetupZones>;
-
-const SetupEmailRouting = Effect.fn(function* (zones: Zones) {
-  const cloudflareAccountEmail = yield* Config.string("CLOUDFLARE_ACCOUNT_EMAIL");
-
-  yield* Effect.all(
-    Record.map(zones, (zone) => Cloudflare.Email.Routing(`EmailRouting-${zone.LogicalId}`, { zone })),
-    {
-      discard: true,
-      concurrency: "unbounded",
-    },
-  );
-
-  const destinationEmail = yield* Cloudflare.Email.Address("MainEmailInbox", { email: cloudflareAccountEmail });
-  if (!destinationEmail.verified) yield* Effect.die(new EmailNotVerifiedError({ email: cloudflareAccountEmail }));
-
-  yield* Cloudflare.Email.Rule("ForwardToMainEmail", {
-    zone: zones["blankparticle.com"],
-    name: "Forward primary email inbox",
-    actions: [{ type: "forward", value: [destinationEmail.email] }],
-    matchers: [{ type: "literal", field: "to", value: Output.interpolate`hello@${zones["blankparticle.com"].name}` }],
-  });
-
-  yield* Effect.forEach(
-    [zones["blankparticle.in"], zones["rx2.dev"]],
-    (zone) =>
-      Cloudflare.Email.CatchAll(`CatchAll-${zone.LogicalId}`, {
-        zone,
-        name: Output.interpolate`Catch all emails for ${zone.name}`,
-        actions: [{ type: "forward", value: [destinationEmail.email] }],
-      }),
-    { discard: true, concurrency: "unbounded" },
-  );
-
-  // Drop emails that are mostly spam/scraped by bots
-  yield* Cloudflare.Email.Rule(`DropSpam-${zones["blankparticle.com"].LogicalId}`, {
-    zone: zones["blankparticle.com"],
-    name: "Drop spam emails",
-    actions: [{ type: "drop" }],
-    matchers: [{ type: "literal", field: "to", value: Output.interpolate`web@${zones["blankparticle.com"].name}` }],
-  });
-
-  yield* Cloudflare.Email.Rule(`DropSpam-${zones["blankparticle.in"].LogicalId}`, {
-    zone: zones["blankparticle.in"],
-    name: "Drop spam emails",
-    actions: [{ type: "drop" }],
-    matchers: [{ type: "literal", field: "to", value: Output.interpolate`drop@${zones["blankparticle.in"].name}` }],
+const SetupZeroTrust = Effect.gen(function* () {
+  yield* Cloudflare.Access.Organization("ZeroTrustOrg", {
+    authDomain: "blankparticle.cloudflareaccess.com",
+    name: "blankparticle.cloudflareaccess.com",
+    sessionDuration: "730h",
   });
 });
 
@@ -141,7 +94,7 @@ export default Alchemy.Stack(
   "Cloudflare",
   { providers: Cloudflare.providers(), state: Cloudflare.state() },
   Effect.gen(function* () {
-    const zones = yield* SetupZones;
-    yield* SetupEmailRouting(zones);
+    yield* SetupZones;
+    yield* SetupZeroTrust;
   }),
 ).pipe(adopt());
