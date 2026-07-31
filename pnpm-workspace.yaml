@@ -8,3 +8,6 @@ allowBuilds:
   msgpackr-extract: true
   sharp: true
   workerd: true
+
+minimumReleaseAgeExclude:
+  - "@distilled.cloud/*"
