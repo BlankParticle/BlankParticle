@@ -95,8 +95,8 @@ function ActionSelect({
   const items = actionItems(forwardTargets);
   return (
     <Select value={value} onValueChange={(next) => next && onChange(next)} items={items} disabled={disabled}>
-      <SelectTrigger>
-        <SelectValue />
+      <SelectTrigger className="max-w-full">
+        <SelectValue className="min-w-0 truncate" />
       </SelectTrigger>
       <SelectContent>
         {Object.entries(items).map(([itemValue, label]) => (
@@ -230,7 +230,7 @@ function ZoneCard({
               <TableRow>
                 <TableHead>address</TableHead>
                 <TableHead>action</TableHead>
-                <TableHead>note</TableHead>
+                <TableHead className="hidden md:table-cell">note</TableHead>
                 <TableHead className="text-right">on</TableHead>
                 <TableHead />
               </TableRow>
@@ -244,7 +244,9 @@ function ZoneCard({
                     <TableCell>
                       <ActionBadge action={rule.action} />
                     </TableCell>
-                    <TableCell className="text-muted-foreground max-w-48 truncate text-xs">{rule.note}</TableCell>
+                    <TableCell className="text-muted-foreground hidden max-w-48 truncate text-xs md:table-cell">
+                      {rule.note}
+                    </TableCell>
                     <TableCell className="text-right">
                       <Switch
                         checked={rule.enabled}
@@ -283,7 +285,7 @@ function ZoneCard({
           </Table>
         )}
       </CardContent>
-      <CardFooter className="border-ink bg-lime/60 -mb-5 justify-between gap-3 rounded-b-[10px] border-t-2 py-3">
+      <CardFooter className="border-ink bg-lime/60 -mb-5 flex-wrap justify-between gap-3 rounded-b-[10px] border-t-2 py-3">
         <div className="flex items-center gap-2">
           <MailboxIcon className="size-4.5" />
           <span className="font-heading font-extrabold">catch-all</span>
@@ -342,7 +344,7 @@ function DestinationsCard({ destinations }: { destinations: DestinationAddress[]
         <ul className="space-y-2">
           {destinations.map((destination) => (
             <li key={destination.id} className="flex items-center gap-2">
-              <span className="font-mono text-sm">{destination.email}</span>
+              <span className="min-w-0 truncate font-mono text-sm">{destination.email}</span>
               {destination.verified ? (
                 <Badge variant="secondary">verified</Badge>
               ) : (
@@ -369,22 +371,24 @@ function DestinationsCard({ destinations }: { destinations: DestinationAddress[]
           )}
         </ul>
         <form
-          className="flex items-end gap-2"
+          className="flex flex-wrap items-end gap-2"
           onSubmit={(event) => {
             event.preventDefault();
             void form.handleSubmit();
           }}
         >
-          <form.AppField name="email">
-            {(field) => (
-              <field.TextField
-                label="Add destination"
-                type="email"
-                placeholder="you@example.com"
-                className="w-72 font-mono"
-              />
-            )}
-          </form.AppField>
+          <div className="w-full sm:w-auto">
+            <form.AppField name="email">
+              {(field) => (
+                <field.TextField
+                  label="Add destination"
+                  type="email"
+                  placeholder="you@example.com"
+                  className="w-full font-mono sm:w-72"
+                />
+              )}
+            </form.AppField>
+          </div>
           <form.AppForm>
             <form.SubmitButton variant="violet-outline" size="sm" pendingText="adding…">
               <PlusIcon /> add
@@ -440,7 +444,7 @@ function ActivityCard({ activity }: { activity: readonly ActivityEntry[] }) {
                 </TableHead>
                 <TableHead>from</TableHead>
                 <TableHead>to</TableHead>
-                <TableHead>subject</TableHead>
+                <TableHead className="hidden md:table-cell">subject</TableHead>
                 <TableHead>outcome</TableHead>
               </TableRow>
             </TableHeader>
@@ -450,7 +454,9 @@ function ActivityCard({ activity }: { activity: readonly ActivityEntry[] }) {
                   <TableCell className="text-muted-foreground font-mono text-xs">{formatTimestamp(entry.ts)}</TableCell>
                   <TableCell className="max-w-52 truncate font-mono text-xs">{entry.from}</TableCell>
                   <TableCell className="max-w-52 truncate font-mono text-xs">{entry.to}</TableCell>
-                  <TableCell className="text-muted-foreground max-w-64 truncate text-xs">{entry.subject}</TableCell>
+                  <TableCell className="text-muted-foreground hidden max-w-64 truncate text-xs md:table-cell">
+                    {entry.subject}
+                  </TableCell>
                   <TableCell>
                     <ActionBadge
                       action={

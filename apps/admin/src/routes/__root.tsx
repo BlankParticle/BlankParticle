@@ -41,7 +41,7 @@ function RootDocument({ children }: { children: ReactNode }) {
       </head>
       <body>
         <header className="border-ink bg-paper/90 sticky top-0 z-40 border-b-2 backdrop-blur">
-          <div className="mx-auto flex h-16 max-w-6xl items-center gap-8 px-6">
+          <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:gap-8 sm:px-6">
             <Link to="/" className="font-mono text-sm font-bold tracking-tight">
               <span className="text-violet">▞▞</span> blankparticle<span className="text-ink-muted">/admin</span>
             </Link>
@@ -50,19 +50,19 @@ function RootDocument({ children }: { children: ReactNode }) {
                 <Link
                   key={to}
                   to={to}
-                  className="border-ink text-ink hover:bg-lime rounded-full border-2 px-3.5 py-1 text-sm font-bold transition-all hover:-translate-y-0.5"
+                  className="border-ink text-ink hover:bg-lime rounded-full border-2 px-2.5 py-1 text-sm font-bold transition-all hover:-translate-y-0.5 sm:px-3.5"
                   activeProps={{ className: "bg-violet text-paper hover:bg-violet" }}
                   activeOptions={{ exact: to === "/" }}
                 >
-                  <Icon className="mr-1.5 inline size-3.5 align-[-2px]" />
-                  {label}
+                  <Icon className="inline size-3.5 align-[-2px] sm:mr-1.5" />
+                  <span className="sr-only sm:not-sr-only">{label}</span>
                 </Link>
               ))}
             </nav>
           </div>
           <NavigationIndicator />
         </header>
-        <main className="mx-auto max-w-6xl px-6 py-10">{children}</main>
+        <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">{children}</main>
         <Scripts />
       </body>
     </html>
