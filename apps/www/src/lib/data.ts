@@ -3,7 +3,7 @@ import type { ComponentType } from "react";
 import IterateLogo from "../assets/companies/iterate.png";
 import OrchidLogo from "../assets/companies/orchidhq.png";
 import UnLogo from "../assets/companies/un.png";
-import { DiscordIcon, GitHubIcon, GmailIcon, HashnodeIcon, LinkedInIcon, XIcon } from "../assets/social-icons.tsx";
+import { DiscordIcon, GitHubIcon, GmailIcon, LinkedInIcon, XIcon } from "../assets/social-icons.tsx";
 import { DiscordModal, EmailModal, type SocialModalProps } from "../components/social-modals";
 
 export const SITE_URL = "https://blankparticle.com";
@@ -98,7 +98,7 @@ export const socials: Social[] = [
     label: "Email",
     icon: GmailIcon,
     url: "https://mail.google.com/",
-    shortLink: ["/email"],
+    shortLink: [],
     modal: EmailModal,
   },
   {
@@ -113,7 +113,7 @@ export const socials: Social[] = [
     iconBackground: "bg-[#5865F2]",
     icon: DiscordIcon,
     url: "https://discord.com/users/1096392763144159252",
-    shortLink: ["/discord"],
+    shortLink: [],
     modal: DiscordModal,
   },
   {
@@ -131,19 +131,6 @@ export const socials: Social[] = [
     shortLink: ["/linkedin"],
   },
   {
-    label: "Spotify",
-    url: "https://open.spotify.com/user/31krf3flzpa44udfgkc5a5xrqn7y",
-    shortLink: ["/spotify"],
-    showAsSticker: false,
-  },
-  {
-    label: "Hashnode",
-    icon: HashnodeIcon,
-    url: "https://hashnode.com/@BlankParticle",
-    shortLink: ["/hashnode"],
-    showAsSticker: false,
-  },
-  {
     label: "Cal",
     url: "https://cal.com/blankparticle",
     shortLink: ["/cal"],
@@ -151,7 +138,7 @@ export const socials: Social[] = [
   },
   {
     label: "Resume",
-    url: "https://static.rx2.dev/docs/resume.pdf",
+    url: "https://static.blankparticle.com/docs/resume.pdf",
     shortLink: ["/resume"],
     showAsSticker: false,
   },

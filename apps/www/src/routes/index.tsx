@@ -278,6 +278,14 @@ function HomePage() {
                   />
                 );
               })}
+            <Button
+              variant="sticker"
+              className="border-orange-deep text-orange-deep hover:bg-orange-deep rotate-2 border-dashed hover:shadow-[4px_4px_0_var(--color-violet)]"
+              nativeButton={false}
+              render={<Link to="/links" />}
+            >
+              all my links →
+            </Button>
           </div>
         </section>
 

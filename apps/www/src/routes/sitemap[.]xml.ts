@@ -12,6 +12,9 @@ export const Route = createFileRoute("/sitemap.xml")({
 
         const urls = [
           { loc: SITE_URL },
+          { loc: `${SITE_URL}/links` },
+          { loc: `${SITE_URL}/email` },
+          { loc: `${SITE_URL}/discord` },
           { loc: `${SITE_URL}/blog`, lastmod: latestPostDate },
           ...posts.map((post) => ({ loc: `${SITE_URL}/blog/${post.slugs[0]}`, lastmod: post.data.date })),
         ];
