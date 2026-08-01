@@ -3,7 +3,7 @@ import { cn } from "cnfast";
 import { XIcon } from "lucide-react";
 import * as React from "react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "./button.tsx";
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
@@ -57,7 +57,7 @@ function DialogContent({
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            className="border-ink bg-paper text-ink hover:bg-orange-deep hover:text-paper absolute -top-2.5 -right-2.5 grid size-8 place-items-center rounded-full border-2 transition-colors duration-150"
+            className="border-ink bg-paper text-ink hover:bg-orange-deep hover:text-paper absolute -top-2.5 -right-2.5 grid size-8 cursor-pointer place-items-center rounded-full border-2 transition-colors duration-150"
           >
             <XIcon className="size-4" />
             <span className="sr-only">Close</span>

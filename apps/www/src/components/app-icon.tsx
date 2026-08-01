@@ -1,4 +1,4 @@
-import { cn } from "cnfast";
+import { cn } from "@blankparticle/ui/utils";
 import type { ComponentProps } from "react";
 
 export function AppIcon({ className, children, ...props }: ComponentProps<"span">) {

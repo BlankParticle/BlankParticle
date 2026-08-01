@@ -1,15 +1,19 @@
+import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 
 const CloudflareAccountId = Effect.map(Effect.flatten(Cloudflare.CloudflareEnvironment), (env) => env.accountId);
 
-// Single personal token: read zones, manage email routing (rules are zone-scoped, addresses account-scoped)
 const AdminApiToken = Effect.gen(function* () {
   const accountId = yield* CloudflareAccountId;
+  const stage = yield* Alchemy.Stage;
   const token = yield* Cloudflare.ApiToken.AccountApiToken("AdminApiToken", {
     accountId,
-    name: "App Token (BlankParticle/BlankParticle/Admin)",
+    name:
+      stage === "prod"
+        ? "App Token (BlankParticle/BlankParticle/Admin)"
+        : `[${stage}] App Token (BlankParticle/BlankParticle/Admin)`,
     policies: [
       {
         effect: "allow",
@@ -46,11 +50,14 @@ export type AdminAppEnv = Cloudflare.InferEnv<typeof AdminApp>;
 
 export const SetupAccess = Effect.gen(function* () {
   const cloudflareAccountEmail = yield* Config.string("CLOUDFLARE_ACCOUNT_EMAIL");
+  const stage = yield* Alchemy.Stage;
 
+  if (stage !== "prod") return;
   const ownerPolicy = yield* Cloudflare.Access.Policy("AdminOwnerPolicy", {
     name: "Admin App Owner",
     decision: "allow",
     include: [{ email: { email: cloudflareAccountEmail } }],
+    adopt: true,
   });
 
   yield* Cloudflare.Access.Application("AdminAccessApp", {
@@ -60,6 +67,7 @@ export const SetupAccess = Effect.gen(function* () {
     sessionDuration: "168h",
     policies: [ownerPolicy.policyId],
     appLauncherVisible: false,
+    adopt: true,
   });
 });
 

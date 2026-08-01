@@ -1,9 +1,9 @@
+import { Badge } from "@blankparticle/ui/components/badge.tsx";
+import { Card, CardContent, CardHeader, CardTitle } from "@blankparticle/ui/components/card.tsx";
+import { ArrowRightIcon, GlobeIcon } from "@blankparticle/ui/icons";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRightIcon, GlobeIcon } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge.tsx";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import type { EmailRoutingSettings } from "@/lib/api.ts";
 import { zonesQuery } from "@/lib/queries.ts";
 

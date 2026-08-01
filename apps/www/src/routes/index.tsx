@@ -1,3 +1,10 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@blankparticle/ui/components/accordion.tsx";
+import { Button } from "@blankparticle/ui/components/button.tsx";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 
@@ -7,8 +14,6 @@ import { FooterCallout } from "@/components/footer-callout.tsx";
 import { LiveTime } from "@/components/live-time.tsx";
 import { Marquee } from "@/components/marquee.tsx";
 import { SocialSticker } from "@/components/social-sticker.tsx";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion.tsx";
-import { Button } from "@/components/ui/button.tsx";
 import { personLd, projects, SITE_URL, socials, workHistory } from "@/lib/data.ts";
 
 const tickerWords = [

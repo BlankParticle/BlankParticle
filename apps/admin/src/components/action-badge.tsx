@@ -1,13 +1,13 @@
-import { ArrowRightIcon, BanIcon } from "lucide-react";
+import { Badge } from "@blankparticle/ui/components/badge.tsx";
+import { ArrowRightIcon, ProhibitIcon } from "@blankparticle/ui/icons";
 
-import { Badge } from "@/components/ui/badge.tsx";
 import type { RuleAction } from "@/lib/rules.ts";
 
 export function ActionBadge({ action }: { action: RuleAction }) {
   if (action.type === "drop") {
     return (
       <Badge variant="drop">
-        <BanIcon />
+        <ProhibitIcon />
         drop
       </Badge>
     );

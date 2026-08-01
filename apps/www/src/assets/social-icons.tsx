@@ -1,5 +1,3 @@
-// Brand icons sourced from https://svgl.app
-
 // source: https://svgl.app/library/gmail.svg
 export function GmailIcon() {
   return (

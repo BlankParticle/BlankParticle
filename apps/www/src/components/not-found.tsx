@@ -1,5 +1,6 @@
+import { Button } from "@blankparticle/ui/components/button.tsx";
+
 import { LiveTime } from "./live-time.tsx";
-import { Button } from "./ui/button.tsx";
 
 export function NotFound() {
   return (

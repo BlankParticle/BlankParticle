@@ -1,7 +1,6 @@
+import { Button } from "@blankparticle/ui/components/button.tsx";
+import { CheckIcon, CopyIcon } from "@blankparticle/ui/icons";
 import { useState, type PropsWithChildren } from "react";
-
-import { ConfirmIcon, CopyIcon } from "../assets/icons.tsx";
-import { Button } from "./ui/button.tsx";
 
 export function CopyButton({ value, label }: PropsWithChildren<{ value: string; label: string }>) {
   const [copied, setCopied] = useState(false);
@@ -21,7 +20,7 @@ export function CopyButton({ value, label }: PropsWithChildren<{ value: string; 
           .finally(() => setTimeout(() => setCopied(false), 2000))
       }
     >
-      {copied ? <ConfirmIcon /> : <CopyIcon />}
+      {copied ? <CheckIcon /> : <CopyIcon />}
     </Button>
   );
 }

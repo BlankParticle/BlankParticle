@@ -1,9 +1,9 @@
+import { MailboxIcon, TargetIcon } from "@blankparticle/ui/icons";
 import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, HeadContent, Link, Scripts, useRouterState } from "@tanstack/react-router";
-import { MailboxIcon, RadarIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import appCss from "@/styles/app.css?url";
+import appCss from "../app.css?url";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
@@ -19,7 +19,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 const navLinks = [
-  { to: "/", label: "Zones", icon: RadarIcon },
+  { to: "/", label: "Zones", icon: TargetIcon },
   { to: "/email", label: "Email Rules", icon: MailboxIcon },
 ] as const;
 
@@ -27,7 +27,7 @@ function NavigationIndicator() {
   const isNavigating = useRouterState({ select: (state) => state.status === "pending" });
   if (!isNavigating) return null;
   return (
-    <div className="absolute inset-x-0 bottom-[-2px] h-0.5 overflow-hidden">
+    <div className="absolute inset-x-0 -bottom-0.5 h-0.5 overflow-hidden">
       <div className="bg-orange animate-indeterminate h-full w-1/3" />
     </div>
   );

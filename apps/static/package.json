@@ -1,5 +1,4 @@
 {
   "name": "@blankparticle/static.rx2.dev",
-  "type": "module",
-  "scripts": {}
+  "type": "module"
 }

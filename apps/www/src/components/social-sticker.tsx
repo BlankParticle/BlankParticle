@@ -1,7 +1,6 @@
-import { cn } from "cnfast";
+import { Button } from "@blankparticle/ui/components/button.tsx";
+import { cn } from "@blankparticle/ui/utils";
 import type { ReactNode } from "react";
-
-import { Button } from "./ui/button.tsx";
 
 interface Props {
   name: string;

@@ -2,8 +2,16 @@
 @import "@fontsource/bricolage-grotesque/latin-700.css";
 @import "@fontsource/bricolage-grotesque/latin-800.css";
 @import "@fontsource/karla/latin-400.css";
+@import "@fontsource/karla/latin-400-italic.css";
 @import "@fontsource/karla/latin-700.css";
 @import "tw-animate-css";
+@import "./shadcn.css";
+
+/* the sticker button variant uses spring-* utilities */
+@plugin "tailwindcss-spring";
+
+/* scan the package's own components for class names */
+@source "../components";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -11,7 +19,7 @@
   --font-display: "Bricolage Grotesque", "Arial Black", sans-serif;
   --font-body: "Karla", "Helvetica Neue", Arial, sans-serif;
 
-  /* two-ink risograph palette: violet + orange on bright paper (borrowed from www) */
+  /* two-ink risograph palette: violet + orange on bright paper */
   --color-paper: oklch(98% 0.005 110);
   --color-ink: oklch(27% 0.03 300);
   --color-ink-muted: oklch(46% 0.03 300);
@@ -20,17 +28,6 @@
   --color-orange: oklch(68% 0.19 45);
   --color-orange-deep: oklch(50% 0.17 40);
   --color-lime: oklch(92% 0.16 125);
-
-  --animate-indeterminate: indeterminate 1s ease-in-out infinite;
-
-  @keyframes indeterminate {
-    from {
-      transform: translateX(-100%);
-    }
-    to {
-      transform: translateX(400%);
-    }
-  }
 }
 
 @layer base {
@@ -53,6 +50,7 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
+  /* keep wavy/solid underlines continuous through descenders */
   a {
     text-decoration-skip-ink: none;
   }
@@ -91,6 +89,8 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 :root {

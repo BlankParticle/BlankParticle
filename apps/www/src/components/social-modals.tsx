@@ -1,6 +1,14 @@
+import { Button } from "@blankparticle/ui/components/button.tsx";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@blankparticle/ui/components/dialog.tsx";
+
 import { CopyButton } from "./copy-button.tsx";
-import { Button } from "./ui/button.tsx";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog.tsx";
 
 interface ContactDialogProps {
   open: boolean;

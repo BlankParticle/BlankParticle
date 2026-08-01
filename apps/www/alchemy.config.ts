@@ -1,4 +1,5 @@
 import * as Cloudflare from "alchemy/Cloudflare";
+import * as Effect from "effect/Effect";
 
 const TARGET_DOMAIN = "blankparticle.com";
 const BLOG_DOMAINS = ["blog.blankparticle.in", "blog.blankparticle.com"];
@@ -17,3 +18,8 @@ export class MainWebsite extends Cloudflare.Website.Vite<MainWebsite>()("www", {
 }) {}
 
 export type MainWebsiteEnv = Cloudflare.InferEnv<typeof MainWebsite>;
+
+export const SetupMainWebsite = Effect.gen(function* () {
+  const worker = yield* MainWebsite;
+  return worker;
+});

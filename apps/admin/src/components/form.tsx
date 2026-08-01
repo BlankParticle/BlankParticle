@@ -1,11 +1,10 @@
+import { Button } from "@blankparticle/ui/components/button.tsx";
+import { Input } from "@blankparticle/ui/components/input.tsx";
+import { Label } from "@blankparticle/ui/components/label.tsx";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@blankparticle/ui/components/select.tsx";
+import { SpinnerGapIcon } from "@blankparticle/ui/icons-ssr";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
-import { Loader2Icon } from "lucide-react";
 import type * as React from "react";
-
-import { Button } from "./button.tsx";
-import { Input } from "./input.tsx";
-import { Label } from "./label.tsx";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select.tsx";
 
 const { fieldContext, formContext, useFieldContext, useFormContext } = createFormHookContexts();
 
@@ -86,7 +85,7 @@ function SubmitButton({
         <Button type="submit" disabled={!canSubmit || isSubmitting} {...props}>
           {isSubmitting ? (
             <>
-              <Loader2Icon className="animate-spin" /> {pendingText}
+              <SpinnerGapIcon className="animate-spin" /> {pendingText}
             </>
           ) : (
             children

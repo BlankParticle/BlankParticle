@@ -1,22 +1,5 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import * as Schema from "effect/Schema";
-import {
-  ActivityIcon,
-  AtSignIcon,
-  CheckIcon,
-  ClockIcon,
-  InboxIcon,
-  Loader2Icon,
-  PlusIcon,
-  SendIcon,
-  Trash2Icon,
-} from "lucide-react";
-import { useState } from "react";
-
-import { ActionBadge } from "@/components/action-badge.tsx";
-import { Badge } from "@/components/ui/badge.tsx";
-import { Button } from "@/components/ui/button.tsx";
+import { Badge } from "@blankparticle/ui/components/badge.tsx";
+import { Button } from "@blankparticle/ui/components/button.tsx";
 import {
   Card,
   CardAction,
@@ -25,7 +8,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card.tsx";
+} from "@blankparticle/ui/components/card.tsx";
 import {
   Dialog,
   DialogContent,
@@ -33,11 +16,28 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog.tsx";
-import { useAppForm } from "@/components/ui/form.tsx";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select.tsx";
-import { Switch } from "@/components/ui/switch.tsx";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
+} from "@blankparticle/ui/components/dialog.tsx";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@blankparticle/ui/components/select.tsx";
+import { Switch } from "@blankparticle/ui/components/switch.tsx";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@blankparticle/ui/components/table.tsx";
+import {
+  ActivityIcon,
+  AtIcon,
+  CheckIcon,
+  ClockIcon,
+  MailboxIcon,
+  SpinnerGapIcon,
+  PlusIcon,
+  PaperPlaneTiltIcon,
+  TrashIcon,
+} from "@blankparticle/ui/icons";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import * as Schema from "effect/Schema";
+import { useState } from "react";
+
+import { ActionBadge } from "@/components/action-badge.tsx";
+import { useAppForm } from "@/components/form.tsx";
 import { addDestination, clearActivity, removeDestination, saveRuleSet, type DestinationAddress } from "@/lib/api.ts";
 import { emailConfigQuery } from "@/lib/queries.ts";
 import type { ActivityEntry, EmailRule, RuleAction, RuleSet } from "@/lib/rules.ts";
@@ -139,7 +139,7 @@ function AddRuleDialog({ zone, forwardTargets }: { zone: string; forwardTargets:
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button variant="outline" size="sm" />}>
+      <DialogTrigger render={<Button variant="violet-outline" size="sm" />}>
         <PlusIcon /> rule
       </DialogTrigger>
       <DialogContent>
@@ -175,7 +175,7 @@ function AddRuleDialog({ zone, forwardTargets }: { zone: string; forwardTargets:
           </form.AppField>
           <div className="flex justify-end pt-1">
             <form.AppForm>
-              <form.SubmitButton pendingText="adding…">
+              <form.SubmitButton variant="violet" pendingText="adding…">
                 <CheckIcon /> Add rule
               </form.SubmitButton>
             </form.AppForm>
@@ -214,7 +214,7 @@ function ZoneCard({
     <Card id={zone} className="scroll-mt-20">
       <CardHeader className="flex-row items-center">
         <CardTitle className="flex items-center gap-2">
-          <AtSignIcon className="text-orange-deep size-4.5" />
+          <AtIcon className="text-orange-deep size-4.5" />
           {zone}
         </CardTitle>
         <CardAction>
@@ -269,9 +269,9 @@ function ZoneCard({
                         }
                       >
                         {pendingSource === `delete:${rule.id}` ? (
-                          <Loader2Icon className="animate-spin" />
+                          <SpinnerGapIcon className="animate-spin" />
                         ) : (
-                          <Trash2Icon />
+                          <TrashIcon />
                         )}
                         <span className="sr-only">Delete rule</span>
                       </Button>
@@ -285,10 +285,10 @@ function ZoneCard({
       </CardContent>
       <CardFooter className="border-ink bg-lime/60 -mb-5 justify-between gap-3 rounded-b-[10px] border-t-2 py-3">
         <div className="flex items-center gap-2">
-          <InboxIcon className="size-4.5" />
+          <MailboxIcon className="size-4.5" />
           <span className="font-heading font-extrabold">catch-all</span>
           <span className="text-ink-muted hidden text-sm sm:inline">everything not matched above</span>
-          {pendingSource === "catch-all" && <Loader2Icon className="text-ink-muted size-4 animate-spin" />}
+          {pendingSource === "catch-all" && <SpinnerGapIcon className="text-ink-muted size-4 animate-spin" />}
         </div>
         <ActionSelect
           value={encodeAction(defaultAction)}
@@ -333,7 +333,7 @@ function DestinationsCard({ destinations }: { destinations: DestinationAddress[]
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <SendIcon className="text-orange-deep size-4.5" />
+          <PaperPlaneTiltIcon className="text-orange-deep size-4.5" />
           Destinations
         </CardTitle>
         <CardDescription>The rule engine can only forward to verified addresses.</CardDescription>
@@ -356,9 +356,9 @@ function DestinationsCard({ destinations }: { destinations: DestinationAddress[]
                 onClick={() => removeDest.mutate(destination.id)}
               >
                 {removeDest.isPending && removeDest.variables === destination.id ? (
-                  <Loader2Icon className="animate-spin" />
+                  <SpinnerGapIcon className="animate-spin" />
                 ) : (
-                  <Trash2Icon />
+                  <TrashIcon />
                 )}
                 <span className="sr-only">Remove destination</span>
               </Button>
@@ -386,7 +386,7 @@ function DestinationsCard({ destinations }: { destinations: DestinationAddress[]
             )}
           </form.AppField>
           <form.AppForm>
-            <form.SubmitButton variant="outline" size="sm" pendingText="adding…">
+            <form.SubmitButton variant="violet-outline" size="sm" pendingText="adding…">
               <PlusIcon /> add
             </form.SubmitButton>
           </form.AppForm>
@@ -422,7 +422,7 @@ function ActivityCard({ activity }: { activity: readonly ActivityEntry[] }) {
         {activity.length > 0 && (
           <CardAction>
             <Button variant="ghost" size="sm" onClick={() => clear.mutate()} disabled={clear.isPending}>
-              {clear.isPending && <Loader2Icon className="animate-spin" />}
+              {clear.isPending && <SpinnerGapIcon className="animate-spin" />}
               clear
             </Button>
           </CardAction>

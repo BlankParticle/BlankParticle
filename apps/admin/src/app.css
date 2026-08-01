@@ -1,0 +1,14 @@
+@import "@blankparticle/ui/setup";
+
+@theme {
+  --animate-indeterminate: indeterminate 1s ease-in-out infinite;
+
+  @keyframes indeterminate {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(400%);
+    }
+  }
+}
