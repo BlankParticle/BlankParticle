@@ -1,7 +1,7 @@
-import { join } from "node:path";
+import React from "react";
+import type { ImageResponseOptions } from "takumi-js/response";
 
-import { renderToFile, REPO_ROOT, scaledDimensions } from "./helpers.ts";
-import { fonts, profileImage, themedInk } from "./shared.tsx";
+import { renderToFile, scaledDimensions, fonts, profileImage, themedInk } from "../helpers.ts";
 
 const WIDTH = 1280;
 const HEIGHT = 426;
@@ -123,16 +123,14 @@ function Banner() {
   );
 }
 
-await renderToFile(
-  <Banner />,
-  {
-    ...scaledDimensions(WIDTH, HEIGHT),
-    fonts,
-    images: [profileImage],
-    format: "png",
-    headers: {
-      "Content-Type": "image/png",
+export const render = (outputPath: string, options: ImageResponseOptions = {}) =>
+  renderToFile(
+    React.createElement(Banner),
+    {
+      ...scaledDimensions(WIDTH, HEIGHT),
+      fonts,
+      images: [profileImage],
+      ...options,
     },
-  },
-  join(REPO_ROOT, ".github/assets/banner.png"),
-);
+    outputPath,
+  );

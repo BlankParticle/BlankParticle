@@ -1,7 +1,7 @@
-import { join } from "node:path";
+import React from "react";
+import type { ImageResponseOptions } from "takumi-js/response";
 
-import { renderToFile, REPO_ROOT, scaledDimensions } from "./helpers.ts";
-import { fonts, profileImage, themedInk } from "./shared.tsx";
+import { renderToFile, scaledDimensions, fonts, profileImage, themedInk } from "../helpers.ts";
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -113,16 +113,14 @@ function OgImage() {
   );
 }
 
-await renderToFile(
-  <OgImage />,
-  {
-    ...scaledDimensions(WIDTH, HEIGHT),
-    fonts,
-    images: [profileImage],
-    format: "webp",
-    headers: {
-      "Content-Type": "image/webp",
+export const render = (outputPath: string, options: ImageResponseOptions = {}) =>
+  renderToFile(
+    React.createElement(OgImage),
+    {
+      ...scaledDimensions(WIDTH, HEIGHT),
+      fonts,
+      images: [profileImage],
+      ...options,
     },
-  },
-  join(REPO_ROOT, "apps/www/public/og-image.webp"),
-);
+    outputPath,
+  );
