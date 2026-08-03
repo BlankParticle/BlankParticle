@@ -1,5 +1,4 @@
 import * as Alchemy from "alchemy";
-import { adopt } from "alchemy/AdoptPolicy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Record from "effect/Record";
@@ -97,4 +96,4 @@ export default Alchemy.Stack(
     yield* SetupZones;
     yield* SetupZeroTrust;
   }),
-).pipe(adopt());
+);

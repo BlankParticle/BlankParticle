@@ -1,5 +1,4 @@
 import * as Alchemy from "alchemy";
-import { adopt } from "alchemy/AdoptPolicy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as GitHub from "alchemy/GitHub";
 import * as Config from "effect/Config";
@@ -76,4 +75,4 @@ export default Alchemy.Stack(
       ...githubRepo,
     });
   }),
-).pipe(adopt());
+);
