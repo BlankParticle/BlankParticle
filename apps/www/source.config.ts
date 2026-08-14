@@ -20,10 +20,7 @@ export const posts = defineDocs({
     ),
     mdxOptions: applyMdxPreset({
       remarkPlugins: [remarkGfm],
-      remarkImageOptions: {
-        useImport: false,
-        publicDir: join(import.meta.dirname, "public"),
-      },
+      remarkImageOptions: { useImport: false },
       rehypeCodeOptions: {
         themes: { light: "github-light", dark: "github-dark" },
         langs: ["typescript", "bash", "json", "tsx", "jsx", "diff"],

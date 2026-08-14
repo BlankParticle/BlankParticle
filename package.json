@@ -13,13 +13,14 @@
     "typecheck": "vpr -r typecheck"
   },
   "devDependencies": {
-    "@effect/platform-node": "^4.0.0-beta.102",
+    "@blankparticle/utils": "workspace:*",
+    "@effect/platform-node": "4.0.0-beta.105",
     "@types/node": "^26.1.2",
-    "alchemy": "https://pkg.ing/alchemy/06c0253",
-    "effect": "4.0.0-beta.102",
-    "tsx": "^4.23.1",
+    "alchemy": "https://pkg.ing/alchemy/a81a5c2",
+    "effect": "4.0.0-beta.105",
+    "tsx": "^4.23.7",
     "typescript": "^7.0.2",
-    "vite-plus": "^0.2.7"
+    "vite-plus": "^0.2.9"
   },
-  "packageManager": "pnpm@11.18.0"
+  "packageManager": "pnpm@11.21.0"
 }

@@ -32,9 +32,10 @@ const listZones = zones.listZones({ perPage: 50 }).pipe(Effect.map((page) => pag
 
 const routingSettings = (zoneId: string) =>
   emailRouting.getEmailRouting({ zoneId }).pipe(
-    Effect.map(
-      (settings): EmailRoutingSettings => ({ enabled: settings.enabled, status: settings.status ?? "unknown" }),
-    ),
+    Effect.map((settings): EmailRoutingSettings => ({
+      enabled: settings.enabled,
+      status: settings.status ?? "unknown",
+    })),
     Effect.catch((error) => Effect.succeed<EmailRoutingSettings>({ error: String(error) })),
   );
 
@@ -58,21 +59,22 @@ const readActivity = Effect.gen(function* () {
   return log ?? [];
 });
 
-export const getZonesOverview = createServerFn().handler(
-  (): Promise<ZoneOverview[]> =>
-    run(
-      Effect.flatMap(listZones, (all) =>
-        Effect.forEach(
-          all,
-          (zone) =>
-            Effect.map(
-              routingSettings(zone.id),
-              (routing): ZoneOverview => ({ id: zone.id, name: zone.name, status: zone.status ?? "unknown", routing }),
-            ),
-          { concurrency: "unbounded" },
-        ),
+export const getZonesOverview = createServerFn().handler((): Promise<ZoneOverview[]> =>
+  run(
+    Effect.flatMap(listZones, (all) =>
+      Effect.forEach(
+        all,
+        (zone) =>
+          Effect.map(routingSettings(zone.id), (routing): ZoneOverview => ({
+            id: zone.id,
+            name: zone.name,
+            status: zone.status ?? "unknown",
+            routing,
+          })),
+        { concurrency: "unbounded" },
       ),
     ),
+  ),
 );
 
 export const getEmailConfig = createServerFn().handler(() =>

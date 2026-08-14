@@ -10,13 +10,14 @@
   },
   "dependencies": {
     "@blankparticle/ui": "workspace:*",
-    "@distilled.cloud/cloudflare": "0.30.3",
+    "@blankparticle/utils": "workspace:*",
+    "@distilled.cloud/cloudflare": "https://pkg.ing/@distilled.cloud/cloudflare/01db915",
     "@tanstack/react-form": "^1.33.2",
     "@tanstack/react-query": "^5.101.4",
     "@tanstack/react-router": "^1.170.18",
     "@tanstack/react-router-ssr-query": "^1.167.1",
     "@tanstack/react-start": "^1.168.32",
-    "effect": "4.0.0-beta.102",
+    "effect": "4.0.0-beta.105",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

@@ -1,0 +1,9 @@
+{
+  "name": "@blankparticle/utils",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./alchemy": "./src/alchemy.ts"
+  }
+}

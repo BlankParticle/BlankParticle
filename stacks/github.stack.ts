@@ -1,21 +1,22 @@
+import { StageInvariant, CloudflareAccountId, CloudflareAccountEmail } from "@blankparticle/utils/alchemy";
 import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as GitHub from "alchemy/GitHub";
-import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
+import * as Schema from "effect/Schema";
 
 const githubRepo = { owner: "BlankParticle", repository: "BlankParticle" };
-
-const CloudflareAccountId = Effect.map(Effect.flatten(Cloudflare.CloudflareEnvironment), (env) => env.accountId);
 
 export default Alchemy.Stack(
   "GitHub",
   { providers: Layer.mergeAll(Cloudflare.providers(), GitHub.providers()), state: Cloudflare.state() },
   Effect.gen(function* () {
+    yield* StageInvariant(Schema.Literal("prod")).pipe(Effect.orDie);
+
     const accountId = yield* CloudflareAccountId;
-    const accountEmail = yield* Config.string("CLOUDFLARE_ACCOUNT_EMAIL");
+    const accountEmail = yield* CloudflareAccountEmail;
 
     const apiToken = yield* Cloudflare.ApiToken.AccountApiToken("CIToken", {
       accountId,
@@ -57,19 +58,19 @@ export default Alchemy.Stack(
       name: `Alchemy GitHub CI Token (${githubRepo.owner}/${githubRepo.repository})`,
     });
 
-    yield* GitHub.Secret("cloudflare-api-token", {
+    yield* GitHub.Secret("CloudflareApiToken", {
       name: "CLOUDFLARE_API_TOKEN",
       value: apiToken.value,
       ...githubRepo,
     });
 
-    yield* GitHub.Secret("cloudflare-account-id", {
+    yield* GitHub.Secret("CloudflareAccountId", {
       name: "CLOUDFLARE_ACCOUNT_ID",
       value: Redacted.make(accountId),
       ...githubRepo,
     });
 
-    yield* GitHub.Secret("cloudflare-account-email", {
+    yield* GitHub.Secret("CloudflareAccountEmail", {
       name: "CLOUDFLARE_ACCOUNT_EMAIL",
       value: Redacted.make(accountEmail),
       ...githubRepo,
