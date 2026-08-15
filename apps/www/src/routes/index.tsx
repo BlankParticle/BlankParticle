@@ -161,7 +161,7 @@ function HomePage() {
             </h2>
             <span className="text-orange-deep text-xs font-bold tracking-[0.18em] uppercase">the paper trail</span>
           </div>
-          <Accordion>
+          <Accordion defaultValue={[workHistory[0].company]}>
             {workHistory.map((work) => (
               <AccordionItem key={work.company} value={work.company}>
                 <AccordionTrigger>
