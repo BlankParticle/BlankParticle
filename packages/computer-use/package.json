@@ -1,0 +1,9 @@
+{
+  "name": "@blankparticle/computer-use",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "./scripts/build-app.sh",
+    "install-app": "./scripts/install-app.sh"
+  }
+}
