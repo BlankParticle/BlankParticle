@@ -1,5 +1,6 @@
 packages:
   - "apps/*"
+  - "fleet"
   - "packages/*"
   - "scripts"
 
@@ -14,6 +15,9 @@ minimumReleaseAgeExclude:
   - "@effect/platform-node-shared@4.0.0-beta.105"
   - "@effect/platform-node@4.0.0-beta.105"
   - effect@4.0.0-beta.105
+  - '@effect/sql-d1@4.0.0-rc.110'
+  - '@effect/sql-sqlite-do@4.0.0-rc.110'
+  - '@effect/vitest@4.0.0-rc.110'
 
 overrides:
   "hono": "^4.12.32"

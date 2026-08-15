@@ -3,7 +3,7 @@
 ## 👀 About me
 
 - ✨ Hi <image src="https://cdn.discordapp.com/emojis/1095012855285293067.gif?size=48&quality=lossless" height="16px">, I am **Rahul**
-- 🧑‍💻 Open to work
+- 🧑‍💻 Wizard at [Alchemy.run](https://alchemy.run)
 
 ## 🏗️ What I work on
 

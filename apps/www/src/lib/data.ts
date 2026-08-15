@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 
+import AlchemyLogo from "../assets/companies/alchemy.png";
 import IterateLogo from "../assets/companies/iterate.png";
 import OrchidLogo from "../assets/companies/orchidhq.png";
 import UnLogo from "../assets/companies/un.png";
@@ -9,6 +10,18 @@ import { DiscordModal, EmailModal, type SocialModalProps } from "../components/s
 export const SITE_URL = "https://blankparticle.com";
 
 export const workHistory = [
+  {
+    role: "Software Engineer",
+    company: "Alchemy",
+    companySubtext: "Functionless Corp.",
+    logo: AlchemyLogo,
+    url: "https://alchemy.run",
+    date: "Aug 2026 — Present",
+    tags: ["Full-time", "Remote"],
+    points: [
+      "Building next-gen, Effect-native infrastructure-as-code tooling to model infra as composable, type-safe Effect code",
+    ],
+  },
   {
     role: "Software Engineer",
     company: "Iterate",

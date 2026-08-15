@@ -97,16 +97,7 @@ function HomePage() {
               >
                 @blankparticle
               </a>
-              online. {age} years old, software developer{" "}
-              <a
-                href="/resume"
-                className="text-orange-deep decoration-orange font-bold underline decoration-wavy decoration-2 underline-offset-4"
-                target="_blank"
-                rel="nofollow noopener noreferrer"
-              >
-                open to work
-              </a>
-              , and forever taking software apart to see how it works. Sometimes I write about it on
+              online. {age} years old, software developer, and forever taking software apart to see how it works. Sometimes I write about it on
               <Link
                 to="/blog"
                 className="decoration-orange hover:text-ink ml-1 underline decoration-wavy decoration-2 underline-offset-4 transition-colors"
@@ -161,7 +152,7 @@ function HomePage() {
             </h2>
             <span className="text-orange-deep text-xs font-bold tracking-[0.18em] uppercase">the paper trail</span>
           </div>
-          <Accordion>
+          <Accordion defaultValue={[workHistory[0].company]}>
             {workHistory.map((work) => (
               <AccordionItem key={work.company} value={work.company}>
                 <AccordionTrigger>

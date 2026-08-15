@@ -14,10 +14,10 @@
   },
   "devDependencies": {
     "@blankparticle/utils": "workspace:*",
-    "@effect/platform-node": "4.0.0-beta.105",
+    "@effect/platform-node": "4.0.0-rc.109",
     "@types/node": "^26.1.2",
-    "alchemy": "https://pkg.ing/alchemy/a81a5c2",
-    "effect": "4.0.0-beta.105",
+    "alchemy": "https://pkg.ing/alchemy/bb01f66",
+    "effect": "4.0.0-rc.109",
     "tsx": "^4.23.7",
     "typescript": "^7.0.2",
     "vite-plus": "^0.2.9"

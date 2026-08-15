@@ -1,0 +1,8 @@
+enter_accept = true
+inline_height = 10
+inline_height_shell_up_key_binding = 10
+search_mode = "daemon-fuzzy"
+
+[daemon]
+enabled = true
+autostart = true

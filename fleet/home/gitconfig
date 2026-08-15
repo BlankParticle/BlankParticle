@@ -1,0 +1,64 @@
+[user]
+	name = {{name}}
+	email = {{email}}
+	signingkey = ~/.ssh/id_ed25519.pub
+
+[init]
+	defaultBranch = main
+
+[core]
+	pager = less
+	excludesFile = ~/.config/git/ignore
+
+[pull]
+	rebase = true
+
+[rebase]
+	autoStash = true
+
+[rerere]
+	enabled = true
+	autoUpdate = true
+
+[push]
+	autoSetupRemote = true
+	default = current
+	recurseSubmodules = on-demand
+
+[diff]
+	submodule = log
+
+[status]
+	submoduleSummary = 1
+
+[commit]
+	gpgsign = true
+
+[tag]
+	gpgsign = true
+
+[gpg]
+	format = ssh
+
+[gpg "ssh"]
+	allowedSignersFile = ~/.config/git/allowed_signers
+
+[alias]
+	co = checkout
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
+[credential "https://github.com"]
+	helper =
+	helper = !gh auth git-credential
+
+[credential "https://gist.github.com"]
+	helper =
+	helper = !gh auth git-credential
+
+[include]
+	path = config.host
