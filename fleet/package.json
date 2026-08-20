@@ -2,9 +2,7 @@
   "name": "@blankparticle/fleet",
   "private": true,
   "type": "module",
-  "scripts": {
-    "apply": "node src/cli.ts apply",
-    "diff": "node src/cli.ts diff",
-    "deploy:orion": "node src/cli.ts deploy orion"
+  "dependencies": {
+    "@blankparticle/utils": "workspace:*"
   }
 }

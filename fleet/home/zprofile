@@ -1,4 +1,0 @@
-# macOS path_helper (/etc/zprofile) reshuffles PATH after ~/.zshenv has run,
-# putting system dirs first. Re-source ~/.zshenv so our entries win again;
-# `typeset -U path` in there keeps PATH deduped. Harmless on Linux.
-source "$HOME/.zshenv"
