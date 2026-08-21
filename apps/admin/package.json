@@ -11,7 +11,7 @@
   "dependencies": {
     "@blankparticle/ui": "workspace:*",
     "@blankparticle/utils": "workspace:*",
-    "@distilled.cloud/cloudflare": "https://pkg.ing/@distilled.cloud/cloudflare/01db915",
+    "@distilled.cloud/cloudflare": "1.0.0-rc.6",
     "@tanstack/react-form": "^1.33.2",
     "@tanstack/react-query": "^5.101.4",
     "@tanstack/react-router": "^1.170.18",

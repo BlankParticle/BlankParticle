@@ -27,6 +27,7 @@ export default Alchemy.Stack(
 
     yield* Effect.all(
       [
+        "awscli",
         "btop",
         "rsync",
         "act",

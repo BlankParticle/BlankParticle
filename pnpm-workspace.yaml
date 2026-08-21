@@ -11,7 +11,9 @@ allowBuilds:
   workerd: true
 
 minimumReleaseAgeExclude:
+  - alchemy
   - "@distilled.cloud/*"
+  - "@alchemy.run/*"
   - "@effect/platform-node-shared@4.0.0-beta.105"
   - "@effect/platform-node@4.0.0-beta.105"
   - effect@4.0.0-beta.105
