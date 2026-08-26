@@ -27,6 +27,7 @@ export default Alchemy.Stack(
 
     yield* Effect.all(
       [
+        "ast-grep",
         "awscli",
         "btop",
         "rsync",

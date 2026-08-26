@@ -24,7 +24,7 @@ export default Alchemy.Stack(
     yield* Toolchain;
 
     yield* Effect.all(
-      ["btop", "rsync"].map((name) => Fleet.Paru.Package(name, { name })),
+      ["ast-grep", "btop", "rsync"].map((name) => Fleet.Paru.Package(name, { name })),
       {
         concurrency: "unbounded",
         discard: true,

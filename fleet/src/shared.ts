@@ -114,6 +114,44 @@ export const Zsh = Effect.gen(function* () {
           g: "git",
           lg: "lazygit",
         },
+        statements: [
+          `
+          tmpcd() {
+            local directory
+            directory="$(mktemp -d)" || return
+            cd "$directory" || return
+          }
+
+          bp() {
+            case "$1" in
+              clone)
+                if [[ "$2" == "--help" ]]; then
+                  print "usage: bp clone <owner/repo|url>"
+                  return 0
+                fi
+
+                if (( $# != 2 )); then
+                  print -u2 "usage: bp clone <owner/repo|url>"
+                  return 2
+                fi
+
+                local repo_info owner_repo ssh_url destination
+                repo_info="$(gh repo view "$2" --json nameWithOwner,sshUrl --jq '.nameWithOwner + "\\t" + .sshUrl')" || return
+                owner_repo="\${repo_info%%$'\\t'*}"
+                ssh_url="\${repo_info#*$'\\t'}"
+                destination="$HOME/Projects/$owner_repo"
+
+                mkdir -p "\${destination:h}" || return
+                git clone "$ssh_url" "$destination"
+                ;;
+              *)
+                print -u2 "usage: bp clone <owner/repo|url>"
+                return 2
+                ;;
+            esac
+          }
+          `,
+        ],
       }),
       Fleet.Zsh.Runtime("runtime", {
         dependsOn: setup.dependencies,
@@ -150,41 +188,6 @@ export const Zsh = Effect.gen(function* () {
           unset _autosuggestions
           ZSH_AUTOSUGGEST_STRATEGY=(history completion)
           ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#7a8194,bold,underline"
-
-          tmpcd() {
-            local directory
-            directory="$(mktemp -d)" || return
-            cd "$directory" || return
-          }
-
-          bp() {
-            case "$1" in
-              clone)
-                if [[ "$2" == "--help" ]]; then
-                  print "usage: bp clone <owner/repo|url>"
-                  return 0
-                fi
-
-                if (( $# != 2 )); then
-                  print -u2 "usage: bp clone <owner/repo|url>"
-                  return 2
-                fi
-
-                local repo_info owner_repo ssh_url destination
-                repo_info="$(gh repo view "$2" --json nameWithOwner,sshUrl --jq '.nameWithOwner + "\\t" + .sshUrl')" || return
-                owner_repo="\${repo_info%%$'\\t'*}"
-                ssh_url="\${repo_info#*$'\\t'}"
-                destination="$HOME/Projects/$owner_repo"
-
-                mkdir -p "\${destination:h}" || return
-                git clone "$ssh_url" "$destination"
-                ;;
-              *)
-                print -u2 "usage: bp clone <owner/repo|url>"
-                return 2
-                ;;
-            esac
-          }
 
           eval "$(starship init zsh)"
           eval "$(zoxide init zsh)"
