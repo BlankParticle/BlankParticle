@@ -2,6 +2,7 @@ import { StageInvariant, CloudflareAccountId, CloudflareAccountEmail } from "@bl
 import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as GitHub from "alchemy/GitHub";
+import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
@@ -17,6 +18,8 @@ export default Alchemy.Stack(
 
     const accountId = yield* CloudflareAccountId;
     const accountEmail = yield* CloudflareAccountEmail;
+    const githubClientId = yield* Config.string("GITHUB_CLIENT_ID");
+    const githubClientSecret = yield* Config.string("GITHUB_CLIENT_SECRET");
 
     const apiToken = yield* Cloudflare.ApiToken.AccountApiToken("CIToken", {
       accountId,
@@ -30,6 +33,10 @@ export default Alchemy.Stack(
             "Secrets Store Write",
             "Workers KV Storage Read",
             "Workers KV Storage Write",
+            "D1 Read",
+            "D1 Write",
+            "Workers Routes Read",
+            "Workers Routes Write",
             "Email Routing Addresses Read",
             "Email Routing Addresses Write",
             // CI provisions the admin app's scoped api token
@@ -73,6 +80,18 @@ export default Alchemy.Stack(
     yield* GitHub.Secret("CloudflareAccountEmail", {
       name: "CLOUDFLARE_ACCOUNT_EMAIL",
       value: Redacted.make(accountEmail),
+      ...githubRepo,
+    });
+
+    yield* GitHub.Secret("GithubClientId", {
+      name: "GH_CLIENT_ID",
+      value: Redacted.make(githubClientId),
+      ...githubRepo,
+    });
+
+    yield* GitHub.Secret("GithubClientSecret", {
+      name: "GH_CLIENT_SECRET",
+      value: Redacted.make(githubClientSecret),
       ...githubRepo,
     });
   }),

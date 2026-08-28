@@ -1,6 +1,6 @@
 import tanstackHandler from "@tanstack/react-start/server-entry";
 
-import type { MainWebsiteEnv } from "../alchemy.config.ts";
+import type { WwwAppEnv } from "../alchemy.config.ts";
 
 export default {
   async fetch(request, env, ctx) {
@@ -30,4 +30,4 @@ export default {
       context: { cf: { env, ctx } },
     });
   },
-} satisfies ExportedHandler<MainWebsiteEnv>;
+} satisfies ExportedHandler<WwwAppEnv>;

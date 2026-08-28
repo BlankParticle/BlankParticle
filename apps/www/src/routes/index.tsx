@@ -97,7 +97,8 @@ function HomePage() {
               >
                 @blankparticle
               </a>
-              online. {age} years old, software developer, and forever taking software apart to see how it works. Sometimes I write about it on
+              online. {age} years old, software developer, and forever taking software apart to see how it works.
+              Sometimes I write about it on
               <Link
                 to="/blog"
                 className="decoration-orange hover:text-ink ml-1 underline decoration-wavy decoration-2 underline-offset-4 transition-colors"

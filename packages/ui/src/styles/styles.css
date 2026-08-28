@@ -60,6 +60,35 @@
   }
   * {
     @apply border-border outline-ring/50;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+
+  /* Safari and older Chromium still read the WebKit pseudo-elements */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* plain links get the same violet focus ring as components */
+  a:focus-visible {
+    @apply outline-ring rounded-sm outline-2 outline-offset-2;
   }
 }
 
@@ -109,8 +138,13 @@
   --accent: var(--color-lime);
   --accent-foreground: var(--color-ink);
   --destructive: var(--color-orange-deep);
-  --border: var(--color-ink);
-  --input: var(--color-ink);
-  --ring: var(--color-orange);
+  /* hairlines (cards, tables, dividers) and field borders share these; components should not pick their own alphas */
+  --border: color-mix(in oklch, var(--color-ink) 15%, transparent);
+  --input: color-mix(in oklch, var(--color-ink) 25%, transparent);
+  /* keyboard focus is always violet; orange stays for selection and the sticker buttons' shadows */
+  --ring: var(--color-violet);
   --radius: 0.5rem;
+  /* thin themed scrollbars; dark surfaces override the thumb (see CodeBlock) */
+  --scrollbar-thumb: color-mix(in oklch, var(--color-ink) 25%, transparent);
+  --scrollbar-thumb-hover: color-mix(in oklch, var(--color-ink) 40%, transparent);
 }

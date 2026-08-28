@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["src", "alchemy.config.ts", "vite.config.ts"],
+  "compilerOptions": {
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "jsx": "react-jsx",
+    "types": ["vite/client", "@cloudflare/workers-types", "node"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}

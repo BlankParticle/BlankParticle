@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "types": ["node", "@cloudflare/workers-types"],
+    "erasableSyntaxOnly": true
+  }
+}

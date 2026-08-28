@@ -10,24 +10,24 @@
   },
   "dependencies": {
     "@blankparticle/ui": "workspace:*",
-    "@tanstack/react-router": "^1.170.18",
-    "@tanstack/react-start": "^1.168.32",
-    "fumadocs-core": "^16.13.0",
-    "fumadocs-mdx": "^15.2.0",
+    "@tanstack/react-router": "^1.170.32",
+    "@tanstack/react-start": "^1.168.49",
+    "fumadocs-core": "^16.15.3",
+    "fumadocs-mdx": "^15.4.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-external-links": "^3.0.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260728.1",
+    "@cloudflare/workers-types": "^5.20260827.1",
     "@types/mdx": "^2.0.14",
-    "@types/node": "^26.1.2",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.4",
+    "@types/node": "^26.4.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "@vitejs/plugin-react": "^6.1.0",
     "@vitejs/plugin-rsc": "^0.5.32",
     "typescript": "^7.0.2",
-    "vite": "^8.1.5"
+    "vite": "^8.2.2"
   }
 }

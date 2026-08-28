@@ -37,7 +37,15 @@ export const discordContact: ContactInfo = {
   actions: [{ label: "Open in Discord", href: "https://discord.com/users/1096392763144159252" }],
 };
 
-export function ContactDialog({ open, onClose, contact }: { open: boolean; onClose: () => void; contact: ContactInfo }) {
+export function ContactDialog({
+  open,
+  onClose,
+  contact,
+}: {
+  open: boolean;
+  onClose: () => void;
+  contact: ContactInfo;
+}) {
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent>

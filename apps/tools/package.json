@@ -1,0 +1,38 @@
+{
+  "name": "@blankparticle/tools",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./spec": "./src/api/spec.ts"
+  },
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "tsc",
+    "format": "vpr -w format",
+    "lint": "vpr -w lint"
+  },
+  "dependencies": {
+    "@blankparticle/ui": "workspace:*",
+    "@blankparticle/utils": "workspace:*",
+    "@distilled.cloud/cloudflare": "https://pkg.ing/@distilled.cloud/cloudflare/88b462a",
+    "@tanstack/markdown": "^0.0.13",
+    "@tanstack/react-form": "^1.33.5",
+    "@tanstack/react-query": "^5.102.7",
+    "@tanstack/react-router": "^1.170.32",
+    "@tanstack/react-router-ssr-query": "^1.167.2",
+    "@tanstack/react-start": "^1.168.49",
+    "drizzle-orm": "1.0.0-rc.5-ab785fc",
+    "jose": "^6.2.10",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260827.1",
+    "@types/node": "^26.4.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "@vitejs/plugin-react": "^6.1.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2"
+  }
+}

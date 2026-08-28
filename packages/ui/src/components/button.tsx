@@ -7,9 +7,9 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        default: "bg-violet text-paper hover:bg-violet-deep",
         outline:
-          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border-input bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
@@ -55,6 +55,16 @@ const buttonVariants = cva(
         variant: ["violet", "orange", "violet-outline"],
         size: "default",
         class: "h-auto gap-2 rounded-md px-5 py-2.5 text-base",
+      },
+      {
+        variant: ["violet", "orange", "violet-outline"],
+        size: "lg",
+        class: "h-auto gap-2 rounded-md px-6 py-3 text-base",
+      },
+      {
+        variant: ["violet", "orange", "violet-outline"],
+        size: "sm",
+        class: "h-auto gap-1.5 rounded-md px-3 py-1.5 text-sm",
       },
     ],
     defaultVariants: {

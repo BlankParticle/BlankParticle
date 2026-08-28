@@ -13,14 +13,17 @@
     "typecheck": "vpr -r typecheck"
   },
   "devDependencies": {
+    "@blankparticle/bp": "workspace:*",
     "@blankparticle/utils": "workspace:*",
-    "@effect/platform-node": "4.0.0-rc.111",
-    "@types/node": "^26.1.2",
-    "alchemy": "link:../../alchemy-run/alchemy/packages/alchemy",
-    "effect": "4.0.0-rc.111",
-    "tsx": "^4.23.7",
+    "@effect/platform-node": "4.0.0-rc.112",
+    "@types/node": "^26.4.0",
+    "alchemy": "https://pkg.ing/alchemy/e8675ee",
+    "drizzle-kit": "1.0.0-rc.5-ab785fc",
+    "drizzle-orm": "1.0.0-rc.5-ab785fc",
+    "effect": "4.0.0-rc.112",
+    "tsx": "^4.23.12",
     "typescript": "^7.0.2",
-    "vite-plus": "^0.2.9"
+    "vite-plus": "^0.3.0"
   },
-  "packageManager": "pnpm@11.21.0"
+  "packageManager": "pnpm@11.24.0"
 }

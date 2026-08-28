@@ -1,10 +1,11 @@
 import * as Cloudflare from "alchemy/Cloudflare";
+import * as RemovalPolicy from "alchemy/RemovalPolicy";
 
 const TARGET_DOMAIN = "blankparticle.com";
 const BLOG_DOMAINS = ["blog.blankparticle.in", "blog.blankparticle.com"];
 const EXTRA_DOMAINS = ["www.blankparticle.com", "blankparticle.in", "www.blankparticle.in", "rx2.dev", "www.rx2.dev"];
 
-export class MainWebsite extends Cloudflare.Website.Vite<MainWebsite>()("www", {
+export class WwwApp extends Cloudflare.Website.Vite<WwwApp>()("www", {
   rootDir: import.meta.dirname,
   name: "www",
   main: "src/worker.ts",
@@ -16,4 +17,6 @@ export class MainWebsite extends Cloudflare.Website.Vite<MainWebsite>()("www", {
   workersDev: false,
 }) {}
 
-export type MainWebsiteEnv = Cloudflare.InferEnv<typeof MainWebsite>;
+export type WwwAppEnv = Cloudflare.InferEnv<typeof WwwApp>;
+
+export const SetupWwwApp = WwwApp.pipe(RemovalPolicy.retain());

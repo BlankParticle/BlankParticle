@@ -11,19 +11,21 @@ allowBuilds:
   workerd: true
 
 minimumReleaseAgeExclude:
-  - alchemy
-  - "@distilled.cloud/*"
   - "@alchemy.run/*"
-  - "@effect/platform-node-shared@4.0.0-beta.105"
-  - "@effect/platform-node@4.0.0-beta.105"
-  - effect@4.0.0-beta.105
-  - '@effect/sql-d1@4.0.0-rc.110'
-  - '@effect/sql-sqlite-do@4.0.0-rc.110'
-  - '@effect/vitest@4.0.0-rc.110'
+  - "@distilled.cloud/*"
+  - alchemy
+  - drizzle-orm
+  - drizzle-kit
 
 overrides:
-  "hono": "^4.12.32"
+  "hono": "^4.13.5"
   "@hono/node-server": "2.0.12"
   "lodash": "4.18.1"
 
 blockExoticSubdeps: false
+
+# drizzle-kit's api-* modules import drizzle-orm without declaring it; make it a peer so pnpm links it alongside
+packageExtensions:
+  drizzle-kit:
+    peerDependencies:
+      drizzle-orm: "*"

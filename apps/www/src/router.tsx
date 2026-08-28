@@ -1,6 +1,6 @@
 import { createRouter } from "@tanstack/react-router";
 
-import type { MainWebsiteEnv } from "../alchemy.config.ts";
+import type { WwwAppEnv } from "../alchemy.config.ts";
 import { routeTree } from "./routeTree.gen.ts";
 
 export function getRouter() {
@@ -17,7 +17,7 @@ declare module "@tanstack/react-start" {
     server: {
       requestContext: {
         cf: {
-          env: MainWebsiteEnv;
+          env: WwwAppEnv;
           ctx: ExecutionContext;
         };
       };
