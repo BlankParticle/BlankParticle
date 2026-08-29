@@ -1,28 +1,27 @@
 import { join } from "node:path";
 
+import { GithubClientId, GithubClientSecret } from "@blankparticle/utils/alchemy";
 import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Drizzle from "alchemy/Drizzle";
+import * as Namespace from "alchemy/Namespace";
 import * as Output from "alchemy/Output";
 import * as RemovalPolicy from "alchemy/RemovalPolicy";
-import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Jose from "jose";
 
 const ROOT_DOMAIN = "blankparticle.com";
 
-const AuthSchema = Drizzle.Schema("AuthSchema", {
+const Schema = Drizzle.Schema("Schema", {
   schema: join(import.meta.dirname, "src/db/schema.ts"),
   out: join(import.meta.dirname, "migrations"),
   dialect: "sqlite",
 });
 
-const AuthDatabase = Effect.flatMap(AuthSchema, (schema) =>
-  Cloudflare.D1.Database("AuthDB", { name: "auth-db", migrations: schema }),
-);
+const DB = Effect.flatMap(Schema, (schema) => Cloudflare.D1.Database("DB", { name: "auth-db", migrations: schema }));
 
 const SigningKeys = Effect.gen(function* () {
-  const { publicKey, privateKey } = yield* Alchemy.KeyPair("AuthSigningKey", {
+  const { publicKey, privateKey } = yield* Alchemy.KeyPair("SigningKey", {
     algorithm: "ec",
     namedCurve: "P-256",
   });
@@ -41,17 +40,17 @@ const SigningKeys = Effect.gen(function* () {
   return { privateKey, jwks };
 });
 
-const PairwiseSecret = Effect.map(Alchemy.Random("AuthPairwiseSecret", { bytes: 32 }), (secret) => secret.text);
+const PairwiseSecret = Effect.map(Alchemy.Random("PairwiseSecret", { bytes: 32 }), (secret) => secret.text);
 
-export class AuthApp extends Cloudflare.Website.Vite<AuthApp>()("auth", {
+export class AuthApp extends Cloudflare.Website.Vite<AuthApp>()("Worker", {
   rootDir: import.meta.dirname,
   name: "auth",
   main: "src/api/worker.ts",
   compatibility: { flags: ["nodejs_compat"] },
   env: {
-    DB: AuthDatabase,
-    GITHUB_CLIENT_ID: Config.string("GITHUB_CLIENT_ID"),
-    GITHUB_CLIENT_SECRET: Config.redacted("GITHUB_CLIENT_SECRET"),
+    DB: DB,
+    GITHUB_CLIENT_ID: GithubClientId,
+    GITHUB_CLIENT_SECRET: GithubClientSecret,
     SIGNING_KEY: SigningKeys.pipe(Effect.map((keys) => keys.privateKey)),
     JWKS: SigningKeys.pipe(Effect.map((keys) => keys.jwks)),
     PAIRWISE_SECRET: PairwiseSecret,
@@ -64,4 +63,4 @@ export class AuthApp extends Cloudflare.Website.Vite<AuthApp>()("auth", {
 
 export type AuthAppEnv = Cloudflare.InferEnv<typeof AuthApp>;
 
-export const SetupAuthApp = AuthApp.pipe(RemovalPolicy.retain());
+export const SetupAuthApp = AuthApp.pipe(RemovalPolicy.retain(), Namespace.push("Auth"));

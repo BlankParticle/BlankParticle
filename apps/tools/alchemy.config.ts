@@ -4,6 +4,7 @@ import { CloudflareAccountEmail, CloudflareAccountId } from "@blankparticle/util
 import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Drizzle from "alchemy/Drizzle";
+import * as Namespace from "alchemy/Namespace";
 import * as RemovalPolicy from "alchemy/RemovalPolicy";
 import { Option } from "effect";
 import * as Effect from "effect/Effect";
@@ -16,17 +17,18 @@ const ORIGINS = {
   email: `email.${ROOT_DOMAIN}`,
 };
 
-const ToolsKV = Cloudflare.KV.Namespace("ToolsKV", { title: "tools-kv" });
-const ToolsBucket = Cloudflare.R2.Bucket("ToolsBucket", { name: "tools-bucket" });
+const KV = Cloudflare.KV.Namespace("KV", { title: "tools-kv" }).pipe(RemovalPolicy.retain());
 
-const ToolsSchema = Drizzle.Schema("ToolsSchema", {
+const Bucket = Cloudflare.R2.Bucket("Bucket", { name: "tools-bucket" }).pipe(RemovalPolicy.retain());
+
+const Schema = Drizzle.Schema("Schema", {
   schema: join(import.meta.dirname, "src/db/schema.ts"),
   out: join(import.meta.dirname, "migrations"),
   dialect: "sqlite",
 });
 
-const ToolsDatabase = Effect.flatMap(ToolsSchema, (schema) =>
-  Cloudflare.D1.Database("ToolsDB", { name: "tools-db", migrations: schema }),
+const DB = Effect.flatMap(Schema, (schema) =>
+  Cloudflare.D1.Database("DB", { name: "tools-db", migrations: schema }).pipe(RemovalPolicy.retain()),
 );
 
 const EmailApiToken = Effect.gen(function* () {
@@ -35,7 +37,7 @@ const EmailApiToken = Effect.gen(function* () {
 
   const token =
     stage === "prod"
-      ? yield* Cloudflare.ApiToken.AccountApiToken("AdminApiToken", {
+      ? yield* Cloudflare.ApiToken.AccountApiToken("CloudflareAppToken", {
           accountId,
           name: "App Token (BlankParticle/BlankParticle/Tools)",
           policies: [
@@ -61,20 +63,20 @@ const EmailApiToken = Effect.gen(function* () {
             },
           ],
         })
-      : yield* Cloudflare.ApiToken.AccountApiToken.ref("AdminApiToken", { stage: "prod" });
+      : yield* Cloudflare.ApiToken.AccountApiToken.ref("Tools/CloudflareAppToken", { stage: "prod" });
 
   return token.value;
 });
 
-class ToolsApp extends Cloudflare.Website.Vite<ToolsApp>()("tools", {
+class ToolsApp extends Cloudflare.Website.Vite<ToolsApp>()("Worker", {
   rootDir: import.meta.dirname,
   name: "tools",
   main: "src/worker.ts",
   compatibility: { flags: ["nodejs_compat"] },
   env: {
-    KV: ToolsKV,
-    DB: ToolsDatabase,
-    FILES: ToolsBucket,
+    KV: KV,
+    DB: DB,
+    FILES: Bucket,
     CF_API_TOKEN: EmailApiToken,
     CF_ACCOUNT_ID: CloudflareAccountId,
     AUTH_ORIGIN: `https://auth.${ROOT_DOMAIN}`,
@@ -92,20 +94,23 @@ class ToolsApp extends Cloudflare.Website.Vite<ToolsApp>()("tools", {
 export type ToolsAppEnv = Cloudflare.InferEnv<typeof ToolsApp>;
 
 const SetupZones = Effect.fn(function* (app: ToolsApp) {
+  const stage = yield* Alchemy.Stage;
+  if (stage !== "prod") return; // No need to even reference these in dev
+
   const accountId = yield* CloudflareAccountId;
   const zones = yield* Cloudflare.Zone.listAllZones(accountId).pipe(Effect.orDie);
 
   yield* Effect.findFirst(zones, (zone) => Effect.succeed(zone.name === ROOT_DOMAIN)).pipe(
     Effect.flatMap((zone) =>
       Option.isSome(zone)
-        ? Cloudflare.DNS.Record("SitesWildcard", {
+        ? Cloudflare.DNS.Record("sites-wildcard", {
             zoneId: zone.value.id,
             name: `*.${ORIGINS.sites}`,
             type: "CNAME",
             content: ORIGINS.sites,
             proxied: true,
             comment: "Managed by Alchemy (BlankParticle/BlankParticle/tools)",
-          })
+          }).pipe(Namespace.push("DNS"), Namespace.push("Config"), Namespace.push("Tools"))
         : Effect.die(new Error(`Zone ${ROOT_DOMAIN} not found`)),
     ),
   );
@@ -114,18 +119,19 @@ const SetupZones = Effect.fn(function* (app: ToolsApp) {
     zones,
     (zone) =>
       Effect.all([
-        Cloudflare.Email.Routing(`EmailRouting-${zone.name}`, { zone: zone.id }),
-        Cloudflare.Email.CatchAll(`CatchAll-${zone.name}`, {
+        Cloudflare.Email.Routing(zone.name, { zone: zone.id }).pipe(Namespace.push("EmailRouting")),
+        Cloudflare.Email.CatchAll(zone.name, {
           zone: zone.id,
           name: `Email rule engine for ${zone.name}`,
           actions: [{ type: "worker", value: [app.workerName] }],
-        }),
-      ]),
+        }).pipe(Namespace.push("EmailCatchAll")),
+      ]).pipe(Namespace.push("Config"), Namespace.push("Tools")),
     { concurrency: "unbounded", discard: true },
   );
 });
 
 export const SetupToolsApp = ToolsApp.pipe(
   RemovalPolicy.retain(),
+  Namespace.push("Tools"),
   Effect.tap((app) => SetupZones(app)),
 );
