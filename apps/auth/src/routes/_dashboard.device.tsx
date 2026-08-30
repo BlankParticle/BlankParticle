@@ -6,10 +6,10 @@ import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@blank
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { AppAsking, Person, Receives } from "@/components/authorize.tsx";
-import { useDashboard } from "@/components/dashboard.tsx";
-import { normalizeUserCode, USER_CODE_LENGTH } from "@/lib/clients.ts";
-import { decideDevice, lookupDeviceCode, type DeviceRequest } from "@/lib/server-fns.ts";
+import { AppAsking, Person, Receives } from "#/components/authorize.tsx";
+import { useDashboard } from "#/components/dashboard.tsx";
+import { normalizeUserCode, USER_CODE_LENGTH } from "#/lib/clients.ts";
+import { decideDevice, lookupDeviceCode, type DeviceRequest } from "#/lib/server-fns.ts";
 
 /** Where a CLI or headless device sends you: type its code, see what it wants, approve */
 export const Route = createFileRoute("/_dashboard/device")({ component: DevicePage });

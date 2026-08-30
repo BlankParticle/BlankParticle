@@ -11,10 +11,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
-import type { Site } from "@/api/spec.ts";
-import { formatTimestamp, SignedOut } from "@/components/signed-out.tsx";
-import { dashboardQuery } from "@/lib/queries.ts";
-import { removeSite, setSiteVisibility } from "@/lib/server-fns.ts";
+import type { Site } from "#/api/spec.ts";
+import { formatTimestamp, SignedOut } from "#/components/signed-out.tsx";
+import { dashboardQuery } from "#/lib/queries.ts";
+import { removeSite, setSiteVisibility } from "#/lib/server-fns.ts";
 
 export const Route = createFileRoute("/")({ component: SitesPage });
 

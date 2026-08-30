@@ -2,8 +2,8 @@ import { eq } from "drizzle-orm";
 import { Effect, Layer } from "effect";
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/unstable/http";
 
-import { browserSessions, tokens } from "@/db/schema.ts";
-import { verifyIdToken } from "@/lib/keys.ts";
+import { browserSessions, tokens } from "#/db/schema.ts";
+import { verifyIdToken } from "#/lib/keys.ts";
 
 import { AuthDatabase, WorkerEnv } from "../context.ts";
 import { SESSION_COOKIE } from "../flow.ts";

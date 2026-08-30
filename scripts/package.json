@@ -9,11 +9,11 @@
     "lint": "vpr -w lint"
   },
   "dependencies": {
-    "react": "^19.2.8",
-    "takumi-js": "^2.13.1"
+    "react": "catalog:",
+    "takumi-js": "catalog:"
   },
   "devDependencies": {
-    "@types/react": "^19.2.18",
-    "tsx": "^4.23.12"
+    "@types/react": "catalog:",
+    "tsx": "catalog:"
   }
 }

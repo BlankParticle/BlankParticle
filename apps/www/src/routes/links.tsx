@@ -3,10 +3,10 @@ import { cn } from "@blankparticle/ui/utils";
 import { createFileRoute } from "@tanstack/react-router";
 import type { ComponentType } from "react";
 
-import { AppIcon } from "@/components/app-icon.tsx";
-import { SiteLayout } from "@/components/site-layout.tsx";
-import { discordContact, emailContact } from "@/components/social-modals.tsx";
-import { personLd, SITE_URL, socials } from "@/lib/data.ts";
+import { AppIcon } from "#/components/app-icon.tsx";
+import { SiteLayout } from "#/components/site-layout.tsx";
+import { discordContact, emailContact } from "#/components/social-modals.tsx";
+import { personLd, SITE_URL, socials } from "#/lib/data.ts";
 
 const pageTitle = "links · blankparticle";
 const pageDescription = "Every place you can find me, all on one page.";

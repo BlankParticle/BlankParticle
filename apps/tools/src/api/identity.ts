@@ -2,7 +2,7 @@ import { Effect } from "effect";
 import { HttpServerRequest } from "effect/unstable/http";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 
-import { WorkerEnv } from "@/lib/env.ts";
+import { WorkerEnv } from "#/lib/env.ts";
 
 import { ApiError } from "./errors.ts";
 

@@ -1,4 +1,10 @@
 {
-  "name": "@blankparticle/static.rx2.dev",
-  "type": "module"
+  "name": "@blankparticle/static",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@effect/platform-node": "catalog:",
+    "alchemy": "catalog:",
+    "effect": "catalog:"
+  }
 }

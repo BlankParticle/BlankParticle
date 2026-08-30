@@ -3,8 +3,8 @@ import { Effect, Layer } from "effect";
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/unstable/http";
 import { base64url } from "jose";
 
-import { deviceCodes, users } from "@/db/schema.ts";
-import { formatUserCode, USER_CODE_ALPHABET, USER_CODE_LENGTH } from "@/lib/clients.ts";
+import { deviceCodes, users } from "#/db/schema.ts";
+import { formatUserCode, USER_CODE_ALPHABET, USER_CODE_LENGTH } from "#/lib/clients.ts";
 
 import { AuthDatabase, WorkerEnv } from "../context.ts";
 import {

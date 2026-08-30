@@ -2,7 +2,7 @@ import { and, eq, gt } from "drizzle-orm";
 import { Effect } from "effect";
 import { HttpServerRequest } from "effect/unstable/http";
 
-import { browserSessions, users } from "@/db/schema.ts";
+import { browserSessions, users } from "#/db/schema.ts";
 
 import { AuthDatabase } from "./context.ts";
 import { SESSION_COOKIE } from "./flow.ts";

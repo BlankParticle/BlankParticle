@@ -1,7 +1,7 @@
 import { InlineCode } from "@blankparticle/ui/components/code-block.tsx";
 
-import { AppIdentity } from "@/components/dashboard.tsx";
-import type { User } from "@/db/schema.ts";
+import { AppIdentity } from "#/components/dashboard.tsx";
+import type { User } from "#/db/schema.ts";
 
 /** The app asking, as it introduced itself, and what it is asking for */
 export function AppAsking({

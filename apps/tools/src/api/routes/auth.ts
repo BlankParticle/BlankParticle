@@ -11,10 +11,10 @@ import {
   HttpServerResponse,
 } from "effect/unstable/http";
 
-import { isSafeNext } from "@/api/spec.ts";
-import { database } from "@/db/index.ts";
-import { pendingLogins } from "@/db/schema.ts";
-import { WorkerEnv } from "@/lib/env.ts";
+import { isSafeNext } from "#/api/spec.ts";
+import { database } from "#/db/index.ts";
+import { pendingLogins } from "#/db/schema.ts";
+import { WorkerEnv } from "#/lib/env.ts";
 
 const Tokens = Schema.Struct({ id_token: Schema.String, expires_in: Schema.Number });
 const random = () => crypto.randomUUID().replaceAll("-", "");

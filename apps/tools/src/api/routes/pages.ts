@@ -2,7 +2,7 @@ import tanstackHandler from "@tanstack/react-start/server-entry";
 import { Effect } from "effect";
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/unstable/http";
 
-import { WorkerEnv } from "@/lib/env.ts";
+import { WorkerEnv } from "#/lib/env.ts";
 
 import { WorkerExecutionContext } from "../context.ts";
 import { currentIdentity } from "../identity.ts";

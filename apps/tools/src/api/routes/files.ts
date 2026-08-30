@@ -2,9 +2,9 @@ import { Effect, Layer } from "effect";
 import * as Schema from "effect/Schema";
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/unstable/http";
 
-import { WorkerEnv } from "@/lib/env.ts";
-import * as files from "@/lib/files.ts";
-import { normalizePath } from "@/lib/store.ts";
+import { WorkerEnv } from "#/lib/env.ts";
+import * as files from "#/lib/files.ts";
+import { normalizePath } from "#/lib/store.ts";
 
 import { ApiError, badRequest, forbidden, noSuchShare, respond } from "../errors.ts";
 import { apiUser } from "../identity.ts";

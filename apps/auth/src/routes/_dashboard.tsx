@@ -3,7 +3,7 @@ import { Button } from "@blankparticle/ui/primitives/button.tsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@blankparticle/ui/primitives/card.tsx";
 import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 
-import { getDashboard } from "@/lib/server-fns.ts";
+import { getDashboard } from "#/lib/server-fns.ts";
 
 /** Pathless layout: loads the account once for every dashboard page, or shows the sign-in card */
 export const Route = createFileRoute("/_dashboard")({ loader: () => getDashboard(), component: DashboardLayout });

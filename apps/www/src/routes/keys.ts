@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { sshPublicKeys } from "@/lib/data.ts";
+import { sshPublicKeys } from "#/lib/data.ts";
 
 export const Route = createFileRoute("/keys")({
   server: {

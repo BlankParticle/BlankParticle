@@ -2,6 +2,9 @@
   "name": "@blankparticle/auth",
   "private": true,
   "type": "module",
+  "imports": {
+    "#/*": "./src/*"
+  },
   "scripts": {
     "build": "vite build",
     "typecheck": "tsc",
@@ -10,19 +13,26 @@
   },
   "dependencies": {
     "@blankparticle/ui": "workspace:*",
-    "@tanstack/react-router": "^1.170.32",
-    "@tanstack/react-start": "^1.168.49",
-    "jose": "^6.2.10",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "@blankparticle/utils": "workspace:*",
+    "@tanstack/react-router": "catalog:",
+    "@tanstack/react-start": "catalog:",
+    "drizzle-orm": "catalog:",
+    "jose": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260829.1",
-    "@types/node": "^26.4.0",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.5",
-    "@vitejs/plugin-react": "^6.1.1",
-    "typescript": "^7.0.2",
-    "vite": "^8.2.2"
+    "@cloudflare/workers-types": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "alchemy": "catalog:",
+    "drizzle-kit": "catalog:",
+    "effect": "catalog:",
+    "oxc-transform-react": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

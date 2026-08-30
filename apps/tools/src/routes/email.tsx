@@ -28,9 +28,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import * as Schema from "effect/Schema";
 import { useState } from "react";
 
-import { ActionBadge } from "@/components/action-badge.tsx";
-import { useAppForm } from "@/components/form.tsx";
-import { formatTimestamp, SignedOut } from "@/components/signed-out.tsx";
+import { ActionBadge } from "#/components/action-badge.tsx";
+import { useAppForm } from "#/components/form.tsx";
+import { formatTimestamp, SignedOut } from "#/components/signed-out.tsx";
 import {
   addDestination,
   clearActivity,
@@ -38,9 +38,9 @@ import {
   saveRuleSet,
   type DestinationAddress,
   type ZoneOverview,
-} from "@/lib/email-api.ts";
-import { dashboardQuery, emailConfigQuery } from "@/lib/queries.ts";
-import type { ActivityEntry, EmailRule, RuleAction, RuleSet } from "@/lib/rules.ts";
+} from "#/lib/email-api.ts";
+import { dashboardQuery, emailConfigQuery } from "#/lib/queries.ts";
+import type { ActivityEntry, EmailRule, RuleAction, RuleSet } from "#/lib/rules.ts";
 
 export const Route = createFileRoute("/email")({
   loader: async ({ context }) => {

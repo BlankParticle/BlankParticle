@@ -9,10 +9,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { isBundleId, type SharedFile } from "@/api/spec.ts";
-import { formatBytes, formatTimestamp, SignedOut } from "@/components/signed-out.tsx";
-import { dashboardQuery } from "@/lib/queries.ts";
-import { removeFile } from "@/lib/server-fns.ts";
+import { isBundleId, type SharedFile } from "#/api/spec.ts";
+import { formatBytes, formatTimestamp, SignedOut } from "#/components/signed-out.tsx";
+import { dashboardQuery } from "#/lib/queries.ts";
+import { removeFile } from "#/lib/server-fns.ts";
 
 import { VisibilityBadge } from "./index.tsx";
 

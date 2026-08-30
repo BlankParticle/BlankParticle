@@ -4,8 +4,8 @@ import { Button } from "@blankparticle/ui/primitives/button.tsx";
 import { useLoaderData, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { originOf } from "@/lib/clients.ts";
-import type { Dashboard } from "@/lib/server-fns.ts";
+import { originOf } from "#/lib/clients.ts";
+import type { Dashboard } from "#/lib/server-fns.ts";
 
 /** Loader data of the `_dashboard` layout; children only render when it is non-null */
 export const useDashboard = () => useLoaderData({ from: "/_dashboard" }) as NonNullable<Dashboard>;

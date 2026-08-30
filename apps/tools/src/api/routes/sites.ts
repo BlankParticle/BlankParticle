@@ -14,7 +14,7 @@ import {
   saveSite,
   syncFiles,
   touchSite,
-} from "@/lib/store.ts";
+} from "#/lib/store.ts";
 
 import { ApiError, badRequest, forbidden, noSuchSite, respond } from "../errors.ts";
 import { apiUser } from "../identity.ts";
@@ -24,7 +24,7 @@ const SlugParam = Schema.Struct({ slug: Slug });
 const FileQuery = Schema.Struct({ path: Schema.String });
 const ContentType = Schema.String.check(Schema.isPattern(/^[\w.+-]+\/[\w.+-]+(;[\w\s=.+-]*)?$/));
 
-const readableSite = (slug: string, user: User): Effect.Effect<Site, ApiError, import("@/lib/env.ts").WorkerEnv> =>
+const readableSite = (slug: string, user: User): Effect.Effect<Site, ApiError, import("#/lib/env.ts").WorkerEnv> =>
   Effect.gen(function* () {
     const site = yield* getSite(slug);
     if (site === null || (site.visibility === "private" && site.owner !== user.login)) return yield* noSuchSite;

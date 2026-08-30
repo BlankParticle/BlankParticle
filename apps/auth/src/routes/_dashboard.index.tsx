@@ -5,8 +5,8 @@ import { Button } from "@blankparticle/ui/primitives/button.tsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@blankparticle/ui/primitives/card.tsx";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 
-import { useDashboard } from "@/components/dashboard.tsx";
-import { signOutEverywhere } from "@/lib/server-fns.ts";
+import { useDashboard } from "#/components/dashboard.tsx";
+import { signOutEverywhere } from "#/lib/server-fns.ts";
 
 export const Route = createFileRoute("/_dashboard/")({ component: ProfilePage });
 

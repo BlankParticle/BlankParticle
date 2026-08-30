@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./alchemy": "./src/alchemy.ts"
+    "./alchemy": "./src/alchemy.ts",
+    "./vite": "./src/vite.ts"
+  },
+  "dependencies": {
+    "vite": "catalog:"
   }
 }

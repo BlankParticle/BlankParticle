@@ -4,26 +4,35 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "deploy": "alchemy deploy",
+    "prepare": "vp config --no-agent",
+    "deploy": "alchemy deploy --stage prod",
     "destroy": "alchemy destroy",
     "dev": "alchemy dev",
     "format": "vp fmt",
     "lint": "vp lint",
+    "lint:fix": "vp lint --fix",
     "deps": "vpx taze -r -w -I",
     "typecheck": "vpr -r typecheck"
   },
   "devDependencies": {
     "@blankparticle/bp": "workspace:*",
     "@blankparticle/utils": "workspace:*",
-    "@effect/platform-node": "4.0.0-rc.112",
-    "@types/node": "^26.4.0",
-    "alchemy": "https://pkg.ing/alchemy/73d16e5",
-    "drizzle-kit": "1.0.0-rc.5-ab785fc",
-    "drizzle-orm": "1.0.0-rc.5-ab785fc",
-    "effect": "4.0.0-rc.112",
-    "tsx": "^4.23.12",
-    "typescript": "^7.0.2",
-    "vite-plus": "^0.3.0"
+    "@effect/platform-node": "catalog:",
+    "@types/node": "catalog:",
+    "alchemy": "catalog:",
+    "effect": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
   },
-  "packageManager": "pnpm@11.24.0"
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.24.0"
+    },
+    "runtime": {
+      "name": "node",
+      "version": "^26.8.1"
+    }
+  }
 }

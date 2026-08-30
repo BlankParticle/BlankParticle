@@ -1,6 +1,6 @@
 import * as S from "effect/Schema";
 
-import { NATIVE_CLIENT_ID } from "@/lib/clients.ts";
+import { NATIVE_CLIENT_ID } from "#/lib/clients.ts";
 
 const ClientMetadata = S.Struct({
   client_name: S.optional(S.String.check(S.isMaxLength(64))),

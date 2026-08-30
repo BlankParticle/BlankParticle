@@ -68,7 +68,7 @@ const EmailApiToken = Effect.gen(function* () {
   return token.value;
 });
 
-class ToolsApp extends Cloudflare.Website.Vite<ToolsApp>()("Worker", {
+export const ToolsApp = Cloudflare.Website.Vite("Worker", {
   rootDir: import.meta.dirname,
   name: "tools",
   main: "src/worker.ts",
@@ -91,11 +91,11 @@ class ToolsApp extends Cloudflare.Website.Vite<ToolsApp>()("Worker", {
   crons: ["0 3 * * *"],
   workersDev: false,
   dev: { port: 9003 },
-}) {}
+});
 
 export type ToolsAppEnv = Cloudflare.InferEnv<typeof ToolsApp>;
 
-const SetupZones = Effect.fn(function* (app: ToolsApp) {
+const SetupZones = Effect.fn(function* (app: Cloudflare.Worker) {
   if (yield* Alchemy.ALCHEMY_DEV) return; // No need to even reference these in dev
 
   const accountId = yield* CloudflareAccountId;

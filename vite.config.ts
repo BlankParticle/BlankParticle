@@ -78,4 +78,7 @@ export default defineConfig({
       },
     ],
   },
+  staged: {
+    "*": "vpr format && vpr lint:fix",
+  },
 });

@@ -3,9 +3,9 @@ import { Effect } from "effect";
 import { HttpServerResponse } from "effect/unstable/http";
 import { base64url } from "jose";
 
-import { apps, authorizationRequests, deviceCodes, tokens, type AuthorizationRequest, type User } from "@/db/schema.ts";
-import { clientKey } from "@/lib/clients.ts";
-import { signIdToken } from "@/lib/keys.ts";
+import { apps, authorizationRequests, deviceCodes, tokens, type AuthorizationRequest, type User } from "#/db/schema.ts";
+import { clientKey } from "#/lib/clients.ts";
+import { signIdToken } from "#/lib/keys.ts";
 
 import type { AuthAppEnv } from "../../alchemy.config.ts";
 import type { AuthDatabase } from "./context.ts";

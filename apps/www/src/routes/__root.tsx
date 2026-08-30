@@ -1,9 +1,9 @@
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
-import { NotFound } from "@/components/not-found.tsx";
-import { SITE_URL } from "@/lib/data.ts";
-import { highlightThemeCss } from "@/lib/highlight-theme.ts";
+import { NotFound } from "#/components/not-found.tsx";
+import { SITE_URL } from "#/lib/data.ts";
+import { highlightThemeCss } from "#/lib/highlight-theme.ts";
 
 import appCss from "../app.css?url";
 

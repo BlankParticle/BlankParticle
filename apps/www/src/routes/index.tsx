@@ -3,15 +3,15 @@ import { Button } from "@blankparticle/ui/primitives/button.tsx";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { CloudflareWorkersIcon, GitHubIcon, TanStackIcon } from "@/assets/social-icons.tsx";
-import { AppIcon } from "@/components/app-icon.tsx";
-import { FooterCallout } from "@/components/footer-callout.tsx";
-import { Marquee } from "@/components/marquee.tsx";
-import { SectionHeading } from "@/components/section-heading.tsx";
-import { SiteLayout } from "@/components/site-layout.tsx";
-import { SocialLink, stickerInks } from "@/components/social-link.tsx";
-import { WorkHistory } from "@/components/work-history.tsx";
-import { personLd, projects, SITE_URL, socials, workHistory } from "@/lib/data.ts";
+import { CloudflareWorkersIcon, GitHubIcon, TanStackIcon } from "#/assets/social-icons.tsx";
+import { AppIcon } from "#/components/app-icon.tsx";
+import { FooterCallout } from "#/components/footer-callout.tsx";
+import { Marquee } from "#/components/marquee.tsx";
+import { SectionHeading } from "#/components/section-heading.tsx";
+import { SiteLayout } from "#/components/site-layout.tsx";
+import { SocialLink, stickerInks } from "#/components/social-link.tsx";
+import { WorkHistory } from "#/components/work-history.tsx";
+import { personLd, projects, SITE_URL, socials, workHistory } from "#/lib/data.ts";
 
 const tickerWords = [
   "curious",

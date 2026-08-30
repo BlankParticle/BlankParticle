@@ -5,8 +5,8 @@ import { Button } from "@blankparticle/ui/primitives/button.tsx";
 import { Card, CardContent, CardDescription, CardHeader } from "@blankparticle/ui/primitives/card.tsx";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { AppAsking, Person, Receives } from "@/components/authorize.tsx";
-import { getConsentRequest } from "@/lib/server-fns.ts";
+import { AppAsking, Person, Receives } from "#/components/authorize.tsx";
+import { getConsentRequest } from "#/lib/server-fns.ts";
 
 export const Route = createFileRoute("/consent")({
   validateSearch: (search: Record<string, unknown>) => ({

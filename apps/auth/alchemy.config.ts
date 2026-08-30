@@ -42,7 +42,7 @@ const SigningKeys = Effect.gen(function* () {
 
 const PairwiseSecret = Effect.map(Alchemy.Random("PairwiseSecret", { bytes: 32 }), (secret) => secret.text);
 
-export class AuthApp extends Cloudflare.Website.Vite<AuthApp>()("Worker", {
+export const AuthApp = Cloudflare.Website.Vite("Worker", {
   rootDir: import.meta.dirname,
   name: "auth",
   main: "src/api/worker.ts",
@@ -59,7 +59,7 @@ export class AuthApp extends Cloudflare.Website.Vite<AuthApp>()("Worker", {
   domain: { name: `auth.${ROOT_DOMAIN}` },
   workersDev: false,
   dev: { port: 9001 },
-}) {}
+});
 
 export type AuthAppEnv = Cloudflare.InferEnv<typeof AuthApp>;
 

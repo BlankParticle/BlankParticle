@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { postMeta } from "@/lib/blog-meta.ts";
-import { SITE_URL } from "@/lib/data.ts";
+import { postMeta } from "#/lib/blog-meta.ts";
+import { SITE_URL } from "#/lib/data.ts";
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {

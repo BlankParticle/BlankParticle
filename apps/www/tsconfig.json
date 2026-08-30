@@ -3,13 +3,9 @@
   "include": ["src", "src/**/*.mdx", "alchemy.config.ts"],
   "compilerOptions": {
     "lib": ["esnext", "dom", "dom.iterable"],
-    "jsx": "react-jsx",
-    "types": ["vite/client", "@cloudflare/workers-types", "node"],
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
+    "types": ["node", "vite/client", "@cloudflare/workers-types"],
     "paths": {
-      "@/*": ["./src/*"],
+      "#/*": ["./src/*"],
       "collections/*": ["./.source/*"]
     }
   }

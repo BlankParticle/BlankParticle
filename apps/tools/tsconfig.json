@@ -6,7 +6,7 @@
     "jsx": "react-jsx",
     "types": ["vite/client", "@cloudflare/workers-types", "node"],
     "paths": {
-      "@/*": ["./src/*"]
+      "#/*": ["./src/*"]
     }
   }
 }

@@ -1,9 +1,9 @@
 import { Effect } from "effect";
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/unstable/http";
 
-import { WorkerEnv } from "@/lib/env.ts";
-import { serveBundle, serveFile } from "@/lib/files.ts";
-import { missing, serveSite } from "@/lib/serve.ts";
+import { WorkerEnv } from "#/lib/env.ts";
+import { serveBundle, serveFile } from "#/lib/files.ts";
+import { missing, serveSite } from "#/lib/serve.ts";
 
 import { currentIdentity } from "./identity.ts";
 import { isValidSlug } from "./spec.ts";

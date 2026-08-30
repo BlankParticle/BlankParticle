@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 
-import { NotFound } from "@/components/not-found.tsx";
-import { socials } from "@/lib/data.ts";
+import { NotFound } from "#/components/not-found.tsx";
+import { socials } from "#/lib/data.ts";
 
 const destinations = new Map(socials.flatMap(({ shortLink, url }) => shortLink.map((path) => [path.slice(1), url])));
 

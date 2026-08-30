@@ -4,8 +4,8 @@ import { Card, CardContent } from "@blankparticle/ui/primitives/card.tsx";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@blankparticle/ui/primitives/table.tsx";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { ActionButton, describeUserAgent, formatTimestamp, useDashboard } from "@/components/dashboard.tsx";
-import { revokeBrowserSession } from "@/lib/server-fns.ts";
+import { ActionButton, describeUserAgent, formatTimestamp, useDashboard } from "#/components/dashboard.tsx";
+import { revokeBrowserSession } from "#/lib/server-fns.ts";
 
 export const Route = createFileRoute("/_dashboard/devices")({ component: DevicesPage });
 

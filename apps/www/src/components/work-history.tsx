@@ -6,7 +6,7 @@ import {
   AccordionTrigger,
 } from "@blankparticle/ui/primitives/accordion.tsx";
 
-import type { workHistory } from "@/lib/data.ts";
+import type { workHistory } from "#/lib/data.ts";
 
 /** Roles as an accordion: the newest one open, each with its bullet points */
 export function WorkHistory({ items }: { items: typeof workHistory }) {

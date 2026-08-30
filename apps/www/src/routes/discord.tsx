@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { ContactPage } from "@/components/contact-page.tsx";
-import { discordContact } from "@/components/social-modals.tsx";
-import { SITE_URL } from "@/lib/data.ts";
+import { ContactPage } from "#/components/contact-page.tsx";
+import { discordContact } from "#/components/social-modals.tsx";
+import { SITE_URL } from "#/lib/data.ts";
 
 const pageTitle = "discord · blankparticle";
 const pageUrl = `${SITE_URL}/discord`;

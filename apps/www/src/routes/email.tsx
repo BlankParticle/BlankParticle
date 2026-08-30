@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { ContactPage } from "@/components/contact-page.tsx";
-import { emailContact } from "@/components/social-modals.tsx";
-import { SITE_URL } from "@/lib/data.ts";
+import { ContactPage } from "#/components/contact-page.tsx";
+import { emailContact } from "#/components/social-modals.tsx";
+import { SITE_URL } from "#/lib/data.ts";
 
 const pageTitle = "email · blankparticle";
 const pageUrl = `${SITE_URL}/email`;

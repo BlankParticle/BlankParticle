@@ -15,9 +15,9 @@ import {
   type BrowserSession,
   type Token,
   type User,
-} from "@/db/schema.ts";
-import { clientKey } from "@/lib/clients.ts";
-import type { AuthRequestContext } from "@/request-context.ts";
+} from "#/db/schema.ts";
+import { clientKey } from "#/lib/clients.ts";
+import type { AuthRequestContext } from "#/request-context.ts";
 
 const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(Effect.scoped(effect));
 

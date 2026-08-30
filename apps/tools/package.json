@@ -2,6 +2,9 @@
   "name": "@blankparticle/tools",
   "private": true,
   "type": "module",
+  "imports": {
+    "#/*": "./src/*"
+  },
   "exports": {
     "./spec": "./src/api/spec.ts"
   },
@@ -14,26 +17,31 @@
   "dependencies": {
     "@blankparticle/ui": "workspace:*",
     "@blankparticle/utils": "workspace:*",
-    "@distilled.cloud/cloudflare": "https://pkg.ing/@distilled.cloud/cloudflare/16f26a1",
-    "@tanstack/highlight": "^0.0.10",
-    "@tanstack/markdown": "^0.0.13",
-    "@tanstack/react-form": "^1.33.5",
-    "@tanstack/react-query": "^5.102.8",
-    "@tanstack/react-router": "^1.170.32",
-    "@tanstack/react-router-ssr-query": "^1.167.2",
-    "@tanstack/react-start": "^1.168.49",
-    "drizzle-orm": "1.0.0-rc.5-ab785fc",
-    "jose": "^6.2.10",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "@distilled.cloud/cloudflare": "catalog:",
+    "@tanstack/highlight": "catalog:",
+    "@tanstack/markdown": "catalog:",
+    "@tanstack/react-form": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "@tanstack/react-router-ssr-query": "catalog:",
+    "@tanstack/react-start": "catalog:",
+    "drizzle-orm": "catalog:",
+    "jose": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260829.1",
-    "@types/node": "^26.4.0",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.5",
-    "@vitejs/plugin-react": "^6.1.1",
-    "typescript": "^7.0.2",
-    "vite": "^8.2.2"
+    "@cloudflare/workers-types": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "alchemy": "catalog:",
+    "drizzle-kit": "catalog:",
+    "effect": "catalog:",
+    "oxc-transform-react": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

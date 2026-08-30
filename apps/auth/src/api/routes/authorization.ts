@@ -3,8 +3,8 @@ import { Effect, Layer } from "effect";
 import * as S from "effect/Schema";
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/unstable/http";
 
-import { apps, browserSessions, users } from "@/db/schema.ts";
-import { clientFor, clientKey, isLoopback } from "@/lib/clients.ts";
+import { apps, browserSessions, users } from "#/db/schema.ts";
+import { clientFor, clientKey, isLoopback } from "#/lib/clients.ts";
 
 import { AuthDatabase, WorkerEnv } from "../context.ts";
 import {

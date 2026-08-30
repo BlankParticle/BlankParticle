@@ -3,10 +3,10 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { SiteLayout } from "@/components/site-layout.tsx";
-import { blogSource } from "@/lib/blog-content.ts";
-import { personLd, SITE_URL } from "@/lib/data.ts";
-import { formatPostDate } from "@/lib/utils.ts";
+import { SiteLayout } from "#/components/site-layout.tsx";
+import { blogSource } from "#/lib/blog-content.ts";
+import { personLd, SITE_URL } from "#/lib/data.ts";
+import { formatPostDate } from "#/lib/utils.ts";
 
 const blogPageLoader = createServerFn()
   .validator((data: { slug: string }) => data)
