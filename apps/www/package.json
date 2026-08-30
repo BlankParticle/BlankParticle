@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "imports": {
-    "#/*": "./src/*"
+    "#/*": "./src/*",
+    "#collections/*": "./.source/*"
   },
   "scripts": {
     "build": "vite build",

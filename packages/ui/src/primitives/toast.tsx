@@ -1,7 +1,7 @@
 import { Toast as ToastPrimitive } from "@base-ui/react/toast";
-import { XIcon, CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react";
 import * as React from "react";
 
+import { XIcon, CheckCircleIcon, InfoIcon, WarningIcon, XCircleIcon, SpinnerGapIcon } from "#/lib/icons.ts";
 import { cn } from "#/lib/utils.ts";
 import { Button } from "#/primitives/button.tsx";
 
@@ -118,7 +118,7 @@ function ToastIcon({ type }: { type: string | undefined }) {
   let icon: React.ReactNode = null;
 
   if (type === "success") {
-    icon = <CircleCheckIcon aria-hidden="true" />;
+    icon = <CheckCircleIcon aria-hidden="true" />;
   }
 
   if (type === "info") {
@@ -126,15 +126,15 @@ function ToastIcon({ type }: { type: string | undefined }) {
   }
 
   if (type === "warning") {
-    icon = <TriangleAlertIcon aria-hidden="true" />;
+    icon = <WarningIcon aria-hidden="true" />;
   }
 
   if (type === "error") {
-    icon = <OctagonXIcon className="text-destructive" aria-hidden="true" />;
+    icon = <XCircleIcon className="text-destructive" aria-hidden="true" />;
   }
 
   if (type === "loading") {
-    icon = <Loader2Icon className="animate-spin" aria-hidden="true" />;
+    icon = <SpinnerGapIcon className="animate-spin" aria-hidden="true" />;
   }
 
   if (!icon) {

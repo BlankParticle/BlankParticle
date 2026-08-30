@@ -1,6 +1,7 @@
-import { CircleCheckIcon, InfoIcon, Loader2Icon, OctagonXIcon, TriangleAlertIcon } from "lucide-react";
 import type * as React from "react";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
+
+import { CheckCircleIcon, InfoIcon, SpinnerGapIcon, XCircleIcon, WarningIcon } from "#/lib/icons.ts";
 
 /** Colors come from the theme variables, so the toaster follows `.dark` without a theme prop */
 const Toaster = ({ ...props }: ToasterProps) => {
@@ -8,11 +9,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       className="toaster group"
       icons={{
-        success: <CircleCheckIcon className="size-4" />,
+        success: <CheckCircleIcon className="size-4" />,
         info: <InfoIcon className="size-4" />,
-        warning: <TriangleAlertIcon className="size-4" />,
-        error: <OctagonXIcon className="size-4" />,
-        loading: <Loader2Icon className="size-4 animate-spin" />,
+        warning: <WarningIcon className="size-4" />,
+        error: <XCircleIcon className="size-4" />,
+        loading: <SpinnerGapIcon className="size-4 animate-spin" />,
       }}
       style={
         {

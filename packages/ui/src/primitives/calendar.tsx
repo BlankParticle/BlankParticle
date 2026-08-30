@@ -1,7 +1,7 @@
-import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from "lucide-react";
 import * as React from "react";
 import { DayPicker, getDefaultClassNames, type DayButton, type Locale } from "react-day-picker";
 
+import { CaretLeftIcon, CaretRightIcon, CaretDownIcon } from "#/lib/icons.ts";
 import { cn } from "#/lib/utils.ts";
 import { Button, buttonVariants } from "#/primitives/button.tsx";
 
@@ -107,14 +107,14 @@ function Calendar({
         },
         Chevron: ({ className, orientation, ...props }) => {
           if (orientation === "left") {
-            return <ChevronLeftIcon className={cn("size-4", className)} {...props} />;
+            return <CaretLeftIcon className={cn("size-4", className)} {...props} />;
           }
 
           if (orientation === "right") {
-            return <ChevronRightIcon className={cn("size-4", className)} {...props} />;
+            return <CaretRightIcon className={cn("size-4", className)} {...props} />;
           }
 
-          return <ChevronDownIcon className={cn("size-4", className)} {...props} />;
+          return <CaretDownIcon className={cn("size-4", className)} {...props} />;
         },
         DayButton: ({ ...props }) => <CalendarDayButton locale={locale} {...props} />,
         WeekNumber: ({ children, ...props }) => {

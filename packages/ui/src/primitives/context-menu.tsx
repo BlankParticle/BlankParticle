@@ -1,9 +1,9 @@
 "use client";
 
 import { ContextMenu as ContextMenuPrimitive } from "@base-ui/react/context-menu";
-import { ChevronRightIcon, CheckIcon } from "lucide-react";
 import * as React from "react";
 
+import { CaretRightIcon, CheckIcon } from "#/lib/icons.ts";
 import { cn } from "#/lib/utils.ts";
 
 function ContextMenu({ ...props }: ContextMenuPrimitive.Root.Props) {
@@ -122,7 +122,7 @@ function ContextMenuSubTrigger({
       {...props}
     >
       {children}
-      <ChevronRightIcon className="ml-auto" />
+      <CaretRightIcon className="ml-auto" />
     </ContextMenuPrimitive.SubmenuTrigger>
   );
 }

@@ -1,9 +1,9 @@
 "use client";
 
 import { Combobox as ComboboxPrimitive } from "@base-ui/react";
-import { ChevronDownIcon, XIcon, CheckIcon } from "lucide-react";
 import * as React from "react";
 
+import { CaretDownIcon, XIcon, CheckIcon } from "#/lib/icons.ts";
 import { cn } from "#/lib/utils.ts";
 import { Button } from "#/primitives/button.tsx";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "#/primitives/input-group.tsx";
@@ -22,7 +22,7 @@ function ComboboxTrigger({ className, children, ...props }: ComboboxPrimitive.Tr
       {...props}
     >
       {children}
-      <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4" />
+      <CaretDownIcon className="text-muted-foreground pointer-events-none size-4" />
     </ComboboxPrimitive.Trigger>
   );
 }

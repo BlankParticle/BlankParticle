@@ -1,7 +1,7 @@
 import { Command as CommandPrimitive } from "cmdk";
-import { SearchIcon, CheckIcon } from "lucide-react";
 import * as React from "react";
 
+import { MagnifyingGlassIcon, CheckIcon } from "#/lib/icons.ts";
 import { cn } from "#/lib/utils.ts";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "#/primitives/dialog.tsx";
 import { InputGroup, InputGroupAddon } from "#/primitives/input-group.tsx";
@@ -59,7 +59,7 @@ function CommandInput({ className, ...props }: React.ComponentProps<typeof Comma
           {...props}
         />
         <InputGroupAddon>
-          <SearchIcon className="size-4 shrink-0 opacity-50" />
+          <MagnifyingGlassIcon className="size-4 shrink-0 opacity-50" />
         </InputGroupAddon>
       </InputGroup>
     </div>
