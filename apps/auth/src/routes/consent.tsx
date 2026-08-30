@@ -1,8 +1,8 @@
-import { Button } from "@blankparticle/ui/components/button.tsx";
-import { Card, CardContent, CardDescription, CardHeader } from "@blankparticle/ui/components/card.tsx";
 import { InlineCode } from "@blankparticle/ui/components/code-block.tsx";
 import { EmptyState } from "@blankparticle/ui/components/empty-state.tsx";
 import { WarningCircleIcon } from "@blankparticle/ui/icons";
+import { Button } from "@blankparticle/ui/primitives/button.tsx";
+import { Card, CardContent, CardDescription, CardHeader } from "@blankparticle/ui/primitives/card.tsx";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { AppAsking, Person, Receives } from "@/components/authorize.tsx";
@@ -48,10 +48,10 @@ function ConsentPage() {
         <Receives pii={request.pii} user={request.user} />
         <form method="post" action="/consent" className="mt-6 flex gap-3">
           <input type="hidden" name="token" value={token} />
-          <Button type="submit" name="decision" value="deny" variant="violet-outline" className="flex-1">
+          <Button type="submit" name="decision" value="deny" variant="outline" className="flex-1">
             Cancel
           </Button>
-          <Button type="submit" name="decision" value="allow" variant="violet" className="flex-1">
+          <Button type="submit" name="decision" value="allow" className="flex-1">
             Allow
           </Button>
         </form>

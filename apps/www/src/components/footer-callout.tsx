@@ -10,13 +10,13 @@ interface FooterCalloutProps {
 
 export function FooterCallout({ icon, href, label, subtext, subtextHref }: FooterCalloutProps) {
   return (
-    <div className="flex items-center gap-2.5">
+    <div className="bg-card flex items-center gap-2.5 rounded-xl border px-3.5 py-2.5">
       {icon}
 
       <span className="flex flex-col items-start gap-0.5 text-left">
         <a
           href={href}
-          className="text-violet decoration-orange decoration-wavy underline-offset-4 hover:underline"
+          className="link-dots font-semibold"
           target="_blank"
           rel={href.startsWith("/") ? "nofollow noopener noreferrer" : "noopener noreferrer"}
         >
@@ -25,14 +25,14 @@ export function FooterCallout({ icon, href, label, subtext, subtextHref }: Foote
         {subtextHref ? (
           <a
             href={subtextHref}
-            className="text-ink-muted/70 text-[10px] tracking-wide underline decoration-dotted underline-offset-2"
+            className="text-muted-foreground hover:text-foreground text-2xs transition-colors"
             target="_blank"
             rel="noopener noreferrer"
           >
             {subtext}
           </a>
         ) : (
-          <span className="text-ink-muted/70 text-[10px] tracking-wide">{subtext}</span>
+          <span className="text-muted-foreground text-2xs">{subtext}</span>
         )}
       </span>
     </div>

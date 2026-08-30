@@ -9,7 +9,7 @@ export class StaticAssetsWorker extends Cloudflare.Worker<StaticAssetsWorker>()(
   assets: { directory: join(import.meta.dirname, "public"), htmlHandling: "drop-trailing-slash" },
   domain: { name: "static.blankparticle.com", aliases: ["static.rx2.dev"] },
   workersDev: false,
-  dev: { port: 5174 },
+  dev: { port: 9004 },
 }) {}
 
 export const SetupStaticAssetsWorker = StaticAssetsWorker.pipe(RemovalPolicy.retain(), Namespace.push("Static"));

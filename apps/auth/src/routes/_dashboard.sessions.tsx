@@ -1,8 +1,8 @@
-import { Card, CardContent } from "@blankparticle/ui/components/card.tsx";
 import { EmptyState } from "@blankparticle/ui/components/empty-state.tsx";
 import { PageHeader } from "@blankparticle/ui/components/page-header.tsx";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@blankparticle/ui/components/table.tsx";
 import { KeyIcon } from "@blankparticle/ui/icons";
+import { Card, CardContent } from "@blankparticle/ui/primitives/card.tsx";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@blankparticle/ui/primitives/table.tsx";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { Access, ActionButton, AppIdentity, formatTimestamp, useDashboard } from "@/components/dashboard.tsx";
@@ -51,10 +51,10 @@ function SessionsPage() {
                     <TableCell>
                       <Access pii={token.pii} />
                     </TableCell>
-                    <TableCell className="text-ink-muted hidden text-xs sm:table-cell">
+                    <TableCell className="text-muted-foreground hidden text-xs sm:table-cell">
                       {formatTimestamp(token.issuedAt)}
                     </TableCell>
-                    <TableCell className="text-ink-muted hidden text-xs md:table-cell">
+                    <TableCell className="text-muted-foreground hidden text-xs md:table-cell">
                       {formatTimestamp(token.expiresAt)}
                     </TableCell>
                     <TableCell className="text-right">

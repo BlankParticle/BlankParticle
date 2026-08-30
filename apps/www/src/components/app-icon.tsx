@@ -1,12 +1,23 @@
 import { cn } from "@blankparticle/ui/utils";
 import type { ComponentProps } from "react";
 
-export function AppIcon({ className, children, ...props }: ComponentProps<"span">) {
+const sizes = {
+  sm: "size-6 rounded-md *:size-4",
+  md: "size-9 rounded-lg *:size-6",
+};
+
+/** A brand mark on a tinted tile; pass the brand colour as a `bg-*` class */
+export function AppIcon({
+  size = "sm",
+  className,
+  children,
+  ...props
+}: ComponentProps<"span"> & { size?: keyof typeof sizes }) {
   return (
     <span
       className={cn(
-        "relative grid size-5 shrink-0 place-items-center overflow-hidden rounded-[27%] shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),inset_0_0_0_1px_rgba(0,0,0,0.15)] [&_svg]:size-3!",
-        "bg-paper",
+        "ring-foreground/10 bg-card relative grid shrink-0 place-items-center overflow-hidden ring-1",
+        sizes[size],
         className,
       )}
       aria-hidden="true"

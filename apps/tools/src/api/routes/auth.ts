@@ -24,8 +24,22 @@ const base64url = (bytes: Uint8Array<ArrayBuffer> | ArrayBuffer) =>
     .replaceAll("/", "_")
     .replaceAll("=", "");
 
-const cookie = (domain: string, value: string, maxAge: number) =>
-  `bp_auth=${value}; Domain=.${domain}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`;
+/**
+ * In prod the cookie is shared across the tools/files/sites subdomains via `Domain=.<root>`.
+ * A browser on loopback (`alchemy dev`) rejects that domain, so there it is host-only and plain http.
+ */
+const cookie = (request: HttpServerRequest.HttpServerRequest, domain: string, value: string, maxAge: number) => {
+  const host = new URL(request.originalUrl).hostname;
+  const loopback = host === "localhost" || host === "127.0.0.1" || host.endsWith(".localhost");
+  return [
+    `bp_auth=${value}`,
+    ...(loopback ? [] : [`Domain=.${domain}`, "Secure"]),
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
+    `Max-Age=${maxAge}`,
+  ].join("; ");
+};
 const execute = (request: HttpClientRequest.HttpClientRequest) =>
   HttpClient.execute(request).pipe(Effect.provide(FetchHttpClient.layer));
 
@@ -104,7 +118,7 @@ const Callback = HttpRouter.add(
       return HttpServerResponse.text("Login failed", { status: 401 });
     const tokens = yield* HttpClientResponse.schemaBodyJson(Tokens)(response);
     return HttpServerResponse.redirect(pending.returnTo, {
-      headers: { "set-cookie": cookie(env.ROOT_DOMAIN, tokens.id_token, tokens.expires_in) },
+      headers: { "set-cookie": cookie(request, env.ROOT_DOMAIN, tokens.id_token, tokens.expires_in) },
     });
   }),
 );
@@ -124,7 +138,7 @@ const Logout = HttpRouter.add(
       ).pipe(Effect.ignore);
     }
     return HttpServerResponse.redirect("/", {
-      headers: { "set-cookie": cookie(env.ROOT_DOMAIN, "", 0) },
+      headers: { "set-cookie": cookie(request, env.ROOT_DOMAIN, "", 0) },
     });
   }),
 );

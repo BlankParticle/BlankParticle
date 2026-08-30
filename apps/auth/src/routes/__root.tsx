@@ -65,7 +65,7 @@ function RootLayout() {
         dashboard && (
           <span className="inline-flex items-center gap-2 text-sm">
             <img src={dashboard.user.picture} alt="" className="size-6 rounded-full" />
-            <span className="text-ink hidden font-medium sm:inline">{dashboard.user.login}</span>
+            <span className="text-foreground hidden font-medium sm:inline">{dashboard.user.login}</span>
           </span>
         )
       }

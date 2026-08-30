@@ -2,86 +2,75 @@
 @import "@blankparticle/ui/typeset";
 
 @theme {
-  --animate-marquee: marquee 120s linear infinite;
-  --animate-reveal: reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-marquee: marquee 90s linear infinite;
 
   @keyframes marquee {
     to {
       transform: translateX(-50%);
     }
   }
-
-  @keyframes reveal {
-    from {
-      opacity: 0;
-      transform: translateY(14px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
 }
 
-/** Overrides */
+/** Overrides for blog content */
 @layer components {
+  .gist summary::-webkit-details-marker {
+    display: none;
+  }
+  .gist-body pre {
+    margin-block-start: 0;
+    max-height: 32rem;
+    border-radius: 0;
+    border: 0;
+  }
+
   .typeset :where(a) {
-    @apply text-violet-deep decoration-orange box-decoration-clone font-bold decoration-wavy decoration-2 underline-offset-4;
+    @apply text-primary link-dots font-semibold;
+  }
+  /* a link that is just an inline code chip: the chip itself is the affordance, not an underline hidden behind it */
+  .typeset :where(a:has(> code:only-child)) {
+    background-image: none;
+    padding-bottom: 0;
+  }
+  .typeset :where(a > code:only-child) {
+    @apply ring-primary/30 hover:ring-primary hover:bg-primary/8 ring-1 transition-colors;
   }
   .typeset :where(h1, h2, h3, h4, h5, h6) > a {
     color: inherit;
     font-weight: inherit;
-    @apply no-underline decoration-current decoration-solid;
-  }
-  .typeset :where(h1, h2, h3, h4, h5, h6) > a:hover,
-  .typeset :where(h1, h2, h3, h4, h5, h6) > a:focus-visible {
-    @apply underline;
+    background-image: none;
+    padding-bottom: 0;
   }
   .typeset :where(h1, h2, h3, h4, h5, h6) > a::after {
     content: "";
-    width: 0.8em;
-    height: 0.8em;
+    width: 0.7em;
+    height: 0.7em;
     margin-inline-start: 0.35em;
-    vertical-align: -0.05em;
-    background-color: var(--color-orange-deep);
+    vertical-align: -0.02em;
+    background-color: var(--color-muted-foreground);
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/%3E%3Cpath d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/%3E%3C/svg%3E")
       center / contain no-repeat;
     opacity: 0;
-    transform: translateX(-0.2em);
-    transition:
-      opacity 150ms ease,
-      transform 150ms ease;
+    transition: opacity 150ms ease;
     @apply inline-block;
   }
   .typeset :where(h1, h2, h3, h4, h5, h6) > a:hover::after,
   .typeset :where(h1, h2, h3, h4, h5, h6) > a:focus-visible::after {
     opacity: 1;
-    transform: translateX(0);
   }
-  .typeset :where(pre.shiki) {
-    background-color: var(--muted);
-    color: var(--shiki-light);
-    @apply border-ink/15 border;
+  /* code blocks: GitHub light/dark from @tanstack/highlight (inlined by the root route); ours adds the hairline */
+  .typeset :where(pre.th-code) {
+    @apply border;
   }
-  .typeset :where(pre.shiki span) {
-    color: var(--shiki-light);
-    font-style: var(--shiki-light-font-style);
-    font-weight: var(--shiki-light-font-weight);
-    text-decoration: var(--shiki-light-text-decoration);
-  }
-  .dark .typeset :where(pre.shiki) {
-    color: var(--shiki-dark);
-  }
-  .dark .typeset :where(pre.shiki span) {
-    color: var(--shiki-dark);
-    font-style: var(--shiki-dark-font-style);
-    font-weight: var(--shiki-dark-font-weight);
-    text-decoration: var(--shiki-dark-text-decoration);
+  .typeset :where(pre.th-code .th-comment) {
+    font-style: italic;
   }
   .typeset :where(img) {
-    @apply border-ink/60 mx-auto rounded-xl border-2;
+    @apply ring-foreground/10 mx-auto rounded-lg ring-1;
   }
   .typeset :where(blockquote) {
-    @apply border-orange text-ink-muted;
+    @apply rule-dots text-muted-foreground border-l-2;
+  }
+  .typeset :where(hr) {
+    @apply rule-dots border-t-2;
   }
 }

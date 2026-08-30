@@ -1,7 +1,7 @@
-import { Badge } from "@blankparticle/ui/components/badge.tsx";
-import { Card, CardContent } from "@blankparticle/ui/components/card.tsx";
 import { PageHeader } from "@blankparticle/ui/components/page-header.tsx";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@blankparticle/ui/components/table.tsx";
+import { Badge } from "@blankparticle/ui/primitives/badge.tsx";
+import { Card, CardContent } from "@blankparticle/ui/primitives/card.tsx";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@blankparticle/ui/primitives/table.tsx";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { ActionButton, describeUserAgent, formatTimestamp, useDashboard } from "@/components/dashboard.tsx";
@@ -36,7 +36,7 @@ function DevicesPage() {
                       {device.id === sessionId && <Badge variant="secondary">this device</Badge>}
                     </span>
                   </TableCell>
-                  <TableCell className="text-ink-muted hidden text-xs sm:table-cell">
+                  <TableCell className="text-muted-foreground hidden text-xs sm:table-cell">
                     {formatTimestamp(device.createdAt)}
                   </TableCell>
                   <TableCell className="text-right">

@@ -12,9 +12,8 @@ export class WwwApp extends Cloudflare.Website.Vite<WwwApp>()("Worker", {
   main: "src/worker.ts",
   env: { TARGET_DOMAIN, BLOG_DOMAINS, EXTRA_DOMAINS },
   compatibility: { flags: ["nodejs_compat"] },
-  viteEnvironments: { entry: "ssr", children: ["rsc"] },
   domain: { name: TARGET_DOMAIN, aliases: [...BLOG_DOMAINS, ...EXTRA_DOMAINS] },
-  dev: { port: 5173 },
+  dev: { port: 9002 },
   workersDev: false,
 }) {}
 

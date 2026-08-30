@@ -2,6 +2,9 @@
   "name": "@blankparticle/ui",
   "private": true,
   "type": "module",
+  "imports": {
+    "#/*": "./src/*"
+  },
   "exports": {
     "./setup": "./src/styles/styles.css",
     "./typeset": "./src/styles/typeset.css",
@@ -9,7 +12,9 @@
     "./utils": "./src/lib/utils.ts",
     "./icons": "./src/lib/icons.ts",
     "./icons-ssr": "./src/lib/icons-ssr.ts",
-    "./components/*": "./src/components/*"
+    "./primitives/*": "./src/primitives/*",
+    "./components/*": "./src/components/*",
+    "./hooks/*": "./src/hooks/*"
   },
   "scripts": {
     "typecheck": "tsc",
@@ -18,14 +23,22 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
-    "@fontsource/bricolage-grotesque": "^5.3.0",
-    "@fontsource/karla": "^5.3.0",
+    "@fontsource-variable/figtree": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
     "@phosphor-icons/react": "^2.1.10",
     "class-variance-authority": "^0.7.1",
-    "cnfast": "^0.1.0",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "date-fns": "^4.4.0",
+    "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.5.0",
-    "lucide-react": "^1.34.0",
-    "tailwindcss-spring": "^1.0.1",
+    "lucide-react": "^1.37.0",
+    "react-day-picker": "^10.0.1",
+    "react-resizable-panels": "^4.12.3",
+    "recharts": "3.8.0",
+    "sonner": "^2.0.8",
+    "tailwind-merge": "^3.6.0",
     "tw-animate-css": "^1.4.0"
   },
   "devDependencies": {

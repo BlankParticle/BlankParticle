@@ -79,7 +79,9 @@ class ToolsApp extends Cloudflare.Website.Vite<ToolsApp>()("Worker", {
     FILES: Bucket,
     CF_API_TOKEN: EmailApiToken,
     CF_ACCOUNT_ID: CloudflareAccountId,
-    AUTH_ORIGIN: `https://auth.${ROOT_DOMAIN}`,
+    AUTH_ORIGIN: Alchemy.ALCHEMY_DEV.pipe(
+      Effect.map((dev) => (dev ? `http://localhost:9001` : `https://auth.${ROOT_DOMAIN}`)),
+    ),
     OWNER_EMAIL: CloudflareAccountEmail,
     ROOT_DOMAIN,
     ORIGINS,
@@ -88,14 +90,13 @@ class ToolsApp extends Cloudflare.Website.Vite<ToolsApp>()("Worker", {
   routes: [{ pattern: `*.${ORIGINS.sites}/*`, zoneName: ROOT_DOMAIN }],
   crons: ["0 3 * * *"],
   workersDev: false,
-  dev: { port: 5175 },
+  dev: { port: 9003 },
 }) {}
 
 export type ToolsAppEnv = Cloudflare.InferEnv<typeof ToolsApp>;
 
 const SetupZones = Effect.fn(function* (app: ToolsApp) {
-  const stage = yield* Alchemy.Stage;
-  if (stage !== "prod") return; // No need to even reference these in dev
+  if (yield* Alchemy.ALCHEMY_DEV) return; // No need to even reference these in dev
 
   const accountId = yield* CloudflareAccountId;
   const zones = yield* Cloudflare.Zone.listAllZones(accountId).pipe(Effect.orDie);

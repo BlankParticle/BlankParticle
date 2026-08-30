@@ -1,13 +1,13 @@
-import { Badge } from "@blankparticle/ui/components/badge.tsx";
-import { Button } from "@blankparticle/ui/components/button.tsx";
-import { Card, CardContent } from "@blankparticle/ui/components/card.tsx";
 import { CodeBlock } from "@blankparticle/ui/components/code-block.tsx";
 import { ConfirmDialog } from "@blankparticle/ui/components/confirm-dialog.tsx";
 import { EmptyState } from "@blankparticle/ui/components/empty-state.tsx";
 import { PageHeader } from "@blankparticle/ui/components/page-header.tsx";
-import { Switch } from "@blankparticle/ui/components/switch.tsx";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@blankparticle/ui/components/table.tsx";
 import { ArrowSquareOutIcon, GlobeIcon, LockSimpleIcon, SpinnerGapIcon, TrashIcon } from "@blankparticle/ui/icons";
+import { Badge } from "@blankparticle/ui/primitives/badge.tsx";
+import { Button } from "@blankparticle/ui/primitives/button.tsx";
+import { Card, CardContent } from "@blankparticle/ui/primitives/card.tsx";
+import { Switch } from "@blankparticle/ui/primitives/switch.tsx";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@blankparticle/ui/primitives/table.tsx";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -62,10 +62,10 @@ function SitesTable({ sites }: { sites: readonly Site[] }) {
                   href={site.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-violet inline-flex items-center gap-1.5 font-mono text-sm font-medium hover:underline"
+                  className="text-primary inline-flex items-center gap-1.5 font-mono text-sm font-medium hover:underline"
                 >
                   {new URL(site.url).host}
-                  <ArrowSquareOutIcon className="text-ink-muted size-3.5" />
+                  <ArrowSquareOutIcon className="text-muted-foreground size-3.5" />
                 </a>
               </TableCell>
               <TableCell>

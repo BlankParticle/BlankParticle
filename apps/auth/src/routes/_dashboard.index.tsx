@@ -1,8 +1,8 @@
-import { Button } from "@blankparticle/ui/components/button.tsx";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@blankparticle/ui/components/card.tsx";
 import { ConfirmDialog } from "@blankparticle/ui/components/confirm-dialog.tsx";
 import { PageHeader } from "@blankparticle/ui/components/page-header.tsx";
 import { SealCheckIcon, SignOutIcon } from "@blankparticle/ui/icons";
+import { Button } from "@blankparticle/ui/primitives/button.tsx";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@blankparticle/ui/primitives/card.tsx";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 
 import { useDashboard } from "@/components/dashboard.tsx";
@@ -27,11 +27,11 @@ function ProfilePage() {
             <img src={user.picture} alt="" className="size-16 rounded-full" />
             <div className="min-w-0">
               <p className="font-heading truncate text-lg font-bold">{user.name ?? user.login}</p>
-              <p className="text-ink-muted truncate text-sm">@{user.login}</p>
+              <p className="text-muted-foreground truncate text-sm">@{user.login}</p>
               {user.email !== null && (
-                <p className="text-ink-muted inline-flex items-center gap-1 text-sm">
+                <p className="text-muted-foreground inline-flex items-center gap-1 text-sm">
                   {user.email}
-                  {user.emailVerified && <SealCheckIcon weight="fill" className="text-violet size-4" />}
+                  {user.emailVerified && <SealCheckIcon weight="fill" className="text-primary size-4" />}
                 </p>
               )}
             </div>
@@ -41,9 +41,9 @@ function ProfilePage() {
         <div className="grid gap-4 sm:grid-cols-3">
           {stats.map((stat) => (
             <Link key={stat.to} to={stat.to} className="group">
-              <Card className="group-hover:border-ink/30 transition-colors">
+              <Card className="group-hover:ring-foreground/20 transition-colors">
                 <CardContent>
-                  <p className="text-ink-muted text-sm">{stat.label}</p>
+                  <p className="text-muted-foreground text-sm">{stat.label}</p>
                   <p className="font-heading text-3xl font-bold">{stat.value}</p>
                 </CardContent>
               </Card>

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { blogSource } from "@/lib/blog-content.ts";
+import { postMeta } from "@/lib/blog-meta.ts";
 import { SITE_URL } from "@/lib/data.ts";
 
 const escapeXml = (text: string) =>
@@ -10,18 +10,16 @@ export const Route = createFileRoute("/rss.xml")({
   server: {
     handlers: {
       GET: () => {
-        const posts = blogSource.getPages().sort((a, b) => b.data.date.localeCompare(a.data.date));
-
-        const items = posts.map((post) => {
-          const url = `${SITE_URL}/blog/${post.slugs[0]}`;
+        const items = postMeta.map((post) => {
+          const url = `${SITE_URL}/blog/${post.slug}`;
           return [
             `<item>`,
-            `<title>${escapeXml(post.data.title)}</title>`,
+            `<title>${escapeXml(post.title)}</title>`,
             `<link>${url}</link>`,
             `<guid isPermaLink="true">${url}</guid>`,
-            `<description>${escapeXml(post.data.description)}</description>`,
-            `<pubDate>${new Date(`${post.data.date}T00:00:00Z`).toUTCString()}</pubDate>`,
-            ...post.data.tags.map((tag) => `<category>${escapeXml(tag)}</category>`),
+            `<description>${escapeXml(post.description)}</description>`,
+            `<pubDate>${new Date(`${post.date}T00:00:00Z`).toUTCString()}</pubDate>`,
+            ...post.tags.map((tag) => `<category>${escapeXml(tag)}</category>`),
             `</item>`,
           ].join("");
         });

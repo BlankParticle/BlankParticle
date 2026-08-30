@@ -1,5 +1,8 @@
-import { Badge } from "@blankparticle/ui/components/badge.tsx";
-import { Button } from "@blankparticle/ui/components/button.tsx";
+import { EmptyState } from "@blankparticle/ui/components/empty-state.tsx";
+import { PageHeader } from "@blankparticle/ui/components/page-header.tsx";
+import { CheckIcon, EnvelopeSimpleIcon, PlusIcon, SpinnerGapIcon, TrashIcon } from "@blankparticle/ui/icons";
+import { Badge } from "@blankparticle/ui/primitives/badge.tsx";
+import { Button } from "@blankparticle/ui/primitives/button.tsx";
 import {
   Card,
   CardAction,
@@ -8,7 +11,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@blankparticle/ui/components/card.tsx";
+} from "@blankparticle/ui/primitives/card.tsx";
 import {
   Dialog,
   DialogContent,
@@ -16,13 +19,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@blankparticle/ui/components/dialog.tsx";
-import { EmptyState } from "@blankparticle/ui/components/empty-state.tsx";
-import { PageHeader } from "@blankparticle/ui/components/page-header.tsx";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@blankparticle/ui/components/select.tsx";
-import { Switch } from "@blankparticle/ui/components/switch.tsx";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@blankparticle/ui/components/table.tsx";
-import { CheckIcon, EnvelopeSimpleIcon, PlusIcon, SpinnerGapIcon, TrashIcon } from "@blankparticle/ui/icons";
+} from "@blankparticle/ui/primitives/dialog.tsx";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@blankparticle/ui/primitives/select.tsx";
+import { Switch } from "@blankparticle/ui/primitives/switch.tsx";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@blankparticle/ui/primitives/table.tsx";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import * as Schema from "effect/Schema";
@@ -303,7 +303,7 @@ function ZoneCard({
         <div className="flex items-center gap-2 text-sm">
           <span className="font-semibold">Default</span>
           <span className="text-muted-foreground hidden sm:inline">for every other address on this domain</span>
-          {pendingSource === "catch-all" && <SpinnerGapIcon className="text-ink-muted size-4 animate-spin" />}
+          {pendingSource === "catch-all" && <SpinnerGapIcon className="text-muted-foreground size-4 animate-spin" />}
         </div>
         <ActionSelect
           value={encodeAction(defaultAction)}
@@ -354,7 +354,7 @@ function DestinationsCard({ destinations }: { destinations: DestinationAddress[]
         <CardDescription>Mail can only be forwarded to an address that has been verified.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <ul className="divide-ink/8 divide-y">
+        <ul className="divide-border divide-y">
           {destinations.map((destination) => (
             <li key={destination.id} className="flex items-center gap-3 py-2">
               <span className="min-w-0 truncate font-mono text-sm">{destination.email}</span>

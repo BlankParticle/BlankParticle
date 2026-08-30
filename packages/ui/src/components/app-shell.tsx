@@ -1,5 +1,6 @@
-import { cn } from "cnfast";
 import type * as React from "react";
+
+import { cn } from "#/lib/utils.ts";
 
 /**
  * Chrome shared by the internal apps: a slim sticky header with brand, navigation
@@ -20,10 +21,10 @@ function AppShell({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="bg-paper/95 sticky top-0 z-40 border-b backdrop-blur">
+      <header className="bg-background/85 supports-backdrop-filter:bg-background/70 sticky top-0 z-40 border-b backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-4 sm:px-6">
           {brand}
-          {nav && <nav className="flex items-center gap-1">{nav}</nav>}
+          {nav && <nav className="flex items-center gap-0.5">{nav}</nav>}
           {actions && <div className="ml-auto flex items-center gap-3">{actions}</div>}
         </div>
       </header>
@@ -32,16 +33,14 @@ function AppShell({
   );
 }
 
-/** Wordmark: a small violet tile plus `blankparticle / <product>` */
-function Brand({ icon, product }: { icon: React.ReactNode; product: string }) {
+/** Wordmark: a small violet tile plus `blankparticle`, or `blankparticle / <product>` */
+function Brand({ icon, product }: { icon: React.ReactNode; product?: string }) {
   return (
-    <span className="inline-flex items-center gap-2.5 text-sm font-bold tracking-tight">
-      <span className="bg-violet text-paper inline-flex size-7 items-center justify-center rounded-md [&_svg]:size-4">
+    <span className="font-heading inline-flex items-center gap-2.5 text-sm font-semibold">
+      <span className="bg-primary text-primary-foreground inline-flex size-7 items-center justify-center rounded-md *:size-4">
         {icon}
       </span>
-      <span>
-        blankparticle<span className="text-ink-muted font-medium"> / {product}</span>
-      </span>
+      <span>blankparticle{product && <span className="text-muted-foreground font-medium"> / {product}</span>}</span>
     </span>
   );
 }
@@ -53,7 +52,7 @@ function Brand({ icon, product }: { icon: React.ReactNode; product: string }) {
  */
 const navLinkClass =
   "inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium transition-colors [&_svg]:size-4";
-const navLinkInactiveClass = "text-ink-muted hover:bg-muted hover:text-ink";
-const navLinkActiveClass = "bg-ink text-paper";
+const navLinkInactiveClass = "text-muted-foreground hover:bg-muted hover:text-foreground";
+const navLinkActiveClass = "bg-secondary text-foreground";
 
 export { AppShell, Brand, navLinkActiveClass, navLinkClass, navLinkInactiveClass };

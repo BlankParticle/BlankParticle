@@ -51,8 +51,9 @@ const Authorize = HttpRouter.add(
       return errorPage(env.ISSUER, "Invalid sign-in request", "Invalid redirect URL.");
     }
     const redirectUrl = new URL(query.redirect_uri);
+    // web apps redirect to https, or to a loopback origin under `alchemy dev` (`clientKey` drops the port)
     if (
-      (query.client_type === "web" && redirectUrl.protocol !== "https:") ||
+      (query.client_type === "web" && redirectUrl.protocol !== "https:" && !isLoopback(redirectUrl)) ||
       (query.client_type === "native" && !isLoopback(redirectUrl))
     ) {
       return errorPage(env.ISSUER, "Invalid sign-in request", "Invalid redirect URL.");

@@ -1,4 +1,4 @@
-import { Button } from "@blankparticle/ui/components/button.tsx";
+import { Button } from "@blankparticle/ui/primitives/button.tsx";
 import {
   Dialog,
   DialogContent,
@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@blankparticle/ui/components/dialog.tsx";
+} from "@blankparticle/ui/primitives/dialog.tsx";
 
 import { CopyButton } from "./copy-button.tsx";
 
@@ -37,6 +37,16 @@ export const discordContact: ContactInfo = {
   actions: [{ label: "Open in Discord", href: "https://discord.com/users/1096392763144159252" }],
 };
 
+/** The contact's value in a copyable field; shared by the dialog and the standalone page */
+export function ContactValue({ contact }: { contact: ContactInfo }) {
+  return (
+    <div className="bg-muted flex items-center gap-3 rounded-lg border px-3 py-2">
+      <span className="min-w-0 truncate font-mono text-sm font-medium">{contact.value}</span>
+      <CopyButton value={contact.value} label={contact.copyLabel} />
+    </div>
+  );
+}
+
 export function ContactDialog({
   open,
   onClose,
@@ -53,17 +63,15 @@ export function ContactDialog({
           <DialogTitle>{contact.title}</DialogTitle>
           <DialogDescription>{contact.description}</DialogDescription>
         </DialogHeader>
-        <div className="border-violet/50 bg-lime/20 flex items-center gap-3 rounded-md border-2 border-dashed px-4 py-3">
-          <span className="text-ink min-w-0 truncate font-bold">{contact.value}</span>
-          <CopyButton value={contact.value} label={contact.copyLabel} />
-        </div>
+        <ContactValue contact={contact} />
         {contact.actions && contact.actions.length > 0 && (
           <DialogFooter>
             {contact.actions.map((action) => (
               <Button
                 key={action.label}
-                variant="violet"
-                className="flex-1 whitespace-nowrap"
+                variant="sticker-primary"
+                size="lg"
+                className="h-10 flex-1 whitespace-nowrap"
                 nativeButton={false}
                 render={<a href={action.href} target="_blank" rel="noopener noreferrer" />}
               >

@@ -21,5 +21,5 @@ export const Route = createFileRoute("/email")({
     ],
     links: [{ rel: "canonical", href: pageUrl }],
   }),
-  component: () => <ContactPage contact={emailContact} stamp="direct line · no spam" />,
+  component: () => <ContactPage contact={emailContact} />,
 });

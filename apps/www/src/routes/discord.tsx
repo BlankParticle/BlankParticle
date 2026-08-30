@@ -21,5 +21,5 @@ export const Route = createFileRoute("/discord")({
     ],
     links: [{ rel: "canonical", href: pageUrl }],
   }),
-  component: () => <ContactPage contact={discordContact} stamp="friend request · pending" />,
+  component: () => <ContactPage contact={discordContact} />,
 });

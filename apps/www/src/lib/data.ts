@@ -123,7 +123,7 @@ export const socials: Social[] = [
   },
   {
     label: "Discord",
-    iconBackground: "bg-[#5865F2]",
+    iconBackground: "bg-[#5865f2]",
     icon: DiscordIcon,
     url: "https://discord.com/users/1096392763144159252",
     shortLink: [],
@@ -138,7 +138,7 @@ export const socials: Social[] = [
   },
   {
     label: "LinkedIn",
-    iconBackground: "bg-[#0A66C2]",
+    iconBackground: "bg-[#0a66c2]",
     icon: LinkedInIcon,
     url: "https://www.linkedin.com/in/blankparticle",
     shortLink: ["/linkedin"],

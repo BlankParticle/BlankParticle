@@ -1,6 +1,9 @@
-import { cn } from "cnfast";
 import type * as React from "react";
 
+import { cn } from "#/lib/utils.ts";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "#/primitives/empty.tsx";
+
+/** The `Empty` primitive with a fixed layout: optional icon, title, description, then children */
 function EmptyState({
   icon,
   title,
@@ -15,21 +18,18 @@ function EmptyState({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-6 py-10 text-center",
-        className,
-      )}
-    >
-      {icon && (
-        <div className="bg-muted text-ink-muted mb-2 grid size-12 place-items-center rounded-full [&_svg]:size-6">
-          {icon}
-        </div>
-      )}
-      <p className="font-heading text-lg font-bold tracking-tight">{title}</p>
-      {description && <p className="text-muted-foreground max-w-sm text-sm text-pretty">{description}</p>}
-      {children && <div className="mt-2">{children}</div>}
-    </div>
+    <Empty className={cn("border border-dashed py-10", className)}>
+      <EmptyHeader>
+        {icon && (
+          <EmptyMedia variant="icon" className="bg-primary/10 text-primary size-11 rounded-xl *:size-5">
+            {icon}
+          </EmptyMedia>
+        )}
+        <EmptyTitle className="text-base">{title}</EmptyTitle>
+        {description && <EmptyDescription>{description}</EmptyDescription>}
+      </EmptyHeader>
+      {children && <EmptyContent>{children}</EmptyContent>}
+    </Empty>
   );
 }
 

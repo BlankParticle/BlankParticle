@@ -1,6 +1,6 @@
-import { Button } from "@blankparticle/ui/components/button.tsx";
 import { EmptyState } from "@blankparticle/ui/components/empty-state.tsx";
 import { FingerprintIcon, LockSimpleIcon, ProhibitIcon } from "@blankparticle/ui/icons";
+import { Button } from "@blankparticle/ui/primitives/button.tsx";
 import { useRouterState } from "@tanstack/react-router";
 
 /** Shown when there is no valid id_token, or (`denied`) when the signed-in GitHub email is not the owner's */
@@ -37,7 +37,7 @@ function SignInButton() {
   const returnTo = useRouterState({ select: (state) => state.location.href });
   const href = `/auth/login?return_to=${encodeURIComponent(returnTo)}`;
   return (
-    <Button variant="violet" nativeButton={false} render={<a href={href} />}>
+    <Button nativeButton={false} render={<a href={href} />}>
       <FingerprintIcon weight="bold" /> Sign in with BlankParticle Auth
     </Button>
   );

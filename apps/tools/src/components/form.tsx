@@ -1,8 +1,8 @@
-import { Button } from "@blankparticle/ui/components/button.tsx";
-import { Input } from "@blankparticle/ui/components/input.tsx";
-import { Label } from "@blankparticle/ui/components/label.tsx";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@blankparticle/ui/components/select.tsx";
 import { SpinnerGapIcon } from "@blankparticle/ui/icons-ssr";
+import { Button } from "@blankparticle/ui/primitives/button.tsx";
+import { Input } from "@blankparticle/ui/primitives/input.tsx";
+import { Label } from "@blankparticle/ui/primitives/label.tsx";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@blankparticle/ui/primitives/select.tsx";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import type * as React from "react";
 
@@ -11,7 +11,7 @@ const { fieldContext, formContext, useFieldContext, useFormContext } = createFor
 function FieldErrors({ errors }: { errors: ReadonlyArray<unknown> }) {
   if (errors.length === 0) return null;
   return (
-    <p className="text-orange-deep text-xs font-medium">
+    <p className="text-destructive text-xs font-medium">
       {errors
         .map((error) => (typeof error === "string" ? error : ((error as { message?: string })?.message ?? "")))
         .join(", ")}

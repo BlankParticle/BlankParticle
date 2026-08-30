@@ -1,6 +1,6 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@blankparticle/ui/components/card.tsx";
 import { CodeBlock, InlineCode } from "@blankparticle/ui/components/code-block.tsx";
 import { PageHeader } from "@blankparticle/ui/components/page-header.tsx";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@blankparticle/ui/primitives/card.tsx";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/cli")({ component: CliPage });

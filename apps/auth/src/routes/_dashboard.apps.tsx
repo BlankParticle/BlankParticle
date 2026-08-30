@@ -1,8 +1,8 @@
-import { Card, CardContent } from "@blankparticle/ui/components/card.tsx";
 import { EmptyState } from "@blankparticle/ui/components/empty-state.tsx";
 import { PageHeader } from "@blankparticle/ui/components/page-header.tsx";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@blankparticle/ui/components/table.tsx";
 import { AppWindowIcon } from "@blankparticle/ui/icons";
+import { Card, CardContent } from "@blankparticle/ui/primitives/card.tsx";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@blankparticle/ui/primitives/table.tsx";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { Access, ActionButton, AppIdentity, formatTimestamp, useDashboard } from "@/components/dashboard.tsx";
@@ -45,7 +45,7 @@ function AppsPage() {
                     <TableCell>
                       <Access pii={app.pii} />
                     </TableCell>
-                    <TableCell className="text-ink-muted hidden text-xs sm:table-cell">
+                    <TableCell className="text-muted-foreground hidden text-xs sm:table-cell">
                       {formatTimestamp(app.createdAt)}
                     </TableCell>
                     <TableCell className="text-right">

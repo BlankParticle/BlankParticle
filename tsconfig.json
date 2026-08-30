@@ -6,6 +6,7 @@
     "moduleResolution": "bundler",
     "lib": ["esnext"],
     "types": ["node"],
+    "jsx": "react-jsx",
     "noEmit": true,
     "strict": true,
     "alwaysStrict": true,

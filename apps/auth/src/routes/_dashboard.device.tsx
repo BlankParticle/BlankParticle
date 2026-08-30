@@ -1,8 +1,8 @@
-import { Button } from "@blankparticle/ui/components/button.tsx";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@blankparticle/ui/components/card.tsx";
 import { EmptyState } from "@blankparticle/ui/components/empty-state.tsx";
-import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@blankparticle/ui/components/input-otp.tsx";
 import { CheckCircleIcon, SpinnerGapIcon } from "@blankparticle/ui/icons";
+import { Button } from "@blankparticle/ui/primitives/button.tsx";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@blankparticle/ui/primitives/card.tsx";
+import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@blankparticle/ui/primitives/input-otp.tsx";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
@@ -50,7 +50,7 @@ function DevicePage() {
   if (state.step === "done")
     return (
       <EmptyState
-        icon={<CheckCircleIcon weight="fill" className="text-violet" />}
+        icon={<CheckCircleIcon weight="fill" className="text-primary" />}
         title={
           state.decision === "approved"
             ? `${state.request.name ?? state.request.clientId} is signed in`
@@ -88,19 +88,14 @@ function DevicePage() {
           <Receives pii={state.request.pii} user={user} />
           <div className="mt-6 flex gap-3">
             <Button
-              variant="violet-outline"
+              variant="outline"
               className="flex-1"
               disabled={busy}
               onClick={() => decide(state.code, state.request, "denied")}
             >
               Deny
             </Button>
-            <Button
-              variant="violet"
-              className="flex-1"
-              disabled={busy}
-              onClick={() => decide(state.code, state.request, "approved")}
-            >
+            <Button className="flex-1" disabled={busy} onClick={() => decide(state.code, state.request, "approved")}>
               {busy ? <SpinnerGapIcon className="animate-spin" /> : "Approve"}
             </Button>
           </div>
@@ -146,7 +141,7 @@ function DevicePage() {
           {state.error !== undefined && <p className="text-destructive text-sm">{state.error}</p>}
           <Button
             type="submit"
-            variant="violet"
+
             className="w-full"
             disabled={busy || state.code.length !== USER_CODE_LENGTH}
           >

@@ -1,6 +1,6 @@
-import { Button } from "@blankparticle/ui/components/button.tsx";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@blankparticle/ui/components/card.tsx";
 import { GithubLogoIcon } from "@blankparticle/ui/icons";
+import { Button } from "@blankparticle/ui/primitives/button.tsx";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@blankparticle/ui/primitives/card.tsx";
 import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 
 import { getDashboard } from "@/lib/server-fns.ts";
@@ -24,7 +24,6 @@ function SignIn() {
       </CardHeader>
       <CardContent>
         <Button
-          variant="violet"
           size="lg"
           className="w-full"
           nativeButton={false}

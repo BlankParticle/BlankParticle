@@ -1,19 +1,16 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@blankparticle/ui/components/accordion.tsx";
-import { Button } from "@blankparticle/ui/components/button.tsx";
+import { ArrowRightIcon, ArrowUpRightIcon } from "@blankparticle/ui/icons";
+import { Button } from "@blankparticle/ui/primitives/button.tsx";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { CloudflareWorkersIcon, GitHubIcon, TanStackIcon } from "@/assets/social-icons.tsx";
 import { AppIcon } from "@/components/app-icon.tsx";
 import { FooterCallout } from "@/components/footer-callout.tsx";
-import { LiveTime } from "@/components/live-time.tsx";
 import { Marquee } from "@/components/marquee.tsx";
-import { SocialSticker } from "@/components/social-sticker.tsx";
+import { SectionHeading } from "@/components/section-heading.tsx";
+import { SiteLayout } from "@/components/site-layout.tsx";
+import { SocialLink, stickerInks } from "@/components/social-link.tsx";
+import { WorkHistory } from "@/components/work-history.tsx";
 import { personLd, projects, SITE_URL, socials, workHistory } from "@/lib/data.ts";
 
 const tickerWords = [
@@ -30,26 +27,6 @@ const tickerWords = [
   "reads the source",
   "automates the boring",
   "late night commits",
-  "breaking things",
-  "shipping on fridays",
-  "fixing other people's problems",
-];
-
-const stickerTilts = [
-  "-rotate-2",
-  "rotate-1",
-  "rotate-2",
-  "-rotate-1",
-  "rotate-3",
-  "-rotate-3",
-  "rotate-1",
-  "-rotate-2",
-];
-
-const stickerInks = [
-  "border-violet text-violet hover:bg-violet hover:shadow-[4px_4px_0_var(--color-orange)]",
-  "border-orange-deep text-orange-deep hover:bg-orange-deep hover:shadow-[4px_4px_0_var(--color-violet)]",
-  "border-ink text-ink hover:bg-ink hover:shadow-[4px_4px_0_var(--color-orange)]",
 ];
 
 export const Route = createFileRoute("/")({
@@ -70,227 +47,135 @@ function HomePage() {
 
   const [openModal, setOpenModal] = useState<string | null>(null);
 
+  const stickers = socials.filter((x) => x.showAsSticker !== false);
+
   return (
     <>
-      <main className="mx-auto max-w-4xl px-5 pb-16 sm:px-8">
-        <header className="animate-reveal border-violet/35 text-violet flex flex-wrap items-center justify-between gap-2 border-b-2 border-dashed py-4 text-xs font-bold tracking-[0.18em] uppercase motion-reduce:animate-none">
-          <span>blankparticle.com</span>
-          <span>
-            my time: <LiveTime /> ist
-          </span>
-        </header>
-
-        <section className="flex flex-col gap-10 py-12 sm:py-16 md:flex-row md:items-center md:justify-between">
+      <SiteLayout>
+        <section className="flex flex-col gap-10 md:flex-row md:items-center md:justify-between">
           <div className="flex max-w-xl flex-col gap-5">
-            <p className="animate-reveal text-ink-muted text-lg font-bold tracking-wide [animation-delay:90ms] motion-reduce:animate-none">
-              Hello, I'm
-            </p>
-            <h1 className="animate-reveal font-display text-violet text-[clamp(3.5rem,9vw,6.5rem)] leading-[0.95] font-extrabold tracking-tight [animation-delay:180ms] motion-reduce:animate-none">
-              Rahul Mishra
-            </h1>
-            <p className="animate-reveal text-ink-muted text-base [animation-delay:270ms] motion-reduce:animate-none">
-              also known as
-              <a
-                href="/gh"
-                rel="nofollow"
-                className="text-ink before:bg-lime relative mx-1 inline-block font-bold before:absolute before:-inset-x-0.75 before:inset-y-px before:-z-10 before:-rotate-1 hover:before:rotate-1"
-              >
+            <p className="reveal reveal-90 eyebrow text-orange-deep">Hello, I'm</p>
+            <h1 className="reveal reveal-180 text-display text-primary font-extrabold">Rahul Mishra</h1>
+            <p className="reveal reveal-270 text-muted-foreground leading-relaxed">
+              also known as{" "}
+              <a href="/gh" rel="nofollow" className="marker text-foreground font-bold">
                 @blankparticle
-              </a>
+              </a>{" "}
               online. {age} years old, software developer, and forever taking software apart to see how it works.
-              Sometimes I write about it on
-              <Link
-                to="/blog"
-                className="decoration-orange hover:text-ink ml-1 underline decoration-wavy decoration-2 underline-offset-4 transition-colors"
-              >
+              Sometimes I write about it on{" "}
+              <Link to="/blog" className="link-dots text-foreground font-bold">
                 the blog
               </Link>{" "}
               too.
             </p>
-            <div className="animate-reveal flex flex-wrap items-center gap-4 pt-2 [animation-delay:360ms] motion-reduce:animate-none">
-              <Button variant="violet" onClick={() => setOpenModal("Email")}>
-                email me
+            <div className="reveal reveal-360 flex flex-wrap items-center gap-4 pt-2">
+              <Button variant="sticker-primary" size="xl" onClick={() => setOpenModal("Email")}>
+                Email me
               </Button>
-              <Button variant="orange" nativeButton={false} render={<a href="/cal" rel="nofollow" />}>
-                book a call
+              <Button variant="sticker-accent" size="xl" nativeButton={false} render={<a href="/cal" rel="nofollow" />}>
+                Book a call
               </Button>
               <Button
-                variant="violet-outline"
+                variant="sticker"
+                size="xl"
                 nativeButton={false}
                 render={<a href="/resume" target="_blank" rel="nofollow noopener noreferrer" />}
               >
-                my resume
+                Resume <ArrowUpRightIcon weight="bold" />
               </Button>
             </div>
           </div>
 
-          <figure className="animate-reveal group relative order-first shrink-0 self-center [animation-delay:270ms] motion-reduce:animate-none md:order-0 md:self-auto">
-            <span
-              className="text-orange absolute -top-6 -right-6 size-28 rounded-full bg-[radial-gradient(currentColor_1px,transparent_1.5px)] bg-size-[9px_9px]"
-              aria-hidden="true"
-            ></span>
-            <span
-              className="text-violet absolute -bottom-5 -left-7 size-20 rounded-full bg-[radial-gradient(currentColor_1px,transparent_1.5px)] bg-size-[9px_9px]"
-              aria-hidden="true"
-            ></span>
+          <figure className="reveal reveal-270 relative order-first shrink-0 self-center md:order-0 md:self-auto">
+            <span className="halftone text-orange absolute -top-4 -right-5 size-28" aria-hidden="true" />
+            <span className="halftone text-primary absolute -bottom-4 -left-6 size-20" aria-hidden="true" />
             <img
               src="/me.png"
-              alt="Rahul, cut out and stuck on the page like a sticker"
-              className="border-paper relative size-40 rotate-2 rounded-2xl border-4 object-cover shadow-[0_0_0_2px_var(--color-ink)] transition-transform duration-300 ease-out select-none group-hover:rotate-0 sm:size-48"
+              alt="Rahul Mishra"
+              className="relative size-44 rotate-3 transition-transform duration-300 ease-out select-none hover:rotate-0 sm:size-52"
             />
-            <figcaption className="border-ink bg-lime absolute -bottom-3 left-1/2 w-max -translate-x-1/2 -rotate-2 border-2 px-2 py-0.5 text-xs font-bold tracking-widest uppercase">
-              that's me
-            </figcaption>
           </figure>
         </section>
 
         <Marquee tickers={tickerWords} />
 
-        <section className="animate-reveal flex flex-col gap-2 py-12 [animation-delay:540ms] motion-reduce:animate-none sm:py-16">
-          <div className="flex items-baseline justify-between gap-4 pb-4">
-            <h2 className="font-display text-violet text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Where I've worked
-            </h2>
-            <span className="text-orange-deep text-xs font-bold tracking-[0.18em] uppercase">the paper trail</span>
-          </div>
-          <Accordion defaultValue={[workHistory[0].company]}>
-            {workHistory.map((work) => (
-              <AccordionItem key={work.company} value={work.company}>
-                <AccordionTrigger>
-                  <AppIcon className="bg-ink size-10 -rotate-2 p-0.5 shadow-[2px_2px_0_var(--color-violet),inset_0_1px_1px_rgba(255,255,255,0.35),inset_0_0_0_1px_rgba(0,0,0,0.15)]">
-                    <img
-                      src={work.logo}
-                      alt={`${work.company} logo`}
-                      loading="lazy"
-                      className="size-full rounded-[22%] object-cover"
-                    />
-                  </AppIcon>
-                  <span className="flex min-w-0 flex-1 flex-col gap-1">
-                    <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                      <a
-                        href={work.url}
-                        className="font-display text-violet-deep decoration-orange text-xl font-bold decoration-wavy underline-offset-4 hover:underline"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {work.company}
-                      </a>
-                      {work.companySubtext && <span className="text-ink-muted/70 text-xs">{work.companySubtext}</span>}
-                    </span>
-                    <span className="text-ink-muted text-sm">
-                      {work.role} · {work.tags.join(" · ")}
-                    </span>
-                  </span>
-                  <span className="font-display text-orange-deep ml-auto shrink-0 text-sm font-bold tabular-nums">
-                    {work.date}
-                  </span>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <ul className="flex flex-col gap-2">
-                    {work.points.map((point) => (
-                      <li key={point} className="text-ink-muted flex gap-2 text-sm">
-                        <span className="text-orange-deep shrink-0 font-bold" aria-hidden="true">
-                          →
-                        </span>
-                        <span>{point}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+        <section className="reveal reveal-540 flex flex-col">
+          <SectionHeading>Where I've worked</SectionHeading>
+          <WorkHistory items={workHistory} />
         </section>
 
-        <section className="animate-reveal flex flex-col gap-2 pb-12 [animation-delay:585ms] motion-reduce:animate-none sm:pb-16">
-          <div className="flex items-baseline justify-between gap-4 pb-4">
-            <h2 className="font-display text-violet text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Things I built
-            </h2>
-            <span className="text-orange-deep text-xs font-bold tracking-[0.18em] uppercase">hot off the press</span>
-          </div>
-          <ol className="flex flex-col">
+        <section className="reveal reveal-630 flex flex-col">
+          <SectionHeading>Things I've built</SectionHeading>
+          <ol className="rule-dots flex flex-col border-t-2">
             {projects.map((project, i) => (
-              <li key={project.title} className="border-violet/35 border-t-2 border-dashed last:border-b-2">
+              <li key={project.title} className="rule-dots border-b-2">
                 <a
-                  className="group flex items-baseline gap-4 py-5 sm:gap-6"
+                  className="group list-row flex items-baseline gap-4 py-5 sm:gap-6"
                   href={project.url}
                   target="_blank"
                   rel={project.url.startsWith("/") ? "nofollow noopener noreferrer" : "noopener noreferrer"}
                 >
-                  <span className="font-display text-orange-deep text-xl font-bold tabular-nums" aria-hidden="true">
+                  <span className="font-heading text-orange-deep text-xl font-bold tabular-nums" aria-hidden="true">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span className="flex min-w-0 flex-col gap-1">
-                    <span className="font-display text-violet-deep group-hover:decoration-orange text-xl font-bold wrap-break-word underline decoration-transparent decoration-2 underline-offset-4 transition-colors duration-200">
+                    <span className="font-heading text-violet-deep group-hover:text-primary text-xl font-bold wrap-break-word transition-colors">
                       {project.title}
                     </span>
-                    <span className="text-ink-muted text-sm">{project.description}</span>
+                    <span className="text-muted-foreground text-sm">{project.description}</span>
                   </span>
-                  <span
-                    className="text-orange-deep ml-auto shrink-0 text-lg font-bold transition-transform duration-200 ease-out group-hover:translate-x-1"
+                  <ArrowUpRightIcon
+                    weight="bold"
+                    className="text-orange-deep ml-auto size-5 shrink-0 self-center transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                     aria-hidden="true"
-                  >
-                    →
-                  </span>
+                  />
                 </a>
               </li>
             ))}
           </ol>
         </section>
 
-        <section className="animate-reveal flex flex-col gap-6 pb-14 [animation-delay:630ms] motion-reduce:animate-none">
-          <div className="flex items-baseline justify-between gap-4">
-            <h2 className="font-display text-violet text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Find me around
-            </h2>
-            <span className="text-orange-deep text-xs font-bold tracking-[0.18em] uppercase">socials sheet</span>
-          </div>
+        <section className="reveal reveal-720 flex flex-col">
+          <SectionHeading>Find me around</SectionHeading>
           <div className="flex flex-wrap gap-x-3 gap-y-4">
-            {socials
-              .filter((x) => x.showAsSticker !== false)
-              .map((social, i) => {
-                const tilt = stickerTilts[i % stickerTilts.length];
-                const ink = stickerInks[i % stickerInks.length];
-                return (
-                  <SocialSticker
-                    key={social.label}
-                    name={social.label}
-                    tilt={tilt}
-                    ink={ink}
-                    icon={
-                      social.icon ? (
-                        <AppIcon className={social.iconBackground}>
-                          <social.icon />
-                        </AppIcon>
-                      ) : null
-                    }
-                    {...(social.modal ? { onClick: () => setOpenModal(social.label) } : { href: social.shortLink[0] })}
-                  />
-                );
-              })}
+            {stickers.map((social, i) => (
+              <SocialLink
+                key={social.label}
+                name={social.label}
+                ink={stickerInks[i % stickerInks.length]!}
+                icon={
+                  social.icon ? (
+                    <AppIcon className={social.iconBackground}>
+                      <social.icon />
+                    </AppIcon>
+                  ) : null
+                }
+                {...(social.modal ? { onClick: () => setOpenModal(social.label) } : { href: social.shortLink[0] })}
+              />
+            ))}
             <Button
-              variant="sticker"
-              className="border-orange-deep text-orange-deep hover:bg-orange-deep rotate-2 border-dashed hover:shadow-[4px_4px_0_var(--color-violet)]"
+              variant="outline"
+              size="lg"
+              className="group border-primary/60 text-primary hover:border-primary hover:bg-primary/8 rounded-full border-2 border-dashed bg-transparent px-4 font-semibold"
               nativeButton={false}
               render={<Link to="/links" />}
             >
-              all my links →
+              All my links
+              <ArrowRightIcon weight="bold" className="transition-transform duration-200 group-hover:translate-x-0.5" />
             </Button>
           </div>
         </section>
 
-        <footer className="animate-reveal border-violet/35 flex flex-col items-center gap-4 border-t-2 border-dashed pt-6 text-center text-xs font-bold [animation-delay:720ms] motion-reduce:animate-none sm:flex-row sm:flex-wrap sm:justify-between sm:text-left">
+        <footer className="reveal reveal-810 flex flex-col flex-wrap items-center justify-center gap-x-8 gap-y-4 border-t pt-6 text-xs sm:flex-row">
           <FooterCallout
             icon={
-              <AppIcon className="size-9 bg-[#1b1f23] [&_svg]:size-6!">
+              <AppIcon size="md" className="bg-[#1b1f23]">
                 <GitHubIcon />
               </AppIcon>
             }
             href="/gh/BlankParticle"
             label="Made with 💜 by BlankParticle"
-            subtext={`build commit ${import.meta.env.VITE_GIT_HASH}`}
+            subtext={`build ${import.meta.env.VITE_GIT_HASH}`}
             subtextHref={
               import.meta.env.VITE_GIT_HASH === "development"
                 ? `https://github.com/BlankParticle/BlankParticle`
@@ -299,7 +184,7 @@ function HomePage() {
           />
           <FooterCallout
             icon={
-              <AppIcon className="size-9 [&_svg]:size-6!">
+              <AppIcon size="md">
                 <CloudflareWorkersIcon />
               </AppIcon>
             }
@@ -309,7 +194,7 @@ function HomePage() {
           />
           <FooterCallout
             icon={
-              <AppIcon className="size-9 [&_svg]:size-6!">
+              <AppIcon size="md" className="*:size-8">
                 <TanStackIcon />
               </AppIcon>
             }
@@ -318,7 +203,7 @@ function HomePage() {
             subtext="the framework for full-stack apps"
           />
         </footer>
-      </main>
+      </SiteLayout>
 
       {socials.map(
         (social) =>

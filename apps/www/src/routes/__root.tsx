@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { NotFound } from "@/components/not-found.tsx";
 import { SITE_URL } from "@/lib/data.ts";
+import { highlightThemeCss } from "@/lib/highlight-theme.ts";
 
 import appCss from "../app.css?url";
 
@@ -34,6 +35,7 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: appCss },
       { rel: "alternate", type: "application/rss+xml", title: "blankparticle's blog", href: "/rss.xml" },
     ],
+    styles: [{ children: highlightThemeCss }],
   }),
   notFoundComponent: NotFound,
   shellComponent: RootDocument,

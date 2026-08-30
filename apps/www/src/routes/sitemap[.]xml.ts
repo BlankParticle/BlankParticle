@@ -1,14 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { blogSource } from "@/lib/blog-content.ts";
+import { postMeta } from "@/lib/blog-meta.ts";
 import { SITE_URL } from "@/lib/data.ts";
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: () => {
-        const posts = blogSource.getPages().sort((a, b) => b.data.date.localeCompare(a.data.date));
-        const latestPostDate = posts[0]?.data.date;
+        const latestPostDate = postMeta[0]?.date;
 
         const urls = [
           { loc: SITE_URL },
@@ -16,7 +15,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { loc: `${SITE_URL}/email` },
           { loc: `${SITE_URL}/discord` },
           { loc: `${SITE_URL}/blog`, lastmod: latestPostDate },
-          ...posts.map((post) => ({ loc: `${SITE_URL}/blog/${post.slugs[0]}`, lastmod: post.data.date })),
+          ...postMeta.map((post) => ({ loc: `${SITE_URL}/blog/${post.slug}`, lastmod: post.date })),
         ];
 
         const body = [

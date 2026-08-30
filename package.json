@@ -17,7 +17,7 @@
     "@blankparticle/utils": "workspace:*",
     "@effect/platform-node": "4.0.0-rc.112",
     "@types/node": "^26.4.0",
-    "alchemy": "https://pkg.ing/alchemy/e8675ee",
+    "alchemy": "https://pkg.ing/alchemy/73d16e5",
     "drizzle-kit": "1.0.0-rc.5-ab785fc",
     "drizzle-orm": "1.0.0-rc.5-ab785fc",
     "effect": "4.0.0-rc.112",

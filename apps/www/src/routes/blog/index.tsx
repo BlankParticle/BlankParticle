@@ -1,24 +1,15 @@
+import { ArrowRightIcon } from "@blankparticle/ui/icons";
+import { Badge } from "@blankparticle/ui/primitives/badge.tsx";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 
-import { LiveTime } from "@/components/live-time.tsx";
-import { blogSource } from "@/lib/blog-content.ts";
+import { SectionHeading } from "@/components/section-heading.tsx";
+import { SiteLayout } from "@/components/site-layout.tsx";
+import { postMeta } from "@/lib/blog-meta.ts";
 import { personLd, SITE_URL } from "@/lib/data.ts";
 import { formatPostDate } from "@/lib/utils.ts";
 
-const blogListLoader = createServerFn().handler(() =>
-  blogSource
-    .getPages()
-    .sort((a, b) => b.data.date.localeCompare(a.data.date))
-    .map((post) => ({
-      slug: post.slugs[0],
-      title: post.data.title,
-      description: post.data.description,
-      date: post.data.date,
-      tags: post.data.tags,
-      cover: post.data.cover,
-    })),
-);
+const blogListLoader = createServerFn().handler(() => postMeta);
 
 const blogTitle = "blog · blankparticle";
 const blogDescription = "Things I wrote down so I wouldn't have to figure them out twice.";
@@ -65,89 +56,54 @@ function BlogIndexPage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-5 pb-16 sm:px-8">
-      <header className="animate-reveal border-violet/35 text-violet flex flex-wrap items-center justify-between gap-2 border-b-2 border-dashed py-4 text-xs font-bold tracking-[0.18em] uppercase motion-reduce:animate-none">
-        <Link to="/" className="hover:text-orange-deep transition-colors">
-          ← blankparticle.com
-        </Link>
-        <span className="text-orange-deep hidden sm:inline">the archive · printed once</span>
-        <span>
-          my time: <LiveTime /> ist
-        </span>
-      </header>
-
-      <section className="flex flex-col gap-5 py-12 sm:py-16">
-        <h1 className="animate-reveal font-display text-violet text-[clamp(3rem,8vw,5.5rem)] leading-[0.95] font-extrabold tracking-tight [animation-delay:90ms] motion-reduce:animate-none">
-          The Blog
-        </h1>
-        <p className="animate-reveal text-ink-muted max-w-xl text-base [animation-delay:180ms] motion-reduce:animate-none">
-          Things I wrote down so I wouldn't have to figure them out twice.
-        </p>
+    <SiteLayout back={{ to: "/", label: "blankparticle.com" }}>
+      <section className="flex flex-col gap-4">
+        <p className="reveal eyebrow text-orange-deep">Writing</p>
+        <h1 className="reveal reveal-90 text-display text-primary font-extrabold">The Blog</h1>
+        <p className="reveal reveal-180 text-muted-foreground max-w-xl">{blogDescription}</p>
       </section>
 
       {[...byYear.entries()].map(([year, yearPosts], sectionIndex) => (
-        <section
-          key={year}
-          className="animate-reveal flex flex-col gap-2 pb-12 motion-reduce:animate-none sm:pb-16"
-          style={{ animationDelay: `${270 + sectionIndex * 90}ms` }}
-        >
-          <div className="flex items-baseline justify-between gap-4 pb-4">
-            <h2 className="font-display text-violet text-3xl font-extrabold tracking-tight sm:text-4xl">{year}</h2>
-            <span className="text-orange-deep text-xs font-bold tracking-[0.18em] uppercase">
-              {yearPosts.length} {yearPosts.length === 1 ? "issue" : "issues"}
-            </span>
-          </div>
-          <ol className="flex flex-col">
+        <section key={year} className="reveal flex flex-col" style={{ animationDelay: `${270 + sectionIndex * 90}ms` }}>
+          <SectionHeading>{year}</SectionHeading>
+          <ol className="rule-dots flex flex-col border-t-2">
             {yearPosts.map((post, i) => (
-              <li key={post.slug} className="border-violet/35 border-t-2 border-dashed last:border-b-2">
+              <li key={post.slug} className="rule-dots border-b-2">
                 <Link
                   to="/blog/$slug"
                   params={{ slug: post.slug }}
-                  className="group flex items-baseline gap-4 py-5 sm:gap-6"
+                  className="group list-row flex items-baseline gap-4 py-5 sm:gap-6"
                 >
-                  <span className="font-display text-orange-deep text-xl font-bold tabular-nums" aria-hidden="true">
+                  <span className="font-heading text-orange-deep text-xl font-bold tabular-nums" aria-hidden="true">
                     {String(yearPosts.length - i).padStart(2, "0")}
                   </span>
-                  <span className="flex min-w-0 flex-col gap-1">
-                    <span className="font-display text-violet-deep group-hover:decoration-orange text-xl font-bold wrap-break-word underline decoration-transparent decoration-2 underline-offset-4 transition-colors duration-200">
+                  <span className="flex min-w-0 flex-col gap-1.5">
+                    <span className="font-heading text-violet-deep group-hover:text-primary text-xl font-bold wrap-break-word transition-colors">
                       {post.title}
                     </span>
-                    <span className="text-ink-muted text-sm">{post.description}</span>
-                    <span className="mt-2 flex flex-wrap items-center gap-2">
-                      <time
-                        dateTime={post.date}
-                        className="text-orange-deep mr-1 text-[0.65rem] font-bold tracking-[0.16em] uppercase"
-                      >
+                    <span className="text-muted-foreground text-sm">{post.description}</span>
+                    <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      <time dateTime={post.date} className="font-heading text-orange-deep mr-1.5 text-sm font-bold">
                         {formatPostDate(post.date)}
                       </time>
-                      {post.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="border-violet/45 bg-lime/25 text-violet-deep rounded-full border px-2 py-0.5 text-[0.65rem] font-bold tracking-wide"
-                        >
+                      {post.tags.map((tag, tagIndex) => (
+                        <Badge key={tag} variant={tagIndex % 2 === 0 ? "default" : "accent"}>
                           #{tag}
-                        </span>
+                        </Badge>
                       ))}
                     </span>
                   </span>
-                  <span
-                    className="text-orange-deep ml-auto shrink-0 text-lg font-bold transition-transform duration-200 ease-out group-hover:translate-x-1"
+                  <ArrowRightIcon
+                    weight="bold"
+                    className="text-orange-deep ml-auto size-5 shrink-0 self-center transition-transform duration-200 ease-out group-hover:translate-x-1"
                     aria-hidden="true"
-                  >
-                    →
-                  </span>
+                  />
                 </Link>
               </li>
             ))}
           </ol>
         </section>
       ))}
-
-      <footer className="animate-reveal border-violet/35 flex justify-center border-t-2 border-dashed pt-6 text-center text-xs font-bold [animation-delay:450ms] motion-reduce:animate-none">
-        <span className="border-orange-deep text-orange-deep -rotate-2 rounded border-2 border-dashed px-2 py-1 tracking-[0.18em] uppercase">
-          end of the archive
-        </span>
-      </footer>
-    </main>
+    </SiteLayout>
   );
 }

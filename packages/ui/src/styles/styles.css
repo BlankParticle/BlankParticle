@@ -1,67 +1,223 @@
 @import "tailwindcss";
-@import "@fontsource/bricolage-grotesque/latin-700.css";
-@import "@fontsource/bricolage-grotesque/latin-800.css";
-@import "@fontsource/karla/latin-400.css";
-@import "@fontsource/karla/latin-400-italic.css";
-@import "@fontsource/karla/latin-700.css";
+@import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource-variable/figtree";
+@import "@fontsource-variable/figtree/wght-italic.css";
+@import "@fontsource-variable/jetbrains-mono";
 @import "tw-animate-css";
 @import "./shadcn.css";
 
-/* the sticker button variant uses spring-* utilities */
-@plugin "tailwindcss-spring";
-
-/* scan the package's own components for class names */
+/* scan the package's own components for class names; apps only scan their own source */
 @source "../components";
+@source "../primitives";
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Two inks on paper. Violet is the working colour (actions, links, focus);
+ * orange is reserved for small accents: eyebrows, live indicators, warnings.
+ * The raw palette lives on :root / .dark so the same utility (`text-ink`) reads
+ * correctly in both schemes, and the shadcn semantic tokens derive from it.
+ */
 @theme {
-  --font-display: "Bricolage Grotesque", "Arial Black", sans-serif;
-  --font-body: "Karla", "Helvetica Neue", Arial, sans-serif;
+  /* display sizes carry their own line-height; use `text-display` etc. instead of clamp() in components */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-title: clamp(2.25rem, 6vw, 3.5rem);
+  --text-title--line-height: 1.05;
+  --text-display: clamp(3.25rem, 8vw, 5.75rem);
+  --text-display--line-height: 0.95;
+  --text-display-lg: clamp(5rem, 18vw, 10rem);
+  --text-display-lg--line-height: 1;
 
-  /* two-ink risograph palette: violet + orange on bright paper */
-  --color-paper: oklch(98% 0.005 110);
-  --color-ink: oklch(27% 0.03 300);
-  --color-ink-muted: oklch(46% 0.03 300);
-  --color-violet: oklch(45% 0.19 300);
-  --color-violet-deep: oklch(37% 0.17 300);
-  --color-orange: oklch(68% 0.19 45);
-  --color-orange-deep: oklch(50% 0.17 40);
-  --color-lime: oklch(92% 0.16 125);
+  --animate-reveal: reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @keyframes reveal {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@theme inline {
+  /* geometric display, soft humanist text */
+  --font-display: "Plus Jakarta Sans Variable", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Figtree Variable", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-display);
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-violet: var(--violet);
+  --color-violet-deep: var(--violet-deep);
+  --color-orange: var(--orange);
+  --color-orange-deep: var(--orange-deep);
+  --color-highlight: var(--highlight);
+  --color-code: var(--code);
+  --color-code-foreground: var(--code-foreground);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --paper: oklch(98.4% 0.005 85);
+  --ink: oklch(23% 0.025 290);
+  --ink-muted: oklch(44% 0.025 290);
+  --violet: oklch(46% 0.17 295);
+  --violet-deep: oklch(38% 0.15 295);
+  --orange: oklch(68% 0.17 45);
+  --orange-deep: oklch(52% 0.16 40);
+  /* the marker pen: highlighter behind words, the ticker band */
+  --highlight: oklch(92% 0.12 118);
+  --code: oklch(21% 0.02 290);
+  --code-foreground: oklch(93% 0.008 85);
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: oklch(99.6% 0.002 85);
+  --card-foreground: var(--ink);
+  --popover: oklch(99.6% 0.002 85);
+  --popover-foreground: var(--ink);
+  --primary: var(--violet);
+  --primary-foreground: oklch(99% 0.002 85);
+  --secondary: oklch(94% 0.014 295);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(95% 0.007 85);
+  --muted-foreground: var(--ink-muted);
+  --accent: oklch(94.5% 0.012 295);
+  --accent-foreground: var(--ink);
+  --destructive: var(--orange-deep);
+  /* hairlines (cards, tables, dividers) and field borders share these; components should not pick their own alphas */
+  --border: color-mix(in oklch, var(--ink) 12%, transparent);
+  --input: color-mix(in oklch, var(--ink) 22%, transparent);
+  --ring: var(--violet);
+  --radius: 0.5rem;
+  --chart-1: var(--violet);
+  --chart-2: var(--orange);
+  --chart-3: oklch(70% 0.09 295);
+  --chart-4: oklch(80% 0.1 60);
+  --chart-5: var(--ink-muted);
+  --sidebar: oklch(97% 0.006 85);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--violet);
+  --sidebar-primary-foreground: oklch(99% 0.002 85);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--violet);
+  --scrollbar-thumb: color-mix(in oklch, var(--ink) 22%, transparent);
+  --scrollbar-thumb-hover: color-mix(in oklch, var(--ink) 38%, transparent);
+}
+
+.dark {
+  --paper: oklch(17% 0.014 290);
+  --ink: oklch(93% 0.008 85);
+  --ink-muted: oklch(67% 0.015 290);
+  --violet: oklch(74% 0.13 295);
+  --violet-deep: oklch(82% 0.1 295);
+  --orange: oklch(74% 0.15 50);
+  --orange-deep: oklch(70% 0.16 45);
+  --highlight: oklch(42% 0.09 118);
+  --code: oklch(13% 0.012 290);
+  --code-foreground: oklch(91% 0.008 85);
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: oklch(20.5% 0.015 290);
+  --card-foreground: var(--ink);
+  --popover: oklch(21% 0.015 290);
+  --popover-foreground: var(--ink);
+  --primary: var(--violet);
+  --primary-foreground: oklch(16% 0.02 295);
+  --secondary: oklch(27% 0.025 295);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(24% 0.012 290);
+  --muted-foreground: var(--ink-muted);
+  --accent: oklch(28% 0.025 295);
+  --accent-foreground: var(--ink);
+  --destructive: var(--orange-deep);
+  --border: color-mix(in oklch, var(--ink) 12%, transparent);
+  --input: color-mix(in oklch, var(--ink) 18%, transparent);
+  --ring: var(--violet);
+  --chart-1: var(--violet);
+  --chart-2: var(--orange);
+  --chart-3: oklch(60% 0.1 295);
+  --chart-4: oklch(66% 0.12 60);
+  --chart-5: var(--ink-muted);
+  --sidebar: oklch(19% 0.014 290);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--violet);
+  --sidebar-primary-foreground: oklch(16% 0.02 295);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--violet);
+  --scrollbar-thumb: color-mix(in oklch, var(--ink) 22%, transparent);
+  --scrollbar-thumb-hover: color-mix(in oklch, var(--ink) 38%, transparent);
 }
 
 @layer base {
   html {
-    @apply text-ink overflow-x-clip scroll-smooth font-sans antialiased;
+    @apply overflow-x-clip scroll-smooth font-sans antialiased;
+    font-optical-sizing: auto;
   }
 
   body {
     @apply bg-background text-foreground relative min-h-screen;
   }
 
-  /* paper grain, one cheap SVG turbulence layer */
-  body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 50;
-    opacity: 0.05;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
-  /* keep wavy/solid underlines continuous through descenders */
-  a {
-    text-decoration-skip-ink: none;
-  }
-
-  ::selection {
-    @apply bg-orange text-paper;
-  }
   * {
     @apply border-border outline-ring/50;
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklch, var(--orange) 35%, transparent);
   }
 
   /* Safari and older Chromium still read the WebKit pseudo-elements */
@@ -86,65 +242,127 @@
     background: transparent;
   }
 
-  /* plain links get the same violet focus ring as components */
+  /* plain links get the same focus ring as components */
   a:focus-visible {
     @apply outline-ring rounded-sm outline-2 outline-offset-2;
   }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading tracking-tight;
+    text-wrap: balance;
+  }
+
+  code,
+  kbd,
+  pre,
+  samp {
+    font-feature-settings: "calt", "liga";
+  }
 }
 
-@theme inline {
-  --font-sans: var(--font-body);
-  --font-heading: var(--font-display);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+@utility eyebrow {
+  /* small-caps label; pair with a colour utility */
+  @apply text-2xs font-bold tracking-[0.14em] uppercase;
 }
 
-:root {
-  --background: var(--color-paper);
-  --foreground: var(--color-ink);
-  --card: var(--color-paper);
-  --card-foreground: var(--color-ink);
-  --popover: var(--color-paper);
-  --popover-foreground: var(--color-ink);
-  --primary: var(--color-violet);
-  --primary-foreground: var(--color-paper);
-  --secondary: var(--color-lime);
-  --secondary-foreground: var(--color-ink);
-  --muted: oklch(94% 0.01 110);
-  --muted-foreground: var(--color-ink-muted);
-  --accent: var(--color-lime);
-  --accent-foreground: var(--color-ink);
-  --destructive: var(--color-orange-deep);
-  /* hairlines (cards, tables, dividers) and field borders share these; components should not pick their own alphas */
-  --border: color-mix(in oklch, var(--color-ink) 15%, transparent);
-  --input: color-mix(in oklch, var(--color-ink) 25%, transparent);
-  /* keyboard focus is always violet; orange stays for selection and the sticker buttons' shadows */
-  --ring: var(--color-violet);
-  --radius: 0.5rem;
-  /* thin themed scrollbars; dark surfaces override the thumb (see CodeBlock) */
-  --scrollbar-thumb: color-mix(in oklch, var(--color-ink) 25%, transparent);
-  --scrollbar-thumb-hover: color-mix(in oklch, var(--color-ink) 40%, transparent);
+/*
+ * Inline links: a halftone (dotted) underline at rest; on hover a solid orange
+ * line sweeps in from the left, and on leave it retracts towards the right.
+ */
+@utility link-dots {
+  text-decoration: none;
+  padding-bottom: 2px;
+  background-image:
+    linear-gradient(var(--color-orange), var(--color-orange)),
+    radial-gradient(circle, color-mix(in oklch, var(--color-orange) 75%, transparent) 1px, transparent 1.3px);
+  background-size:
+    0% 2px,
+    5px 4px;
+  background-position:
+    100% 100%,
+    0 calc(100% + 1px);
+  background-repeat: no-repeat, repeat-x;
+  transition: background-size 280ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover,
+  &:focus-visible {
+    background-position:
+      0 100%,
+      0 calc(100% + 1px);
+    background-size:
+      100% 2px,
+      5px 4px;
+  }
+}
+
+/*
+ * Sticker: a 2px ink border and a hard offset shadow. `sticker-<color>` recolours the shadow,
+ * `sticker-lg` deepens the offset, `sticker-press` pushes it in on hover.
+ */
+@utility sticker {
+  --sticker-offset: 3px;
+  border: 2px solid var(--color-foreground);
+  box-shadow: var(--sticker-offset) var(--sticker-offset) 0 var(--sticker-ink, var(--color-foreground));
+}
+@utility sticker-lg {
+  --sticker-offset: 4px;
+}
+@utility sticker-* {
+  --sticker-ink: --value(--color- *);
+}
+@utility sticker-press {
+  transition:
+    translate 150ms ease-out,
+    box-shadow 150ms ease-out;
+  &:hover {
+    --sticker-offset: 2px;
+    translate: 1px 1px;
+  }
+}
+
+/* halftone dot cluster; colour it with a text utility, size it with `size-*` */
+@utility halftone {
+  border-radius: 9999px;
+  background-image: radial-gradient(currentColor 1.2px, transparent 1.7px);
+  background-size: 9px 9px;
+}
+
+/* break out of the page column to the viewport edges */
+@utility bleed {
+  margin-inline: calc(50% - 50vw);
+}
+
+/* fade-up on mount; `reveal-<ms>` staggers it, reduced motion disables it */
+@utility reveal {
+  animation: var(--animate-reveal);
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+@utility reveal-* {
+  animation-delay: calc(--value(integer) * 1ms);
+}
+
+/* a clickable row in a list: tint bleeds slightly past the text column on hover */
+@utility list-row {
+  @apply hover:bg-primary/4 -mx-3 rounded-lg px-3 transition-colors;
+}
+
+/* light scrollbar thumb for dark surfaces such as code blocks */
+@utility scrollbar-light {
+  --scrollbar-thumb: color-mix(in oklch, var(--color-code-foreground) 25%, transparent);
+  --scrollbar-thumb-hover: color-mix(in oklch, var(--color-code-foreground) 40%, transparent);
+}
+
+/* faded dotted rule, for list dividers and accordion items; chrome keeps solid hairlines */
+@utility rule-dots {
+  @apply border-primary/35 border-dotted;
+}
+
+/* marker-pen highlight behind a word */
+@utility marker {
+  @apply before:bg-highlight relative -mx-0.5 px-0.5 before:absolute before:inset-x-0 before:inset-y-0.5 before:-z-10 before:rounded-sm;
 }

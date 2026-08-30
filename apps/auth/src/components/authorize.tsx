@@ -29,7 +29,7 @@ export function Person({ user }: { user: Pick<User, "login" | "name" | "picture"
       <img src={user.picture} alt="" className="size-12 rounded-full" />
       <div className="min-w-0">
         <p className="truncate font-bold">{user.name ?? user.login}</p>
-        <p className="text-ink-muted truncate text-sm">@{user.login}</p>
+        <p className="text-muted-foreground truncate text-sm">@{user.login}</p>
       </div>
     </div>
   );
@@ -39,7 +39,7 @@ export function Person({ user }: { user: Pick<User, "login" | "name" | "picture"
 export function Receives({ pii, user }: { pii: boolean; user: Pick<User, "login" | "name" | "email"> }) {
   return (
     <>
-      <p className="text-ink-muted mt-4 text-sm">It will get:</p>
+      <p className="text-muted-foreground mt-4 text-sm">It will get:</p>
       <ul className="mt-1 list-disc pl-5 text-sm">
         {pii ? (
           <>

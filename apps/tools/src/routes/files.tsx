@@ -1,11 +1,11 @@
-import { Button } from "@blankparticle/ui/components/button.tsx";
-import { Card, CardContent } from "@blankparticle/ui/components/card.tsx";
 import { CodeBlock } from "@blankparticle/ui/components/code-block.tsx";
 import { ConfirmDialog } from "@blankparticle/ui/components/confirm-dialog.tsx";
 import { EmptyState } from "@blankparticle/ui/components/empty-state.tsx";
 import { PageHeader } from "@blankparticle/ui/components/page-header.tsx";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@blankparticle/ui/components/table.tsx";
 import { ArrowSquareOutIcon, FileIcon, FolderIcon, SpinnerGapIcon, TrashIcon } from "@blankparticle/ui/icons";
+import { Button } from "@blankparticle/ui/primitives/button.tsx";
+import { Card, CardContent } from "@blankparticle/ui/primitives/card.tsx";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@blankparticle/ui/primitives/table.tsx";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -75,20 +75,25 @@ function FilesTable({ files }: { files: readonly SharedFile[] }) {
                   href={single?.url ?? bundle.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-violet inline-flex max-w-80 items-center gap-1.5 truncate font-mono text-sm font-medium hover:underline"
+                  className="text-primary inline-flex max-w-80 items-center gap-1.5 truncate font-mono text-sm font-medium hover:underline"
                 >
                   {single === undefined && <FolderIcon weight="fill" className="text-orange-deep size-4 shrink-0" />}
                   {single?.name ?? `${bundle.id}/`}
-                  <ArrowSquareOutIcon className="text-ink-muted size-3.5 shrink-0" />
+                  <ArrowSquareOutIcon className="text-muted-foreground size-3.5 shrink-0" />
                 </a>
-                <span className="text-ink-muted ml-2 hidden font-mono text-xs lg:inline">
+                <span className="text-muted-foreground ml-2 hidden font-mono text-xs lg:inline">
                   {single === undefined ? `${bundle.files.length} files` : bundle.id}
                 </span>
                 {single === undefined && (
-                  <ul className="text-ink-muted mt-1 flex flex-wrap gap-x-3 font-mono text-xs">
+                  <ul className="text-muted-foreground mt-1 flex flex-wrap gap-x-3 font-mono text-xs">
                     {bundle.files.map((file) => (
                       <li key={file.name}>
-                        <a href={file.url} target="_blank" rel="noreferrer" className="hover:text-ink hover:underline">
+                        <a
+                          href={file.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="hover:text-foreground hover:underline"
+                        >
                           {file.name}
                         </a>
                       </li>

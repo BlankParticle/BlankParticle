@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "react": "^19.2.8",
-    "takumi-js": "^2.12.0"
+    "takumi-js": "^2.13.1"
   },
   "devDependencies": {
     "@types/react": "^19.2.18",

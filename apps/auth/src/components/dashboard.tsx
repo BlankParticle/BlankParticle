@@ -1,6 +1,6 @@
-import { Badge } from "@blankparticle/ui/components/badge.tsx";
-import { Button } from "@blankparticle/ui/components/button.tsx";
 import { AppWindowIcon, SpinnerGapIcon } from "@blankparticle/ui/icons";
+import { Badge } from "@blankparticle/ui/primitives/badge.tsx";
+import { Button } from "@blankparticle/ui/primitives/button.tsx";
 import { useLoaderData, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 
@@ -65,7 +65,7 @@ export function AppIdentity({
         <img src={logo} alt="" className={large ? "size-12 rounded-lg" : "size-7 rounded-md"} />
       ) : (
         <span
-          className={`bg-muted text-ink-muted grid shrink-0 place-items-center rounded-md ${large ? "size-12 [&_svg]:size-6" : "size-7 [&_svg]:size-4"}`}
+          className={`bg-muted text-muted-foreground grid shrink-0 place-items-center rounded-md ${large ? "size-12 [&_svg]:size-6" : "size-7 [&_svg]:size-4"}`}
         >
           <AppWindowIcon />
         </span>
@@ -74,7 +74,7 @@ export function AppIdentity({
         <span className={`block truncate font-medium ${large ? "font-heading text-lg font-bold" : "text-sm"}`}>
           {name ?? client}
         </span>
-        <span className="text-ink-muted block truncate font-mono text-xs">
+        <span className="text-muted-foreground block truncate font-mono text-xs">
           {name !== null && client}
           {target !== client && (
             <>
