@@ -72,7 +72,6 @@ export const ToolsApp = Cloudflare.Website.Vite("Worker", {
   rootDir: import.meta.dirname,
   name: "tools",
   main: "src/worker.ts",
-  compatibility: { flags: ["nodejs_compat"] },
   env: {
     KV: KV,
     DB: DB,

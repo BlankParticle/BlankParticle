@@ -46,7 +46,6 @@ export const AuthApp = Cloudflare.Website.Vite("Worker", {
   rootDir: import.meta.dirname,
   name: "auth",
   main: "src/api/worker.ts",
-  compatibility: { flags: ["nodejs_compat"] },
   env: {
     DB: DB,
     GITHUB_CLIENT_ID: GithubClientId,

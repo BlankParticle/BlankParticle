@@ -16,7 +16,6 @@ export const WwwApp = Cloudflare.Website.Vite("Worker", {
     EXTRA_DOMAINS,
     VITE_GIT_HASH: process.env.GITHUB_CI_COMMIT_SHA?.slice(0, 7) ?? "development",
   },
-  compatibility: { flags: ["nodejs_compat"] },
   domain: { name: TARGET_DOMAIN, aliases: [...BLOG_DOMAINS, ...EXTRA_DOMAINS] },
   dev: { port: 9002 },
   workersDev: false,
