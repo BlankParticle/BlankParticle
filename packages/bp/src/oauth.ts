@@ -10,9 +10,10 @@ import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Schema from "effect/Schema";
 
-import { capture, exec, UserError } from "./runtime.ts";
+import { type Credentials, loadCredentials, saveCredentials } from "./credentials.ts";
+import { openBrowser, useDeviceLogin } from "./desktop.ts";
+import { UserError } from "./runtime.ts";
 
-const KEYCHAIN_SERVICE = "com.blankparticle.bp.oauth";
 const CALLBACK_TIMEOUT_MS = 2 * 60 * 1000;
 
 const Discovery = Schema.Struct({
@@ -20,10 +21,8 @@ const Discovery = Schema.Struct({
   token_endpoint: Schema.String,
   device_authorization_endpoint: Schema.optional(Schema.String),
 });
-const TokenResponse = Schema.Struct({ id_token: Schema.String, expires_in: Schema.Number });
 /** The signed id_token is the bearer credential; there is no refresh, `bp login` again once it expires */
-const Credentials = Schema.Struct({ idToken: Schema.String, expiresAt: Schema.Number });
-type Credentials = typeof Credentials.Type;
+const TokenResponse = Schema.Struct({ id_token: Schema.String, expires_in: Schema.Number });
 
 const oauthError = (message: string) => new UserError({ message });
 
@@ -39,31 +38,6 @@ const requestJson = <S extends Schema.ConstraintDecoder<unknown>>(
     return yield* HttpClientResponse.schemaBodyJson(schema)(response);
   }).pipe(
     Effect.mapError((cause) => (cause instanceof UserError ? cause : oauthError(`OAuth request failed: ${cause}`))),
-  );
-
-const keychainCredentials = (baseUrl: string) =>
-  Effect.flatMap(capture("security", ["find-generic-password", "-a", baseUrl, "-s", KEYCHAIN_SERVICE, "-w"]), (raw) => {
-    if (raw === null) return Effect.succeed<Credentials | null>(null);
-    return Effect.try({
-      try: () => Schema.decodeUnknownSync(Credentials)(JSON.parse(raw)),
-      catch: () => oauthError("stored OAuth credentials are invalid; run `bp login` again"),
-    });
-  });
-
-const saveCredentials = (baseUrl: string, credentials: Credentials) =>
-  Effect.flatMap(
-    capture("security", [
-      "add-generic-password",
-      "-U",
-      "-a",
-      baseUrl,
-      "-s",
-      KEYCHAIN_SERVICE,
-      "-w",
-      JSON.stringify(credentials),
-    ]),
-    (result) =>
-      result === null ? Effect.fail(oauthError("could not save OAuth credentials to macOS Keychain")) : Effect.void,
   );
 
 const randomBase64Url = (bytes: number) =>
@@ -183,10 +157,6 @@ const identity = (resource: string) => ({
   resource,
 });
 
-/** Best effort; on machines without Helium the printed URL is the fallback */
-const openBrowser = (url: string) =>
-  process.platform === "darwin" ? Effect.ignore(exec("open", ["-a", "Helium", url])) : Effect.void;
-
 const store = (resource: string, tokens: { id_token: string; expires_in: number }) =>
   Effect.gen(function* () {
     const credentials: Credentials = { idToken: tokens.id_token, expiresAt: Date.now() + tokens.expires_in * 1000 };
@@ -284,15 +254,14 @@ export const login = (baseUrl: string, options: { device: boolean }) =>
       Discovery,
       HttpClientRequest.get(`${authOrigin()}/.well-known/openid-configuration`),
     );
-    // Off macOS there is no known browser to open, so the code flow is the default there
-    return yield* options.device || process.platform !== "darwin"
+    return yield* useDeviceLogin(options.device)
       ? loginWithDevice(resource, metadata)
       : loginWithBrowser(resource, metadata);
   });
 
 export const accessToken = (baseUrl: string) =>
   Effect.gen(function* () {
-    const credentials = yield* keychainCredentials(new URL(baseUrl).origin);
+    const credentials = yield* loadCredentials(new URL(baseUrl).origin);
     if (credentials === null) return yield* oauthError("not signed in; run `bp login`");
     if (credentials.expiresAt <= Date.now() + 30_000) return yield* oauthError("sign-in expired; run `bp login` again");
     return credentials.idToken;
