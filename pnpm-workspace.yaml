@@ -6,7 +6,6 @@ packages:
 
 allowBuilds:
   esbuild: true
-  msgpackr-extract: true
   sharp: true
   workerd: true
 
@@ -14,18 +13,12 @@ minimumReleaseAgeExclude:
   - "@alchemy.run/*"
   - "@distilled.cloud/*"
   - alchemy
-  - "@cloudflare/workerd-darwin-64@1.20260831.1 || 1.20260901.1"
-  - "@cloudflare/workerd-darwin-arm64@1.20260831.1 || 1.20260901.1"
-  - "@cloudflare/workerd-linux-64@1.20260831.1 || 1.20260901.1"
-  - "@cloudflare/workerd-linux-arm64@1.20260831.1 || 1.20260901.1"
-  - "@cloudflare/workerd-windows-64@1.20260831.1 || 1.20260901.1"
-  - workerd@1.20260831.1 || 1.20260901.1
 
 catalog:
   "@base-ui/react": "^1.7.0"
   "@cloudflare/workers-types": "^5.20260829.1"
-  "@distilled.cloud/cloudflare": "https://pkg.ing/@distilled.cloud/cloudflare/894211f"
-  "@effect/platform-node": "4.0.0-rc.112"
+  "@distilled.cloud/cloudflare": "1.0.0-rc.13"
+  "@effect/platform-node": "^4.0.0"
   "@fontsource-variable/figtree": "^5.3.0"
   "@fontsource-variable/jetbrains-mono": "^5.3.0"
   "@fontsource-variable/plus-jakarta-sans": "^5.3.0"
@@ -43,14 +36,14 @@ catalog:
   "@types/react": "^19.2.18"
   "@types/react-dom": "^19.2.5"
   "@vitejs/plugin-react": "^6.1.1"
-  alchemy: "https://pkg.ing/alchemy/743e640"
+  alchemy: "^2.0.0-beta.80"
   class-variance-authority: "^0.7.1"
   clsx: "^2.1.1"
   cmdk: "^1.1.1"
   date-fns: "^4.4.0"
   drizzle-kit: "1.0.0-rc.5-ab785fc"
   drizzle-orm: "1.0.0-rc.5-ab785fc"
-  effect: "4.0.0-rc.112"
+  effect: "^4.0.0"
   embla-carousel-react: "^8.6.0"
   fumadocs-core: "^16.15.4"
   fumadocs-mdx: "^15.4.0"

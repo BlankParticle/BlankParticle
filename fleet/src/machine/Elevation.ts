@@ -1,10 +1,10 @@
 import * as NodeServices from "@effect/platform-node/NodeServices";
+import * as Prompt from "effect/cli/Prompt";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import type * as Terminal from "effect/Terminal";
-import * as Prompt from "effect/unstable/cli/Prompt";
 
 import { Command, type Options, type Result } from "./Command.ts";
 import { type CommandFailure, SudoAuthenticationError, SudoUnavailableError } from "./Errors.ts";

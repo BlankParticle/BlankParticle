@@ -1,9 +1,9 @@
 import { fromApiToken, type Credentials } from "@distilled.cloud/cloudflare/Credentials";
 import * as Context from "effect/Context";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
+import type * as HttpClient from "effect/http/HttpClient";
 import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
-import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import type * as HttpClient from "effect/unstable/http/HttpClient";
 
 import type { ToolsAppEnv } from "../../alchemy.config.ts";
 

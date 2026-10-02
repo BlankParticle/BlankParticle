@@ -1,7 +1,7 @@
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+import { HttpServerResponse } from "effect/http";
 import * as Schema from "effect/Schema";
-import { HttpServerResponse } from "effect/unstable/http";
 
 export class ApiError extends Data.TaggedError("ApiError")<{
   status: 400 | 401 | 403 | 404;

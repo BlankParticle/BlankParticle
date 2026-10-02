@@ -1,5 +1,5 @@
 import { Context, Layer } from "effect";
-import { HttpRouter } from "effect/unstable/http";
+import { HttpRouter } from "effect/http";
 
 import type { AuthAppEnv } from "../../alchemy.config.ts";
 import { WorkerEnv, WorkerExecutionContext } from "./context.ts";

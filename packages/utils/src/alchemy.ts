@@ -26,7 +26,7 @@ export const StageInvariant = Effect.fn(function* <S extends Schema.Constraint>(
 });
 
 export const CloudflareAccountId = Effect.map(Effect.flatten(Cloudflare.CloudflareEnvironment), (env) => env.accountId);
-export const CloudflareAccountEmail = Config.redacted("CLOUDFLARE_ACCOUNT_EMAIL");
+export const CloudflareAccountEmail = Config.Redacted("CLOUDFLARE_ACCOUNT_EMAIL");
 
-export const GithubClientId = Config.string("GITHUB_CLIENT_ID");
-export const GithubClientSecret = Config.redacted("GITHUB_CLIENT_SECRET");
+export const GithubClientId = Config.String("GITHUB_CLIENT_ID");
+export const GithubClientSecret = Config.Redacted("GITHUB_CLIENT_SECRET");

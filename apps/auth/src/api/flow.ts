@@ -1,6 +1,6 @@
 import { and, eq, gt, lt } from "drizzle-orm";
 import { Effect } from "effect";
-import { HttpServerResponse } from "effect/unstable/http";
+import { HttpServerResponse } from "effect/http";
 import { base64url } from "jose";
 
 import { apps, authorizationRequests, deviceCodes, tokens, type AuthorizationRequest, type User } from "#/db/schema.ts";

@@ -1,11 +1,11 @@
 import { isValidSlug, MAX_SITE_FILE_BYTES, MiB, type Visibility } from "@blankparticle/tools/spec";
+import * as Argument from "effect/cli/Argument";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Option from "effect/Option";
-import * as Argument from "effect/unstable/cli/Argument";
-import * as Command from "effect/unstable/cli/Command";
-import * as Flag from "effect/unstable/cli/Flag";
 import { lookup as lookupMime } from "mrmime";
 
 import { call, client, download, fail, makeClient, shared, type Client } from "./client.ts";

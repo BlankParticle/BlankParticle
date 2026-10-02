@@ -1,7 +1,7 @@
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as Stream from "effect/Stream";
-import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
 /** A failure the user can act on; printed as a plain message, no stack trace. */
 export class UserError extends Data.TaggedError("UserError")<{ readonly message: string }> {}

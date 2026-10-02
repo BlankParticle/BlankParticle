@@ -1,5 +1,5 @@
 import { Effect, Layer } from "effect";
-import { HttpRouter, HttpServerResponse } from "effect/unstable/http";
+import { HttpRouter, HttpServerResponse } from "effect/http";
 
 import { respond } from "./errors.ts";
 import { apiUser } from "./identity.ts";

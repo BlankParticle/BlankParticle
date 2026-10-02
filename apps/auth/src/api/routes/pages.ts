@@ -1,6 +1,6 @@
 import tanstackHandler from "@tanstack/react-start/server-entry";
 import { Effect } from "effect";
-import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/unstable/http";
+import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/http";
 
 import { BrowserSession } from "../browser-session.ts";
 import { WorkerEnv, WorkerExecutionContext } from "../context.ts";

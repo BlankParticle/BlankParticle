@@ -1,6 +1,5 @@
 import { eq, lt } from "drizzle-orm";
 import { Effect, Layer } from "effect";
-import * as Schema from "effect/Schema";
 import {
   FetchHttpClient,
   HttpClient,
@@ -9,7 +8,8 @@ import {
   HttpRouter,
   HttpServerRequest,
   HttpServerResponse,
-} from "effect/unstable/http";
+} from "effect/http";
+import * as Schema from "effect/Schema";
 
 import { isSafeNext } from "#/api/spec.ts";
 import { database } from "#/db/index.ts";

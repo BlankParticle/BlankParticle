@@ -1,7 +1,7 @@
 import { and, eq, gt } from "drizzle-orm";
 import { Effect, Layer } from "effect";
+import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/http";
 import * as S from "effect/Schema";
-import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/unstable/http";
 
 import { apps, browserSessions, users } from "#/db/schema.ts";
 import { clientFor, clientKey, isLoopback } from "#/lib/clients.ts";
