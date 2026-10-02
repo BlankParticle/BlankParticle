@@ -1,7 +1,7 @@
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import * as Encoding from "effect/Encoding";
+import * as Base64 from "effect/encoding/Base64";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 
@@ -32,7 +32,7 @@ export const LocalFileSystem = Layer.effect(
   MachineFileSystem,
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
-    const home = yield* Config.string("HOME").pipe(Effect.orDie);
+    const home = yield* Config.String("HOME").pipe(Effect.orDie);
     const type = Effect.fn(function* (target: string) {
       if (!(yield* fs.exists(target))) return undefined;
       const info = yield* fs.stat(target);
@@ -98,7 +98,7 @@ export const SshFileSystem = (host: string) =>
         readFile: (target) =>
           command
             .run(["base64", target])
-            .pipe(Effect.flatMap(({ output }) => Effect.fromResult(Encoding.decodeBase64(output)).pipe(Effect.orDie))),
+            .pipe(Effect.flatMap(({ output }) => Effect.fromResult(Base64.decode(output)).pipe(Effect.orDie))),
         remove: (target) => command.run(["rm", "-rf", "--", target]).pipe(Effect.asVoid),
         makeDirectory: (target) => command.run(["mkdir", "-p", "--", target]).pipe(Effect.asVoid),
         copyFromLocal: Effect.fn(function* (source: string, target: string) {

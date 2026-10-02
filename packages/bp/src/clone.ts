@@ -19,7 +19,7 @@ const projectsRoot = () => process.env.BP_PROJECTS ?? `${homedir()}/Projects`;
 export const clone = Command.make(
   "clone",
   {
-    repo: Argument.string("repo").pipe(Argument.withDescription("owner/repo or a GitHub URL")),
+    repo: Argument.String("repo").pipe(Argument.withDescription("owner/repo or a GitHub URL")),
   },
   ({ repo }) =>
     Effect.gen(function* () {

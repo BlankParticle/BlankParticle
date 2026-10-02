@@ -43,19 +43,19 @@ const upload = Command.make(
   "upload",
   {
     ...shared,
-    sources: Argument.path("source", { mustExist: true }).pipe(
+    sources: Argument.Path("source", { mustExist: true }).pipe(
       Argument.withDescription("Files or directories to upload; everything lands under one id, paths kept"),
       Argument.atLeast(1),
     ),
-    expires: Flag.string("expires").pipe(
+    expires: Flag.String("expires").pipe(
       Flag.withAlias("e"),
       Flag.withDefault(`${DEFAULT_FILE_TTL_SECONDS / 86400} days`),
       Flag.withDescription('Lifetime: "7 days", "12 hours", 3d, 30m, or never'),
     ),
-    name: Flag.optional(Flag.string("name")).pipe(
+    name: Flag.optional(Flag.String("name")).pipe(
       Flag.withDescription("Name to store under when uploading a single file (default: the file name)"),
     ),
-    private: Flag.boolean("private").pipe(
+    private: Flag.Boolean("private").pipe(
       Flag.withDefault(false),
       Flag.withDescription("Only the owner can view (requires a signed-in browser session)"),
     ),
@@ -138,7 +138,7 @@ const rm = Command.make(
   "rm",
   {
     ...shared,
-    id: Argument.string("id").pipe(
+    id: Argument.String("id").pipe(
       Argument.withDescription(
         "Share id (first path segment of the URL, `b-…` for bundles); removes everything under it",
       ),
@@ -157,8 +157,8 @@ const fileDownload = Command.make(
   "download",
   {
     ...shared,
-    id: Argument.string("id").pipe(Argument.withDescription("Share id (first path segment of the URL)")),
-    dest: Argument.optional(Argument.path("dest")).pipe(
+    id: Argument.String("id").pipe(Argument.withDescription("Share id (first path segment of the URL)")),
+    dest: Argument.optional(Argument.Path("dest")).pipe(
       Argument.withDescription("File path for a single file, folder for a bundle (default: the file name / ./<id>)"),
     ),
   },

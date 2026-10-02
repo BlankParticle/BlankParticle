@@ -42,7 +42,7 @@ const makeElevation = Effect.gen(function* () {
               ? ({ type: "passwordless" } as const)
               : yield* Effect.gen(function* () {
                   const password = yield* Prompt.run(
-                    Prompt.password({ message: "Sudo password for the managed machine" }),
+                    Prompt.Password({ message: "Sudo password for the managed machine" }),
                   ).pipe(Effect.provide(NodeServices.layer));
                   const validation = yield* command.run(["sudo", "-S", "-p", "", "-v"], {
                     allowFailure: true,

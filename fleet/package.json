@@ -2,6 +2,9 @@
   "name": "@blankparticle/fleet",
   "private": true,
   "type": "module",
+  "scripts": {
+    "typecheck": "tsc"
+  },
   "dependencies": {
     "@blankparticle/utils": "workspace:*"
   }

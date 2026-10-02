@@ -164,7 +164,7 @@ export const download = (request: () => ApiRequest<never>) =>
   );
 
 export const shared = {
-  url: Flag.string("url").pipe(
+  url: Flag.String("url").pipe(
     Flag.withDefault(process.env.BP_URL ?? DEFAULT_URL),
     Flag.withDescription("Base URL of tools.blankparticle.com (env: BP_URL)"),
   ),

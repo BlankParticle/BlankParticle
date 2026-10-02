@@ -72,7 +72,7 @@ export const template = Effect.fn("Fleet.Content.template")(function* <Error, Re
         });
   return {
     _tag: "Inline",
-    filename: source.filename,
+    ...(source.filename === undefined ? {} : { filename: source.filename }),
     content: Object.entries(values).reduce((content, [key, value]) => content.replaceAll(`{{${key}}}`, value), content),
   } satisfies InlineSource;
 });

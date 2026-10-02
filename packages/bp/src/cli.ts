@@ -38,17 +38,17 @@ const upload = Command.make(
   "upload",
   {
     ...shared,
-    source: Argument.path("source", { mustExist: true }).pipe(
+    source: Argument.Path("source", { mustExist: true }).pipe(
       Argument.withDescription("Directory (or a single .html / .md file) to publish"),
     ),
-    slug: Flag.optional(Flag.string("slug").pipe(Flag.withAlias("s"))).pipe(
+    slug: Flag.optional(Flag.String("slug").pipe(Flag.withAlias("s"))).pipe(
       Flag.withDescription("Site slug; a random three-word name when omitted"),
     ),
-    private: Flag.boolean("private").pipe(
+    private: Flag.Boolean("private").pipe(
       Flag.withDefault(false),
       Flag.withDescription("Only signed-in, allow-listed users can view"),
     ),
-    public: Flag.boolean("public").pipe(
+    public: Flag.Boolean("public").pipe(
       Flag.withDefault(false),
       Flag.withDescription("Anyone with the link can view (default for new sites)"),
     ),
@@ -129,7 +129,7 @@ const ls = Command.make("ls", shared, (options) =>
 
 const rm = Command.make(
   "rm",
-  { ...shared, slug: Argument.string("slug").pipe(Argument.withDescription("Site to delete")) },
+  { ...shared, slug: Argument.String("slug").pipe(Argument.withDescription("Site to delete")) },
   (options) =>
     Effect.gen(function* () {
       const api = yield* client(options);
@@ -150,7 +150,7 @@ const login = Command.make(
   "login",
   {
     ...shared,
-    device: Flag.boolean("device")
+    device: Flag.Boolean("device")
       .pipe(Flag.withDescription("Show a code to approve in any browser instead of opening one here"))
       .pipe(Flag.optional),
   },
@@ -169,8 +169,8 @@ const siteDownload = Command.make(
   "download",
   {
     ...shared,
-    slug: Argument.string("slug").pipe(Argument.withDescription("Site to download")),
-    dest: Argument.optional(Argument.path("dest")).pipe(
+    slug: Argument.String("slug").pipe(Argument.withDescription("Site to download")),
+    dest: Argument.optional(Argument.Path("dest")).pipe(
       Argument.withDescription("Folder to write into (default: ./<slug>)"),
     ),
   },

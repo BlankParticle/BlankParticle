@@ -94,7 +94,7 @@ export const SshCommand = (host: string) =>
         return process
           .run(["ssh", "-o", "BatchMode=yes", host, "--", remote], {
             allowFailure: true,
-            input: options.input,
+            ...(options.input === undefined ? {} : { input: options.input }),
           })
           .pipe(Effect.flatMap((result) => check(argv, result, options.allowFailure)));
       };

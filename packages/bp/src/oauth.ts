@@ -147,7 +147,7 @@ const callback = (expectedState: string) =>
       Effect.mapError((cause) => oauthError(`could not start OAuth callback: ${cause}`)),
     );
     yield* server.serve(router.asHttpEffect());
-    if (server.address._tag !== "TcpAddress") return yield* oauthError("could not bind OAuth callback server");
+    if (server.address._tag !== "InetAddressV4") return yield* oauthError("could not bind OAuth callback server");
     return {
       redirectUri: `http://127.0.0.1:${server.address.port}/callback`,
       code: Deferred.await(result).pipe(
