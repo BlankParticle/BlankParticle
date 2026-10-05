@@ -1,11 +1,10 @@
 import { Button } from "@blankparticle/ui/primitives/button.tsx";
 
-import { SiteLayout } from "./site-layout.tsx";
 import { ContactValue, type ContactInfo } from "./social-modals.tsx";
 
 export function ContactPage({ contact }: { contact: ContactInfo }) {
   return (
-    <SiteLayout back={{ to: "/", label: "blankparticle.com" }}>
+    <>
       <section className="flex flex-1 items-center justify-center">
         <div className="reveal reveal-90 relative w-full max-w-md">
           <span className="halftone text-orange absolute -top-8 -right-6 size-24" aria-hidden="true" />
@@ -23,7 +22,7 @@ export function ContactPage({ contact }: { contact: ContactInfo }) {
                     key={action.label}
                     variant="sticker-primary"
                     size="lg"
-                    className="h-10 flex-1 whitespace-nowrap"
+                    className="h-10 w-full whitespace-nowrap sm:w-auto sm:flex-1"
                     nativeButton={false}
                     render={<a href={action.href} target="_blank" rel="noopener noreferrer" />}
                   >
@@ -35,6 +34,6 @@ export function ContactPage({ contact }: { contact: ContactInfo }) {
           </div>
         </div>
       </section>
-    </SiteLayout>
+    </>
   );
 }

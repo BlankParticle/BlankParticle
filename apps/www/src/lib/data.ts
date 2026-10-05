@@ -1,3 +1,4 @@
+import { CalendarBlankIcon, FileTextIcon } from "@blankparticle/ui/icons";
 import type { ComponentType } from "react";
 
 import AlchemyLogo from "../assets/companies/alchemy.png";
@@ -145,12 +146,14 @@ export const socials: Social[] = [
   },
   {
     label: "Cal",
+    icon: CalendarBlankIcon,
     url: "https://cal.com/blankparticle",
     shortLink: ["/cal"],
     showAsSticker: false,
   },
   {
     label: "Resume",
+    icon: FileTextIcon,
     url: "https://static.blankparticle.com/docs/resume.pdf",
     shortLink: ["/resume"],
     showAsSticker: false,

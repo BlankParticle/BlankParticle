@@ -65,13 +65,13 @@ export function ContactDialog({
         </DialogHeader>
         <ContactValue contact={contact} />
         {contact.actions && contact.actions.length > 0 && (
-          <DialogFooter>
+          <DialogFooter className="flex-col">
             {contact.actions.map((action) => (
               <Button
                 key={action.label}
                 variant="sticker-primary"
                 size="lg"
-                className="h-10 flex-1 whitespace-nowrap"
+                className="h-10 w-full whitespace-nowrap sm:w-auto sm:flex-1"
                 nativeButton={false}
                 render={<a href={action.href} target="_blank" rel="noopener noreferrer" />}
               >

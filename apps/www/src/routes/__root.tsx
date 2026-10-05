@@ -1,7 +1,8 @@
-import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import { NotFound } from "#/components/not-found.tsx";
+import { SiteLayout } from "#/components/site-layout.tsx";
 import { SITE_URL } from "#/lib/data.ts";
 import { highlightThemeCss } from "#/lib/highlight-theme.ts";
 
@@ -39,7 +40,17 @@ export const Route = createRootRoute({
   }),
   notFoundComponent: NotFound,
   shellComponent: RootDocument,
+  component: RootLayout,
 });
+
+/** The masthead, backdrop and footer are mounted once here, so navigating only swaps the page inside */
+function RootLayout() {
+  return (
+    <SiteLayout>
+      <Outlet />
+    </SiteLayout>
+  );
+}
 
 function RootDocument({ children }: { children: ReactNode }) {
   return (
@@ -47,7 +58,8 @@ function RootDocument({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      {/* isolate, so the page backdrop's negative z-index stays above the body's paper colour */}
+      <body className="isolate">
         {children}
         <Scripts />
       </body>

@@ -4,7 +4,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 
 import { SectionHeading } from "#/components/section-heading.tsx";
-import { SiteLayout } from "#/components/site-layout.tsx";
 import { postMeta } from "#/lib/blog-meta.ts";
 import { personLd, SITE_URL } from "#/lib/data.ts";
 import { formatPostDate } from "#/lib/utils.ts";
@@ -56,7 +55,7 @@ function BlogIndexPage() {
   }
 
   return (
-    <SiteLayout back={{ to: "/", label: "blankparticle.com" }}>
+    <>
       <section className="flex flex-col gap-4">
         <p className="reveal eyebrow text-orange-deep">Writing</p>
         <h1 className="reveal reveal-90 text-display text-primary font-extrabold">The Blog</h1>
@@ -104,6 +103,6 @@ function BlogIndexPage() {
           </ol>
         </section>
       ))}
-    </SiteLayout>
+    </>
   );
 }

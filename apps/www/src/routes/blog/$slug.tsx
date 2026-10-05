@@ -3,7 +3,6 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { SiteLayout } from "#/components/site-layout.tsx";
 import { blogSource } from "#/lib/blog-content.ts";
 import { personLd, SITE_URL } from "#/lib/data.ts";
 import { formatPostDate } from "#/lib/utils.ts";
@@ -83,7 +82,7 @@ function BlogPostPage() {
   const { post, html } = Route.useLoaderData();
 
   return (
-    <SiteLayout back={{ to: "/blog", label: "the blog" }}>
+    <>
       <article>
         <div className="rule-dots flex flex-col gap-5 border-b-2 pb-8 sm:pb-10">
           <div className="reveal flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -112,6 +111,6 @@ function BlogPostPage() {
         )}
         <div className="typeset reveal reveal-360 pt-6" dangerouslySetInnerHTML={{ __html: html }} />
       </article>
-    </SiteLayout>
+    </>
   );
 }

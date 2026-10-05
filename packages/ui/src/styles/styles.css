@@ -10,13 +10,13 @@
 @source "../components";
 @source "../primitives";
 
+/* light only: nothing sets `.dark`, so the `dark:` utilities in the vendored primitives stay inert */
 @custom-variant dark (&:is(.dark *));
 
 /*
  * Two inks on paper. Violet is the working colour (actions, links, focus);
  * orange is reserved for small accents: eyebrows, live indicators, warnings.
- * The raw palette lives on :root / .dark so the same utility (`text-ink`) reads
- * correctly in both schemes, and the shadcn semantic tokens derive from it.
+ * The raw palette lives on :root and the shadcn semantic tokens derive from it.
  */
 @theme {
   /* display sizes carry their own line-height; use `text-display` etc. instead of clamp() in components */
@@ -30,6 +30,17 @@
   --text-display-lg--line-height: 1;
 
   --animate-reveal: reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-marker: marker 0.6s cubic-bezier(0.65, 0, 0.35, 1) 0.5s both;
+
+  /* the highlighter pen drawn across a word, left to right */
+  @keyframes marker {
+    from {
+      scale: 0 1;
+    }
+    to {
+      scale: 1 1;
+    }
+  }
 
   @keyframes reveal {
     from {
@@ -153,57 +164,13 @@
   --scrollbar-thumb-hover: color-mix(in oklch, var(--ink) 38%, transparent);
 }
 
-.dark {
-  --paper: oklch(17% 0.014 290);
-  --ink: oklch(93% 0.008 85);
-  --ink-muted: oklch(67% 0.015 290);
-  --violet: oklch(74% 0.13 295);
-  --violet-deep: oklch(82% 0.1 295);
-  --orange: oklch(74% 0.15 50);
-  --orange-deep: oklch(70% 0.16 45);
-  --highlight: oklch(42% 0.09 118);
-  --code: oklch(13% 0.012 290);
-  --code-foreground: oklch(91% 0.008 85);
-
-  --background: var(--paper);
-  --foreground: var(--ink);
-  --card: oklch(20.5% 0.015 290);
-  --card-foreground: var(--ink);
-  --popover: oklch(21% 0.015 290);
-  --popover-foreground: var(--ink);
-  --primary: var(--violet);
-  --primary-foreground: oklch(16% 0.02 295);
-  --secondary: oklch(27% 0.025 295);
-  --secondary-foreground: var(--ink);
-  --muted: oklch(24% 0.012 290);
-  --muted-foreground: var(--ink-muted);
-  --accent: oklch(28% 0.025 295);
-  --accent-foreground: var(--ink);
-  --destructive: var(--orange-deep);
-  --border: color-mix(in oklch, var(--ink) 12%, transparent);
-  --input: color-mix(in oklch, var(--ink) 18%, transparent);
-  --ring: var(--violet);
-  --chart-1: var(--violet);
-  --chart-2: var(--orange);
-  --chart-3: oklch(60% 0.1 295);
-  --chart-4: oklch(66% 0.12 60);
-  --chart-5: var(--ink-muted);
-  --sidebar: oklch(19% 0.014 290);
-  --sidebar-foreground: var(--ink);
-  --sidebar-primary: var(--violet);
-  --sidebar-primary-foreground: oklch(16% 0.02 295);
-  --sidebar-accent: var(--accent);
-  --sidebar-accent-foreground: var(--ink);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--violet);
-  --scrollbar-thumb: color-mix(in oklch, var(--ink) 22%, transparent);
-  --scrollbar-thumb-hover: color-mix(in oklch, var(--ink) 38%, transparent);
-}
-
 @layer base {
   html {
     @apply overflow-x-clip scroll-smooth font-sans antialiased;
     font-optical-sizing: auto;
+    color-scheme: light;
+    /* always reserve the scrollbar's space, so pages that do not scroll do not shift sideways */
+    scrollbar-gutter: stable;
   }
 
   body {
@@ -362,7 +329,13 @@
   @apply border-primary/35 border-dotted;
 }
 
-/* marker-pen highlight behind a word */
+/* marker-pen highlight behind a word, slightly askew; it draws itself in on load unless motion is reduced */
 @utility marker {
-  @apply before:bg-highlight relative -mx-0.5 px-0.5 before:absolute before:inset-x-0 before:inset-y-0.5 before:-z-10 before:rounded-sm;
+  @apply before:bg-highlight relative isolate -mx-0.5 px-0.5 before:absolute before:inset-x-0 before:inset-y-0.5 before:-z-10 before:origin-left before:-rotate-1 before:rounded-sm;
+  &::before {
+    animation: var(--animate-marker);
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
 }

@@ -1,10 +1,8 @@
 import { Button } from "@blankparticle/ui/primitives/button.tsx";
 
-import { SiteLayout } from "./site-layout.tsx";
-
 export function NotFound() {
   return (
-    <SiteLayout>
+    <>
       <section className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
         <div className="reveal relative flex flex-col items-center gap-2">
           <span className="halftone text-orange absolute -top-6 -right-10 size-28" aria-hidden="true" />
@@ -38,6 +36,6 @@ export function NotFound() {
           </Button>
         </div>
       </section>
-    </SiteLayout>
+    </>
   );
 }

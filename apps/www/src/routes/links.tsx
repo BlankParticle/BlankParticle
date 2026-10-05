@@ -1,10 +1,9 @@
-import { ArrowRightIcon } from "@blankparticle/ui/icons";
+import { ArrowRightIcon, NotebookIcon } from "@blankparticle/ui/icons";
 import { cn } from "@blankparticle/ui/utils";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ComponentType } from "react";
 
 import { AppIcon } from "#/components/app-icon.tsx";
-import { SiteLayout } from "#/components/site-layout.tsx";
 import { discordContact, emailContact } from "#/components/social-modals.tsx";
 import { personLd, SITE_URL, socials } from "#/lib/data.ts";
 
@@ -15,6 +14,8 @@ const pageUrl = `${SITE_URL}/links`;
 interface LinkEntry {
   label: string;
   href: string;
+  /** set for pages on this site, so they open with the router instead of a full page load */
+  to?: "/email" | "/discord" | "/blog" | undefined;
   subtext: string;
   external: boolean;
   icon?: ComponentType | undefined;
@@ -22,7 +23,7 @@ interface LinkEntry {
 }
 
 // socials with a modal have their own standalone page on this site instead of a shortlink
-const contactPages: Record<string, { href: string; subtext: string }> = {
+const contactPages: Record<string, { href: "/email" | "/discord"; subtext: string }> = {
   Email: { href: "/email", subtext: emailContact.value },
   Discord: { href: "/discord", subtext: `@${discordContact.value}` },
 };
@@ -31,12 +32,13 @@ const links: LinkEntry[] = [
   ...socials.map((social) => ({
     label: social.label,
     href: contactPages[social.label]?.href ?? social.shortLink[0],
+    to: contactPages[social.label]?.href,
     subtext: contactPages[social.label]?.subtext ?? social.url.replace(/^https:\/\//, "").replace(/\/$/, ""),
     external: !social.modal,
     icon: social.icon,
     iconBackground: social.iconBackground,
   })),
-  { label: "Blog", href: "/blog", subtext: "blankparticle.com/blog", external: false },
+  { label: "Blog", href: "/blog", to: "/blog", subtext: "blankparticle.com/blog", external: false, icon: NotebookIcon },
 ];
 
 /** Cards alternate the ink of their offset shadow */
@@ -67,7 +69,7 @@ export const Route = createFileRoute("/links")({
 
 function LinksPage() {
   return (
-    <SiteLayout back={{ to: "/", label: "blankparticle.com" }}>
+    <>
       <section className="mx-auto flex w-full max-w-md flex-1 flex-col items-center gap-8">
         <img
           src="/me.png"
@@ -81,18 +83,15 @@ function LinksPage() {
         </div>
 
         <ol className="flex w-full flex-col gap-4">
-          {links.map((link, i) => (
-            <li key={link.label} className="reveal" style={{ animationDelay: `${270 + i * 60}ms` }}>
-              <a
-                href={link.href}
-                {...(link.external ? { target: "_blank", rel: "nofollow noopener noreferrer" } : {})}
-                className={cn(
-                  "group sticker sticker-lg sticker-press bg-card flex w-full items-center gap-3 rounded-xl px-5 py-3.5",
-                  cardInks[i % cardInks.length],
-                )}
-              >
+          {links.map((link, i) => {
+            const className = cn(
+              "group sticker sticker-lg sticker-press bg-card flex w-full items-center gap-3 rounded-xl px-5 py-3.5",
+              cardInks[i % cardInks.length],
+            );
+            const content = (
+              <>
                 {link.icon && (
-                  <AppIcon size="md" className={link.iconBackground}>
+                  <AppIcon size="md" className={link.iconBackground ?? "text-violet-deep *:size-5"}>
                     <link.icon />
                   </AppIcon>
                 )}
@@ -105,11 +104,28 @@ function LinksPage() {
                   className="text-orange-deep ml-auto size-5 shrink-0 transition-transform duration-200 ease-out group-hover:translate-x-1"
                   aria-hidden="true"
                 />
-              </a>
-            </li>
-          ))}
+              </>
+            );
+            return (
+              <li key={link.label} className="reveal" style={{ animationDelay: `${270 + i * 60}ms` }}>
+                {link.to ? (
+                  <Link to={link.to} className={className}>
+                    {content}
+                  </Link>
+                ) : (
+                  <a
+                    href={link.href}
+                    {...(link.external ? { target: "_blank", rel: "nofollow noopener noreferrer" } : {})}
+                    className={className}
+                  >
+                    {content}
+                  </a>
+                )}
+              </li>
+            );
+          })}
         </ol>
       </section>
-    </SiteLayout>
+    </>
   );
 }
