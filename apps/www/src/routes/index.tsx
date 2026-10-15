@@ -8,7 +8,7 @@ import { Marquee } from "#/components/marquee.tsx";
 import { SectionHeading } from "#/components/section-heading.tsx";
 import { SocialLink, stickerInks } from "#/components/social-link.tsx";
 import { WorkHistory } from "#/components/work-history.tsx";
-import { personLd, projects, SITE_URL, socials, workHistory } from "#/lib/data.ts";
+import { personLd, SITE_URL, socials, workHistory } from "#/lib/data.ts";
 
 const tickerWords = [
   "curious",
@@ -101,37 +101,6 @@ function HomePage() {
       </section>
 
       <section className="reveal reveal-630 flex flex-col">
-        <SectionHeading>Things I've built</SectionHeading>
-        <ol className="rule-dots flex flex-col border-t-2">
-          {projects.map((project, i) => (
-            <li key={project.title} className="rule-dots border-b-2">
-              <a
-                className="group list-row flex items-baseline gap-4 py-5 sm:gap-6"
-                href={project.url}
-                target="_blank"
-                rel={project.url.startsWith("/") ? "nofollow noopener noreferrer" : "noopener noreferrer"}
-              >
-                <span className="font-heading text-orange-deep text-xl font-bold tabular-nums" aria-hidden="true">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="flex min-w-0 flex-col gap-1">
-                  <span className="font-heading text-violet-deep group-hover:text-primary text-xl font-bold wrap-break-word transition-colors">
-                    {project.title}
-                  </span>
-                  <span className="text-muted-foreground text-sm">{project.description}</span>
-                </span>
-                <ArrowUpRightIcon
-                  weight="bold"
-                  className="text-orange-deep ml-auto size-5 shrink-0 self-center transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                  aria-hidden="true"
-                />
-              </a>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      <section className="reveal reveal-720 flex flex-col">
         <SectionHeading>Find me around</SectionHeading>
         <div className="flex flex-wrap gap-x-3 gap-y-4">
           {stickers.map((social, i) => (

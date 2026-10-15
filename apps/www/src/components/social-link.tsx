@@ -23,7 +23,8 @@ export function SocialLink({ name, ink, icon, href, onClick }: Props) {
     <Button
       variant="sticker"
       size="lg"
-      className={cn("gap-2 rounded-full px-4 pl-2.5", ink)}
+      // Swap inverted colors immediately: fading both makes the label disappear midway through hover.
+      className={cn("gap-2 rounded-full px-4 pl-2.5 transition-[box-shadow,translate]", ink)}
       onClick={onClick}
       nativeButton={!href}
       render={href ? <a href={href} target="_blank" rel="nofollow noopener noreferrer" /> : <button type="button" />}
