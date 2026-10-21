@@ -9,7 +9,7 @@
     "./spec": "./src/api/spec.ts"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "vp build",
     "typecheck": "tsc",
     "format": "vpr -w format",
     "lint": "vpr -w lint"
