@@ -1,4 +1,5 @@
 import { Button } from "@blankparticle/ui/primitives/button.tsx";
+import { Link } from "@tanstack/react-router";
 
 export function NotFound() {
   return (
@@ -23,7 +24,7 @@ export function NotFound() {
         </p>
 
         <div className="reveal reveal-180 flex flex-wrap items-center justify-center gap-4">
-          <Button variant="sticker-primary" size="xl" nativeButton={false} render={<a href="/" />}>
+          <Button variant="sticker-primary" size="xl" nativeButton={false} render={<Link to="/" />}>
             Take me home
           </Button>
           <Button

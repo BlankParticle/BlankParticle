@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { postMeta } from "#/lib/blog-meta.ts";
-import { SITE_URL } from "#/lib/data.ts";
+import { SITE_URL } from "#/lib/site.ts";
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
@@ -27,7 +27,9 @@ export const Route = createFileRoute("/sitemap.xml")({
           `</urlset>`,
         ].join("\n");
 
-        return new Response(body, { headers: { "content-type": "application/xml; charset=UTF-8" } });
+        return new Response(body, {
+          headers: { "content-type": "application/xml; charset=UTF-8", "cache-control": "public, max-age=3600" },
+        });
       },
     },
   },

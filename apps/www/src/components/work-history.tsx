@@ -31,6 +31,8 @@ export function WorkHistory({ items }: { items: typeof workHistory }) {
             <img
               src={work.logo}
               alt={`${work.company} logo`}
+              width={40}
+              height={40}
               loading="lazy"
               className="ring-foreground/10 size-10 shrink-0 rounded-lg object-cover ring-1"
             />

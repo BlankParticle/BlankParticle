@@ -1,14 +1,13 @@
 import { CalendarBlankIcon, FileTextIcon } from "@blankparticle/ui/icons";
 import type { ComponentType } from "react";
 
-import AlchemyLogo from "../assets/companies/alchemy.png";
-import IterateLogo from "../assets/companies/iterate.png";
-import OrchidLogo from "../assets/companies/orchidhq.png";
-import UnLogo from "../assets/companies/un.png";
+import AlchemyLogo from "../assets/companies/alchemy.webp";
+import IterateLogo from "../assets/companies/iterate.webp";
+import OrchidLogo from "../assets/companies/orchidhq.webp";
+import UnLogo from "../assets/companies/un.webp";
 import { DiscordIcon, GitHubIcon, GmailIcon, LinkedInIcon, XIcon } from "../assets/social-icons.tsx";
-import { DiscordModal, EmailModal, type SocialModalProps } from "../components/social-modals";
-
-export const SITE_URL = "https://blankparticle.com";
+import { discordContact, emailContact, type Contact } from "./contacts.ts";
+import { profiles } from "./site.ts";
 
 export const workHistory = [
   {
@@ -75,7 +74,8 @@ export interface Social {
   showAsSticker?: boolean;
   icon?: ComponentType;
   iconBackground?: string;
-  modal?: ComponentType<SocialModalProps>;
+  /** opens a contact dialog instead of linking out */
+  contact?: Contact;
 }
 
 export const socials: Social[] = [
@@ -84,35 +84,35 @@ export const socials: Social[] = [
     icon: GmailIcon,
     url: "https://mail.google.com/",
     shortLink: [],
-    modal: EmailModal,
+    contact: emailContact,
   },
   {
     label: "Twitter",
     iconBackground: "bg-black",
     icon: XIcon,
-    url: "https://x.com/blankparticle",
+    url: profiles.twitter,
     shortLink: ["/x", "/twitter"],
   },
   {
     label: "Discord",
     iconBackground: "bg-[#5865f2]",
     icon: DiscordIcon,
-    url: "https://discord.com/users/1096392763144159252",
+    url: profiles.discord,
     shortLink: [],
-    modal: DiscordModal,
+    contact: discordContact,
   },
   {
     label: "GitHub",
     iconBackground: "bg-[#1b1f23]",
     icon: GitHubIcon,
-    url: "https://github.com/BlankParticle",
+    url: profiles.github,
     shortLink: ["/gh", "/github"],
   },
   {
     label: "LinkedIn",
     iconBackground: "bg-[#0a66c2]",
     icon: LinkedInIcon,
-    url: "https://www.linkedin.com/in/blankparticle",
+    url: profiles.linkedin,
     shortLink: ["/linkedin"],
   },
   {
@@ -130,16 +130,6 @@ export const socials: Social[] = [
     showAsSticker: false,
   },
 ];
-
-export const personLd = {
-  "@type": "Person",
-  name: "Rahul Mishra",
-  alternateName: "BlankParticle",
-  url: SITE_URL,
-  image: `${SITE_URL}/me.png`,
-  jobTitle: "Software Developer",
-  sameAs: socials.filter((social) => !["Email", "Cal", "Resume"].includes(social.label)).map((social) => social.url),
-};
 
 export const sshPublicKeys = {
   BlankParticle: [

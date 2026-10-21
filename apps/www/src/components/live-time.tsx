@@ -1,5 +1,5 @@
 import { cn } from "@blankparticle/ui/utils";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 const formatter = Intl.DateTimeFormat("en-IN", {
   timeZone: "Asia/Kolkata",
@@ -7,17 +7,17 @@ const formatter = Intl.DateTimeFormat("en-IN", {
   hourCycle: "h23",
 });
 
+const tick = (onChange: () => void) => {
+  const interval = setInterval(onChange, 1000);
+  return () => clearInterval(interval);
+};
+const currentSecond = () => Math.floor(Date.now() / 1000);
+
 /** My local time as a small pill. Renders nothing on the server and fades in once the clock is running, so there is no placeholder */
 export function LiveTime({ className }: { className?: string }) {
-  const [date, setDate] = useState<Date | null>(null);
+  const second = useSyncExternalStore(tick, currentSecond, () => null);
 
-  useEffect(() => {
-    setDate(new Date());
-    const interval = setInterval(() => setDate(new Date()), 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  if (date === null) return null;
+  if (second === null) return null;
 
   return (
     <span
@@ -27,7 +27,7 @@ export function LiveTime({ className }: { className?: string }) {
       )}
       title="My local time"
     >
-      {formatter.format(date)} IST
+      {formatter.format(second * 1000)} IST
     </span>
   );
 }

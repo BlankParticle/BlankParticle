@@ -3,13 +3,12 @@ import { cn } from "@blankparticle/ui/utils";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ComponentType } from "react";
 
+import avatarUrl from "#/assets/avatar.webp";
 import { AppIcon } from "#/components/app-icon.tsx";
-import { discordContact, emailContact } from "#/components/social-modals.tsx";
-import { personLd, SITE_URL, socials } from "#/lib/data.ts";
+import { socials } from "#/lib/data.ts";
+import { personLd, seo } from "#/lib/site.ts";
 
-const pageTitle = "links · blankparticle";
 const pageDescription = "Every place you can find me, all on one page.";
-const pageUrl = `${SITE_URL}/links`;
 
 interface LinkEntry {
   label: string;
@@ -22,19 +21,14 @@ interface LinkEntry {
   iconBackground?: string | undefined;
 }
 
-// socials with a modal have their own standalone page on this site instead of a shortlink
-const contactPages: Record<string, { href: "/email" | "/discord"; subtext: string }> = {
-  Email: { href: "/email", subtext: emailContact.value },
-  Discord: { href: "/discord", subtext: `@${discordContact.value}` },
-};
-
 const links: LinkEntry[] = [
-  ...socials.map((social) => ({
+  // socials with a contact dialog have their own standalone page on this site instead of a shortlink
+  ...socials.map(({ contact, ...social }) => ({
     label: social.label,
-    href: contactPages[social.label]?.href ?? social.shortLink[0],
-    to: contactPages[social.label]?.href,
-    subtext: contactPages[social.label]?.subtext ?? social.url.replace(/^https:\/\//, "").replace(/\/$/, ""),
-    external: !social.modal,
+    href: contact?.page ?? social.shortLink[0],
+    to: contact?.page,
+    subtext: contact?.subtext ?? social.url.replace(/^https:\/\//, "").replace(/\/$/, ""),
+    external: !contact,
     icon: social.icon,
     iconBackground: social.iconBackground,
   })),
@@ -46,17 +40,7 @@ const cardInks = ["sticker-primary", "sticker-orange"];
 
 export const Route = createFileRoute("/links")({
   head: () => ({
-    meta: [
-      { title: pageTitle },
-      { name: "description", content: pageDescription },
-      { property: "og:title", content: pageTitle },
-      { property: "og:description", content: pageDescription },
-      { property: "og:url", content: pageUrl },
-      { property: "twitter:url", content: pageUrl },
-      { name: "twitter:title", content: pageTitle },
-      { name: "twitter:description", content: pageDescription },
-    ],
-    links: [{ rel: "canonical", href: pageUrl }],
+    ...seo({ title: "links · blankparticle", description: pageDescription, path: "/links" }),
     scripts: [
       {
         type: "application/ld+json",
@@ -72,8 +56,11 @@ function LinksPage() {
     <>
       <section className="mx-auto flex w-full max-w-md flex-1 flex-col items-center gap-8">
         <img
-          src="/me.png"
+          src={avatarUrl}
           alt="Rahul Mishra"
+          width={400}
+          height={400}
+          fetchPriority="high"
           className="reveal reveal-90 size-28 rotate-3 transition-transform duration-300 ease-out select-none hover:rotate-0"
         />
 

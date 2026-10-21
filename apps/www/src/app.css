@@ -70,14 +70,14 @@ html {
   .typeset :where(h1, h2, h3, h4, h5, h6) > a:focus-visible::after {
     opacity: 1;
   }
-  /* code blocks: GitHub light/dark from @tanstack/highlight (inlined by the root route); ours adds the hairline */
+  /* code blocks: token colours are GitHub light from @tanstack/highlight (hoisted into the head by the post route); ours adds the hairline */
   .typeset :where(pre.th-code) {
     @apply border;
   }
   .typeset :where(pre.th-code .th-comment) {
     font-style: italic;
   }
-  .typeset :where(img) {
+  .typeset :where(img, video) {
     @apply ring-foreground/10 mx-auto rounded-lg ring-1;
   }
   .typeset :where(blockquote) {

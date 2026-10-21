@@ -1,33 +1,20 @@
 import { ArrowRightIcon } from "@blankparticle/ui/icons";
 import { Badge } from "@blankparticle/ui/primitives/badge.tsx";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 
 import { SectionHeading } from "#/components/section-heading.tsx";
 import { postMeta } from "#/lib/blog-meta.ts";
-import { personLd, SITE_URL } from "#/lib/data.ts";
+import { personLd, seo, SITE_URL } from "#/lib/site.ts";
 import { formatPostDate } from "#/lib/utils.ts";
 
-const blogListLoader = createServerFn().handler(() => postMeta);
-
-const blogTitle = "blog · blankparticle";
 const blogDescription = "Things I wrote down so I wouldn't have to figure them out twice.";
-const blogUrl = `${SITE_URL}/blog`;
+
+/** Posts are newest first, so the years come out newest first too */
+const postsByYear = Map.groupBy(postMeta, (post) => post.date.slice(0, 4));
 
 export const Route = createFileRoute("/blog/")({
-  loader: () => blogListLoader(),
   head: () => ({
-    meta: [
-      { title: blogTitle },
-      { name: "description", content: blogDescription },
-      { property: "og:title", content: blogTitle },
-      { property: "og:description", content: blogDescription },
-      { property: "og:url", content: blogUrl },
-      { property: "twitter:url", content: blogUrl },
-      { name: "twitter:title", content: blogTitle },
-      { name: "twitter:description", content: blogDescription },
-    ],
-    links: [{ rel: "canonical", href: blogUrl }],
+    ...seo({ title: "blog · blankparticle", description: blogDescription, path: "/blog" }),
     scripts: [
       {
         type: "application/ld+json",
@@ -36,7 +23,7 @@ export const Route = createFileRoute("/blog/")({
           "@type": "Blog",
           name: "blankparticle's blog",
           description: blogDescription,
-          url: blogUrl,
+          url: `${SITE_URL}/blog`,
           author: personLd,
         }),
       },
@@ -46,14 +33,6 @@ export const Route = createFileRoute("/blog/")({
 });
 
 function BlogIndexPage() {
-  const posts = Route.useLoaderData();
-
-  const byYear = new Map<string, typeof posts>();
-  for (const post of posts) {
-    const year = post.date.slice(0, 4);
-    byYear.set(year, [...(byYear.get(year) ?? []), post]);
-  }
-
   return (
     <>
       <section className="flex flex-col gap-4">
@@ -62,7 +41,7 @@ function BlogIndexPage() {
         <p className="reveal reveal-180 text-muted-foreground max-w-xl">{blogDescription}</p>
       </section>
 
-      {[...byYear.entries()].map(([year, yearPosts], sectionIndex) => (
+      {[...postsByYear].map(([year, yearPosts], sectionIndex) => (
         <section key={year} className="reveal flex flex-col" style={{ animationDelay: `${270 + sectionIndex * 90}ms` }}>
           <SectionHeading>{year}</SectionHeading>
           <ol className="rule-dots flex flex-col border-t-2">

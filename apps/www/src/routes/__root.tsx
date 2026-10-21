@@ -3,40 +3,31 @@ import type { ReactNode } from "react";
 
 import { NotFound } from "#/components/not-found.tsx";
 import { SiteLayout } from "#/components/site-layout.tsx";
-import { SITE_URL } from "#/lib/data.ts";
-import { highlightThemeCss } from "#/lib/highlight-theme.ts";
+import { SITE_DESCRIPTION, SITE_NAME } from "#/lib/site.ts";
 
 import appCss from "../app.css?url";
 
-const title = "blankparticle";
-const description = "Personal site of Rahul Mishra, aka BlankParticle, a software developer passionate about tech";
-
+/** Defaults for every page; each route's `seo()` overrides the title and description and adds the Open Graph tags */
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:site_name", content: "blankparticle" },
-      { property: "og:url", content: SITE_URL },
-      { property: "og:description", content: description },
-      { property: "og:type", content: "website" },
-      { property: "og:image", content: `${SITE_URL}/og-image.webp` },
+      { title: SITE_NAME },
+      { name: "description", content: SITE_DESCRIPTION },
+      { property: "og:site_name", content: SITE_NAME },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "twitter:domain", content: "blankparticle.com" },
-      { property: "twitter:url", content: SITE_URL },
-      { name: "twitter:title", content: title },
-      { name: "twitter:description", content: description },
-      { name: "twitter:image", content: `${SITE_URL}/og-image.webp` },
     ],
     links: [
-      { rel: "icon", href: "/me.png" },
+      { rel: "icon", href: "/favicon.ico" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "stylesheet", href: appCss },
       { rel: "alternate", type: "application/rss+xml", title: "blankparticle's blog", href: "/rss.xml" },
     ],
-    styles: [{ children: highlightThemeCss }],
+  }),
+  headers: () => ({
+    // pages only change on deploy; kept short since a cached page points at hashed assets the next deploy removes
+    "cache-control": "public, max-age=0, s-maxage=300, stale-while-revalidate=600",
   }),
   notFoundComponent: NotFound,
   shellComponent: RootDocument,

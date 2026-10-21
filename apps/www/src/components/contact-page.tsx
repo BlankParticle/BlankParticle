@@ -1,8 +1,8 @@
-import { Button } from "@blankparticle/ui/primitives/button.tsx";
+import type { Contact } from "#/lib/contacts.ts";
 
-import { ContactValue, type ContactInfo } from "./social-modals.tsx";
+import { ContactActions, ContactValue } from "./social-modals.tsx";
 
-export function ContactPage({ contact }: { contact: ContactInfo }) {
+export function ContactPage({ contact }: { contact: Contact }) {
   return (
     <>
       <section className="flex flex-1 items-center justify-center">
@@ -15,22 +15,9 @@ export function ContactPage({ contact }: { contact: ContactInfo }) {
             <div className="mt-6">
               <ContactValue contact={contact} />
             </div>
-            {contact.actions && contact.actions.length > 0 && (
-              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                {contact.actions.map((action) => (
-                  <Button
-                    key={action.label}
-                    variant="sticker-primary"
-                    size="lg"
-                    className="h-10 w-full whitespace-nowrap sm:w-auto sm:flex-1"
-                    nativeButton={false}
-                    render={<a href={action.href} target="_blank" rel="noopener noreferrer" />}
-                  >
-                    {action.label}
-                  </Button>
-                ))}
-              </div>
-            )}
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <ContactActions contact={contact} />
+            </div>
           </div>
         </div>
       </section>

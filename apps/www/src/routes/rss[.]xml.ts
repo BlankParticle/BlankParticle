@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { postMeta } from "#/lib/blog-meta.ts";
-import { SITE_URL } from "#/lib/data.ts";
+import { SITE_URL } from "#/lib/site.ts";
 
 const escapeXml = (text: string) =>
   text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
@@ -38,7 +38,9 @@ export const Route = createFileRoute("/rss.xml")({
           `</rss>`,
         ].join("\n");
 
-        return new Response(body, { headers: { "content-type": "application/rss+xml; charset=UTF-8" } });
+        return new Response(body, {
+          headers: { "content-type": "application/rss+xml; charset=UTF-8", "cache-control": "public, max-age=3600" },
+        });
       },
     },
   },

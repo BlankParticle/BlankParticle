@@ -1,9 +1,9 @@
 import type { PostFrontmatter } from "./post-schema.ts";
 
 /**
- * Every post's frontmatter, newest first, without the compiled bodies. This is what the SSR worker
- * needs (lists, rss, sitemap); `blog-content.ts` — the full collection with `load()` — is only
- * touched by the server functions that render a post, which run in the RSC environment.
+ * Every post's frontmatter, newest first, without the compiled bodies: small enough for the blog
+ * index to bundle as-is, and what rss and the sitemap need. `blog-content.ts`, the full collection
+ * with `load()`, is only touched by the server function that renders a post.
  * Frontmatter is validated against `PostFrontmatter` by fumadocs at build time, so the cast is safe.
  */
 const heads = import.meta.glob("../content/blog/*.mdx", {

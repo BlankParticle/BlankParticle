@@ -1,11 +1,17 @@
 import { Badge } from "@blankparticle/ui/primitives/badge.tsx";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
+import type { ComponentProps } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { blogSource } from "#/lib/blog-content.ts";
-import { personLd, SITE_URL } from "#/lib/data.ts";
+import { personLd, seo, SITE_URL } from "#/lib/site.ts";
 import { formatPostDate } from "#/lib/utils.ts";
+
+/** Post images sit below the fold, so they load lazily and decode off the main thread */
+const mdxComponents = {
+  img: (props: ComponentProps<"img">) => <img loading="lazy" decoding="async" {...props} />,
+};
 
 const blogPageLoader = createServerFn()
   .validator((data: { slug: string }) => data)
@@ -24,7 +30,7 @@ const blogPageLoader = createServerFn()
         tags: post.data.tags,
         cover: post.data.cover,
       },
-      html: renderToStaticMarkup(<Body />),
+      html: renderToStaticMarkup(<Body components={mdxComponents} />),
     };
   });
 
@@ -35,26 +41,17 @@ export const Route = createFileRoute("/blog/$slug")({
     const { post } = loaderData;
     const postUrl = `${SITE_URL}/blog/${post.slug}`;
     const coverUrl = post.cover && new URL(post.cover, SITE_URL).href;
+    const { meta, links } = seo({
+      title: `${post.title} · blankparticle`,
+      description: post.description,
+      path: `/blog/${post.slug}`,
+      type: "article",
+      // posts without a cover share the site's card
+      ...(coverUrl ? { image: { url: coverUrl, alt: post.title } } : {}),
+    });
     return {
-      meta: [
-        { title: `${post.title} · blankparticle` },
-        { name: "description", content: post.description },
-        { property: "og:title", content: post.title },
-        { property: "og:description", content: post.description },
-        { property: "og:type", content: "article" },
-        { property: "og:url", content: postUrl },
-        { property: "twitter:url", content: postUrl },
-        { property: "article:published_time", content: post.date },
-        ...(coverUrl
-          ? [
-              { property: "og:image", content: coverUrl },
-              { name: "twitter:image", content: coverUrl },
-            ]
-          : []),
-        { name: "twitter:title", content: post.title },
-        { name: "twitter:description", content: post.description },
-      ],
-      links: [{ rel: "canonical", href: postUrl }],
+      meta: [...meta, { property: "article:published_time", content: post.date }],
+      links,
       scripts: [
         {
           type: "application/ld+json",
@@ -83,6 +80,10 @@ function BlogPostPage() {
 
   return (
     <>
+      {/* code-block token colours; React hoists this into the head once, and only posts need it */}
+      <style href="highlight-theme" precedence="default">
+        {import.meta.env.HIGHLIGHT_THEME_CSS}
+      </style>
       <article>
         <div className="rule-dots flex flex-col gap-5 border-b-2 pb-8 sm:pb-10">
           <div className="reveal flex flex-wrap items-center gap-x-3 gap-y-1">

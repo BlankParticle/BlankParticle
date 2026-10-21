@@ -3,7 +3,7 @@ import { CloudflareWorkersIcon, GitHubIcon, TanStackIcon } from "#/assets/social
 import { AppIcon } from "./app-icon.tsx";
 import { FooterCallout } from "./footer-callout.tsx";
 
-const gitHash = import.meta.env.VITE_GIT_HASH ?? "development";
+const gitHash = import.meta.env.VITE_GIT_HASH;
 const repo = "https://github.com/BlankParticle/BlankParticle";
 
 /** Credits on every page: who made it, where it runs, and what it is built with */
