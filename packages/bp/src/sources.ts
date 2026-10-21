@@ -1,10 +1,17 @@
+import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
+import { lookup as lookupMime } from "mrmime";
 
 /** Turning what the shell hands us into a flat list of files to upload. Shared by `site upload` and `file upload`. */
 
 export type Source = { relative: string; absolute: string; size: number };
+
+/** How many files upload or download at once */
+export const TRANSFER_CONCURRENCY = 8;
+
+export const contentType = (file: string) => lookupMime(file) ?? "application/octet-stream";
 
 const isIgnored = (relative: string) =>
   relative.split("/").some((segment) => segment.startsWith(".") || segment === "node_modules");
@@ -52,15 +59,22 @@ export const collectSources = (sources: ReadonlyArray<string>) =>
     (lists) => [...new Map(lists.flat().map((file) => [file.relative, file])).values()],
   );
 
-/** Writes `relative` under `dest`, creating folders as needed; refuses paths that would escape `dest` */
+/**
+ * Writes `relative` under `dest`, creating folders as needed. A path that would escape `dest` is skipped
+ * with a warning; returns whether the file was written.
+ */
 export const writeInto = (dest: string, relative: string, bytes: Uint8Array) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const target = path.resolve(dest, relative);
-    if (!target.startsWith(path.resolve(dest) + path.sep)) return;
+    if (!target.startsWith(path.resolve(dest) + path.sep)) {
+      yield* Console.warn(`! skipped ${relative}: it would land outside ${dest}`);
+      return false;
+    }
     yield* fs.makeDirectory(path.dirname(target), { recursive: true });
     yield* fs.writeFile(target, bytes);
+    return true;
   });
 
 /** Writes one file at `target`, creating folders as needed */

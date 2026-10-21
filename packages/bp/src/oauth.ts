@@ -12,7 +12,7 @@ import * as Schema from "effect/Schema";
 
 import { type Credentials, loadCredentials, saveCredentials } from "./credentials.ts";
 import { openBrowser, useDeviceLogin } from "./desktop.ts";
-import { UserError } from "./runtime.ts";
+import { fail, UserError } from "./runtime.ts";
 
 const CALLBACK_TIMEOUT_MS = 2 * 60 * 1000;
 
@@ -24,8 +24,6 @@ const Discovery = Schema.Struct({
 /** The signed id_token is the bearer credential; there is no refresh, `bp login` again once it expires */
 const TokenResponse = Schema.Struct({ id_token: Schema.String, expires_in: Schema.Number });
 
-const oauthError = (message: string) => new UserError({ message });
-
 const requestJson = <S extends Schema.ConstraintDecoder<unknown>>(
   schema: S,
   request: HttpClientRequest.HttpClientRequest,
@@ -33,11 +31,13 @@ const requestJson = <S extends Schema.ConstraintDecoder<unknown>>(
   Effect.gen(function* () {
     const response = yield* HttpClient.execute(request);
     if (response.status < 200 || response.status >= 300) {
-      return yield* oauthError(`OAuth request failed: ${response.status} ${yield* response.text}`);
+      return yield* fail(`OAuth request failed: ${response.status} ${yield* response.text}`);
     }
     return yield* HttpClientResponse.schemaBodyJson(schema)(response);
   }).pipe(
-    Effect.mapError((cause) => (cause instanceof UserError ? cause : oauthError(`OAuth request failed: ${cause}`))),
+    Effect.mapError((cause) =>
+      cause instanceof UserError ? cause : new UserError({ message: `OAuth request failed: ${cause}` }),
+    ),
   );
 
 const randomBase64Url = (bytes: number) =>
@@ -58,21 +58,23 @@ const callbackPage = (outcome: "done" | "failure") => {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>${failed ? "Sign-in failed" : "Signed in"} · blankparticle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..700&family=Plus+Jakarta+Sans:wght@700..800&display=swap">
   <style>
-    :root { color-scheme: light; --paper: oklch(98% .005 110); --ink: oklch(27% .03 300); --muted: oklch(46% .03 300); --violet: oklch(45% .19 300); --orange: oklch(50% .17 40); --lime: oklch(92% .16 125); }
+    :root { color-scheme: light; --paper: oklch(98.4% .005 85); --card: oklch(99.6% .002 85); --ink: oklch(23% .025 290); --ink-muted: oklch(44% .025 290); --violet: oklch(46% .17 295); --orange-deep: oklch(52% .16 40); --highlight: oklch(92% .12 118); }
     * { box-sizing: border-box; }
-    html { font-family: Karla, "Helvetica Neue", Arial, sans-serif; color: var(--ink); background: var(--paper); }
+    html { font-family: Figtree, "Helvetica Neue", Arial, sans-serif; color: var(--ink); background: var(--paper); -webkit-font-smoothing: antialiased; }
     body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; }
-    body::after { content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .05; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
     main { width: min(100%, 440px); }
     .brand { display: flex; align-items: center; justify-content: center; gap: 9px; margin-bottom: 18px; font-weight: 700; }
-    .brand-mark { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 7px; color: var(--paper); background: var(--violet); }
+    .brand-mark { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 7px; color: var(--card); background: var(--violet); }
     .brand-mark svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
-    .card { border: 1px dashed color-mix(in oklch, var(--ink) 25%, transparent); border-radius: 12px; padding: 40px 28px; text-align: center; }
-    .icon { width: 48px; height: 48px; margin: 0 auto 16px; display: grid; place-items: center; border-radius: 999px; background: ${failed ? "color-mix(in oklch, var(--orange) 12%, var(--paper))" : "var(--lime)"}; color: ${failed ? "var(--orange)" : "var(--ink)"}; }
+    .card { border: 2px solid var(--ink); border-radius: 12px; padding: 40px 28px; text-align: center; background: var(--card); box-shadow: 4px 4px 0 ${failed ? "var(--orange-deep)" : "var(--violet)"}; }
+    .icon { width: 48px; height: 48px; margin: 0 auto 16px; display: grid; place-items: center; border-radius: 999px; background: ${failed ? "color-mix(in oklch, var(--orange-deep) 12%, var(--paper))" : "var(--highlight)"}; color: ${failed ? "var(--orange-deep)" : "var(--ink)"}; }
     .icon svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-    h1 { margin: 0; font-family: "Arial Black", Arial, sans-serif; font-size: 20px; letter-spacing: -.03em; }
-    p { max-width: 340px; margin: 8px auto 0; color: var(--muted); font-size: 15px; line-height: 1.5; text-wrap: balance; }
+    h1 { margin: 0; font-family: "Plus Jakarta Sans", "Helvetica Neue", Arial, sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+    p { max-width: 340px; margin: 8px auto 0; color: var(--ink-muted); font-size: 15px; line-height: 1.5; text-wrap: balance; }
   </style>
 </head>
 <body>
@@ -106,28 +108,31 @@ const callback = (expectedState: string) =>
           }),
         );
         if (query.state !== expectedState || query.code === undefined) {
-          yield* Deferred.fail(result, oauthError(query.error ?? "invalid OAuth callback"));
+          yield* Deferred.fail(result, new UserError({ message: query.error ?? "invalid OAuth callback" }));
           return callbackPage("failure");
         }
         yield* Deferred.succeed(result, query.code);
         return callbackPage("done");
       }).pipe(
         Effect.catchTag("SchemaError", () =>
-          Effect.as(Deferred.fail(result, oauthError("invalid OAuth callback")), callbackPage("failure")),
+          Effect.as(
+            Deferred.fail(result, new UserError({ message: "invalid OAuth callback" })),
+            callbackPage("failure"),
+          ),
         ),
       ),
     );
     const server = yield* NodeHttpServer.make(createServer, { host: "127.0.0.1", port: 0 }).pipe(
-      Effect.mapError((cause) => oauthError(`could not start OAuth callback: ${cause}`)),
+      Effect.mapError((cause) => new UserError({ message: `could not start OAuth callback: ${cause}` })),
     );
     yield* server.serve(router.asHttpEffect());
-    if (server.address._tag !== "InetAddressV4") return yield* oauthError("could not bind OAuth callback server");
+    if (server.address._tag !== "InetAddressV4") return yield* fail("could not bind OAuth callback server");
     return {
       redirectUri: `http://127.0.0.1:${server.address.port}/callback`,
       code: Deferred.await(result).pipe(
         Effect.timeoutOrElse({
           duration: CALLBACK_TIMEOUT_MS,
-          orElse: () => Effect.fail(oauthError("OAuth login timed out")),
+          orElse: () => fail("OAuth login timed out"),
         }),
       ),
     };
@@ -206,7 +211,7 @@ const loginWithBrowser = (resource: string, metadata: typeof Discovery.Type) =>
 const loginWithDevice = (resource: string, metadata: typeof Discovery.Type) =>
   Effect.gen(function* () {
     if (metadata.device_authorization_endpoint === undefined)
-      return yield* oauthError("the auth server does not support device sign-in");
+      return yield* fail("the auth server does not support device sign-in");
     const device = yield* requestJson(
       DeviceCodeResponse,
       HttpClientRequest.post(metadata.device_authorization_endpoint).pipe(
@@ -229,7 +234,7 @@ const loginWithDevice = (resource: string, metadata: typeof Discovery.Type) =>
             client_id: CLIENT_ID,
           }),
         ),
-      ).pipe(Effect.mapError((cause) => oauthError(`could not reach the auth server: ${cause}`)));
+      ).pipe(Effect.mapError((cause) => new UserError({ message: `could not reach the auth server: ${cause}` })));
       if (response.status >= 200 && response.status < 300)
         return yield* store(resource, yield* HttpClientResponse.schemaBodyJson(TokenResponse)(response));
       const { error } = yield* HttpClientResponse.schemaBodyJson(TokenError)(response);
@@ -238,12 +243,12 @@ const loginWithDevice = (resource: string, metadata: typeof Discovery.Type) =>
         interval += 5;
         continue;
       }
-      if (error === "access_denied") return yield* oauthError("sign-in was denied");
-      return yield* oauthError(
+      if (error === "access_denied") return yield* fail("sign-in was denied");
+      return yield* fail(
         `sign-in ${error === "expired_token" ? "expired" : `failed: ${error}`}; run \`bp login\` again`,
       );
     }
-    return yield* oauthError("sign-in expired; run `bp login` again");
+    return yield* fail("sign-in expired; run `bp login` again");
   });
 
 export const login = (baseUrl: string, options: { device: boolean }) =>
@@ -262,7 +267,7 @@ export const login = (baseUrl: string, options: { device: boolean }) =>
 export const accessToken = (baseUrl: string) =>
   Effect.gen(function* () {
     const credentials = yield* loadCredentials(new URL(baseUrl).origin);
-    if (credentials === null) return yield* oauthError("not signed in; run `bp login`");
-    if (credentials.expiresAt <= Date.now() + 30_000) return yield* oauthError("sign-in expired; run `bp login` again");
+    if (credentials === null) return yield* fail("not signed in; run `bp login`");
+    if (credentials.expiresAt <= Date.now() + 30_000) return yield* fail("sign-in expired; run `bp login` again");
     return credentials.idToken;
   });

@@ -1,22 +1,21 @@
 {
   "name": "@blankparticle/bp",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "bin": {
     "bp": "./src/bin.ts"
   },
   "type": "module",
   "scripts": {
-    "typecheck": "tsc",
-    "format": "vpr -w format",
-    "lint": "vpr -w lint"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@blankparticle/tools": "workspace:*",
+    "@effect/platform-node": "catalog:",
+    "effect": "catalog:",
     "mrmime": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "catalog:",
     "@types/node": "catalog:",
     "typescript": "catalog:"
   }

@@ -6,11 +6,10 @@ import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 import * as Schema from "effect/Schema";
 
-import { UserError } from "./runtime.ts";
+import { fail, UserError } from "./runtime.ts";
 
 export const Credentials = Schema.Struct({ idToken: Schema.String, expiresAt: Schema.Number });
 export type Credentials = typeof Credentials.Type;
-const oauthError = (message: string) => new UserError({ message });
 
 const credentialsDirectory = (path: Path.Path) => {
   const config = process.env.XDG_CONFIG_HOME;
@@ -29,14 +28,12 @@ export const loadCredentials = (baseUrl: string) =>
         Effect.catch((error) =>
           error.reason._tag === "NotFound"
             ? Effect.succeed(null)
-            : Effect.fail(
-                oauthError("could not read OAuth credentials; check permissions on the bp credentials directory"),
-              ),
+            : fail("could not read OAuth credentials; check permissions on the bp credentials directory"),
         ),
       );
     if (raw === null) return null;
     return yield* Schema.decodeUnknownEffect(Schema.fromJsonString(Credentials))(raw).pipe(
-      Effect.mapError(() => oauthError("stored OAuth credentials are invalid; run `bp login` again")),
+      Effect.mapError(() => new UserError({ message: "stored OAuth credentials are invalid; run `bp login` again" })),
     );
   });
 
@@ -53,7 +50,10 @@ export const saveCredentials = (baseUrl: string, credentials: Credentials) =>
     yield* fs.rename(file, path.join(directory, credentialsFilename(baseUrl)));
   }).pipe(
     Effect.scoped,
-    Effect.mapError(() =>
-      oauthError("could not save OAuth credentials; check permissions on the bp credentials directory"),
+    Effect.mapError(
+      () =>
+        new UserError({
+          message: "could not save OAuth credentials; check permissions on the bp credentials directory",
+        }),
     ),
   );

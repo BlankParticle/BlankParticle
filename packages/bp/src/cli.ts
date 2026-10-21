@@ -4,35 +4,26 @@ import * as Command from "effect/cli/Command";
 import * as Flag from "effect/cli/Flag";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
 import * as Option from "effect/Option";
-import { lookup as lookupMime } from "mrmime";
 
-import { call, client, download, fail, makeClient, shared, type Client } from "./client.ts";
+import { client, makeClient, shared, type Client } from "./client.ts";
 import { clone } from "./clone.ts";
 import { file } from "./file.ts";
+import { formatBytes, formatUtc } from "./format.ts";
 import { login as oauthLogin } from "./oauth.ts";
-import { UserError } from "./runtime.ts";
-import { collectFiles, writeInto } from "./sources.ts";
+import { fail } from "./runtime.ts";
+import { collectFiles, contentType, TRANSFER_CONCURRENCY, writeInto } from "./sources.ts";
 import { randomSlug } from "./words.ts";
 
-const UPLOAD_CONCURRENCY = 8;
-
+/** A generated slug must not land on an existing site (yours would be overwritten, someone else's is a 403) */
 const freshSlug = (api: Client) =>
   Effect.gen(function* () {
     for (let attempt = 0; attempt < 5; attempt++) {
       const slug = randomSlug();
-      const response = yield* api.api.sites[":slug"]
-        .$get({ param: { slug } })
-        .pipe(Effect.mapError((cause) => new UserError({ message: `could not reach the server: ${cause}` })));
-      if (response.status === 404) return slug;
+      if (!(yield* api.siteTaken(slug))) return slug;
     }
     return yield* fail("could not find a free slug, pass one with --slug");
   });
-
-const contentType = (file: string) => lookupMime(file) ?? "application/octet-stream";
-
-const formatBytes = (bytes: number) => (bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`);
 
 const upload = Command.make(
   "upload",
@@ -60,7 +51,6 @@ const upload = Command.make(
       }
       const visibility: Visibility | undefined = options.private ? "private" : options.public ? "public" : undefined;
 
-      const fs = yield* FileSystem.FileSystem;
       const files = yield* collectFiles(options.source);
       // KV can't hold a page over 25 MiB; say so before touching the server
       const oversized = files.filter((file) => file.size > MAX_SITE_FILE_BYTES);
@@ -76,29 +66,22 @@ const upload = Command.make(
 
       const api = yield* client(options);
       const slug = Option.isSome(options.slug) ? options.slug.value : yield* freshSlug(api);
-      const site = yield* call(() => api.api.sites[":slug"].$put({ param: { slug }, json: { visibility } }));
+      const site = yield* api.putSite(slug, visibility);
       yield* Console.log(`→ ${site.visibility} site ${site.url} · ${files.length} file(s)`);
 
       yield* Effect.forEach(
         files,
         (file) =>
           Effect.gen(function* () {
-            // Node's readFile is ArrayBuffer-backed; TS only knows it as ArrayBufferLike
-            const bytes = (yield* fs.readFile(file.absolute)) as Uint8Array<ArrayBuffer>;
-            const type = contentType(file.absolute);
-            const uploaded = yield* call(() =>
-              api.api.sites[":slug"].files.$put(
-                { param: { slug }, query: { path: file.relative, type } },
-                { headers: { "content-type": type }, init: { body: bytes } },
-              ),
-            );
+            const uploaded = yield* api.putSiteFile(slug, file.relative, file.absolute, contentType(file.absolute));
             yield* Console.log(`  ↑ ${uploaded.path} (${formatBytes(uploaded.size)})`);
           }),
-        { concurrency: UPLOAD_CONCURRENCY, discard: true },
+        { concurrency: TRANSFER_CONCURRENCY, discard: true },
       );
 
-      const { removed } = yield* call(() =>
-        api.api.sites[":slug"].sync.$post({ param: { slug }, json: { keep: files.map((file) => file.relative) } }),
+      const { removed } = yield* api.syncSite(
+        slug,
+        files.map((file) => file.relative),
       );
       if (removed.length > 0) yield* Console.log(`  ✕ removed ${removed.length} stale file(s)`);
 
@@ -118,11 +101,10 @@ const upload = Command.make(
 const ls = Command.make("ls", shared, (options) =>
   Effect.gen(function* () {
     const api = yield* client(options);
-    const sites = yield* call(() => api.api.sites.$get());
+    const sites = yield* api.listSites();
     if (sites.length === 0) return yield* Console.log("no sites yet");
     for (const site of sites) {
-      const when = new Date(site.updatedAt).toISOString().slice(0, 16).replace("T", " ");
-      yield* Console.log(`${site.visibility.padEnd(8)} ${when}  ${site.url}`);
+      yield* Console.log(`${site.visibility.padEnd(8)} ${formatUtc(site.updatedAt)}  ${site.url}`);
     }
   }),
 ).pipe(Command.withDescription("List your sites"));
@@ -133,7 +115,7 @@ const rm = Command.make(
   (options) =>
     Effect.gen(function* () {
       const api = yield* client(options);
-      yield* call(() => api.api.sites[":slug"].$delete({ param: { slug: options.slug } }));
+      yield* api.deleteSite(options.slug);
       yield* Console.log(`✔ deleted ${options.slug}`);
     }),
 ).pipe(Command.withDescription("Delete a site and all of its files"));
@@ -141,7 +123,7 @@ const rm = Command.make(
 const whoami = Command.make("whoami", shared, (options) =>
   Effect.gen(function* () {
     const api = yield* client(options);
-    const user = yield* call(() => api.api.me.$get());
+    const user = yield* api.me();
     yield* Console.log(`@${user.login} (${options.url})`);
   }),
 ).pipe(Command.withDescription("Show logged-in user and the tools API URL"));
@@ -150,16 +132,16 @@ const login = Command.make(
   "login",
   {
     ...shared,
-    device: Flag.Boolean("device")
-      .pipe(Flag.withDescription("Show a code to approve in any browser instead of opening one here"))
-      .pipe(Flag.optional),
+    device: Flag.Boolean("device").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Show a code to approve in any browser instead of opening one here"),
+    ),
   },
   (options) =>
     Effect.gen(function* () {
-      const token = yield* oauthLogin(options.url, { device: options.device.valueOrUndefined ?? false });
+      const token = yield* oauthLogin(options.url, { device: options.device });
       yield* Console.log("Verifying the authenticated identity with the tools API…");
-      const api = makeClient(options.url, token);
-      const user = yield* call(() => api.api.me.$get());
+      const user = yield* makeClient(options.url, token).me();
       yield* Console.log(`✔ signed in as @${user.login}`);
     }),
 ).pipe(Command.withDescription("Sign the CLI in through auth.blankparticle.com"));
@@ -177,15 +159,17 @@ const siteDownload = Command.make(
   (options) =>
     Effect.gen(function* () {
       const api = yield* client(options);
-      const { files } = yield* call(() => api.api.sites[":slug"].$get({ param: { slug: options.slug } }));
+      const { files } = yield* api.getSite(options.slug);
       const dest = Option.getOrElse(options.dest, () => options.slug);
-      for (const file of files) {
-        const bytes = yield* download(() =>
-          api.api.sites[":slug"].files.$get({ param: { slug: options.slug }, query: { path: file.path } }),
-        );
-        yield* writeInto(dest, file.path, bytes);
-        yield* Console.log(`↓ ${file.path}`);
-      }
+      yield* Effect.forEach(
+        files,
+        (file) =>
+          Effect.gen(function* () {
+            const bytes = yield* api.getSiteFile(options.slug, file.path);
+            if (yield* writeInto(dest, file.path, bytes)) yield* Console.log(`↓ ${file.path}`);
+          }),
+        { concurrency: TRANSFER_CONCURRENCY, discard: true },
+      );
       yield* Console.log(`✔ ${files.length} file${files.length === 1 ? "" : "s"} → ${dest}/`);
     }),
 ).pipe(Command.withDescription("Download a site's files into a folder (private ones too, when they are yours)"));

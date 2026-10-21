@@ -9,10 +9,12 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Option from "effect/Option";
-import { lookup as lookupMime } from "mrmime";
+import * as Stream from "effect/Stream";
 
-import { call, client, download, fail, shared } from "./client.ts";
-import { collectSources, writeFile, writeInto } from "./sources.ts";
+import { client, shared } from "./client.ts";
+import { formatBytes, formatUtc } from "./format.ts";
+import { fail } from "./runtime.ts";
+import { collectSources, contentType, TRANSFER_CONCURRENCY, writeFile, writeInto } from "./sources.ts";
 
 /** `--expires "7 days"` (Effect duration syntax), `3d`/`12h`/`30m` shorthands, or `never` */
 const parseExpiry = (input: string): Effect.Effect<number | "never", never> | null => {
@@ -27,17 +29,8 @@ const parseExpiry = (input: string): Effect.Effect<number | "never", never> | nu
   return seconds > 0 ? Effect.succeed(seconds) : null;
 };
 
-const formatBytes = (bytes: number) =>
-  bytes < 1024
-    ? `${bytes} B`
-    : bytes < 1024 ** 2
-      ? `${(bytes / 1024).toFixed(1)} KB`
-      : `${(bytes / 1024 ** 2).toFixed(1)} MB`;
-
 const formatExpiry = (expiresAt: number | null) =>
-  expiresAt === null
-    ? "never expires"
-    : `expires ${new Date(expiresAt).toISOString().slice(0, 16).replace("T", " ")} UTC`;
+  expiresAt === null ? "never expires" : `expires ${formatUtc(expiresAt)} UTC`;
 
 const upload = Command.make(
   "upload",
@@ -77,42 +70,42 @@ const upload = Command.make(
           `larger than ${MiB(MAX_FILE_BYTES)}, the most one upload can carry:\n${oversized.map((file) => `  ${file.relative} (${MiB(file.size)})`).join("\n")}`,
         );
 
-      // Manifest first: read + hash everything, tell the server, and it mints the id and tells us what it still needs
-      const entries = yield* Effect.forEach(files, (file) =>
-        Effect.map(fs.readFile(file.absolute), (bytes) => ({
-          name: files.length === 1 ? Option.getOrElse(options.name, () => file.relative) : file.relative,
-          // Node's readFile is ArrayBuffer-backed; TS only knows it as ArrayBufferLike
-          bytes: bytes as Uint8Array<ArrayBuffer>,
-          type: lookupMime(file.relative) ?? "application/octet-stream",
-          hash: createHash("sha256").update(bytes).digest("hex"),
-        })),
+      // Manifest first: hash everything, tell the server, and it mints the id and tells us what it still needs
+      const entries = yield* Effect.forEach(
+        files,
+        (file) =>
+          Effect.gen(function* () {
+            const hash = createHash("sha256");
+            yield* Stream.runForEach(fs.stream(file.absolute), (chunk) => Effect.sync(() => hash.update(chunk)));
+            return {
+              name: files.length === 1 ? Option.getOrElse(options.name, () => file.relative) : file.relative,
+              absolute: file.absolute,
+              size: file.size,
+              type: contentType(file.relative),
+              hash: hash.digest("hex"),
+            };
+          }),
+        { concurrency: TRANSFER_CONCURRENCY },
       );
       const api = yield* client(options);
-      const manifest = yield* call(() =>
-        api.api.files.manifest.$post({
-          json: {
-            files: entries.map(({ name, bytes, type, hash }) => ({ name, size: bytes.byteLength, type, hash })),
-            ttl: seconds === "never" ? "never" : String(seconds),
-            visibility: options.private ? "private" : "public",
-          },
-        }),
-      );
+      const manifest = yield* api.registerManifest({
+        files: entries.map(({ name, size, type, hash }) => ({ name, size, type, hash })),
+        ttl: seconds === "never" ? "never" : String(seconds),
+        visibility: options.private ? "private" : "public",
+      });
       const pending = new Set(manifest.files.filter((file) => !file.uploaded).map((file) => file.name));
       let last: { url: string; visibility: string; expiresAt: number | null } | undefined;
-      for (const entry of entries) {
-        if (!pending.has(entry.name)) {
-          yield* Console.log(`= ${entry.name} (already there)`);
-          continue;
-        }
-        const record = yield* call(() =>
-          api.api.files[":id"].upload.$put(
-            { param: { id: manifest.id }, query: { name: entry.name } },
-            { headers: { "content-type": entry.type }, init: { body: entry.bytes } },
-          ),
-        );
-        last = record;
-        yield* Console.log(`↑ ${record.name} (${formatBytes(record.size)})  ${record.url}`);
-      }
+      yield* Effect.forEach(
+        entries,
+        (entry) =>
+          Effect.gen(function* () {
+            if (!pending.has(entry.name)) return yield* Console.log(`= ${entry.name} (already there)`);
+            const record = yield* api.uploadShareFile(manifest.id, entry.name, entry.absolute, entry.type);
+            last = record;
+            yield* Console.log(`↑ ${record.name} (${formatBytes(record.size)})  ${record.url}`);
+          }),
+        { concurrency: TRANSFER_CONCURRENCY, discard: true },
+      );
       const summary =
         last === undefined ? "nothing new to upload" : `${last.visibility}, ${formatExpiry(last.expiresAt)}`;
       yield* Console.log(
@@ -124,7 +117,7 @@ const upload = Command.make(
 const ls = Command.make("ls", shared, (options) =>
   Effect.gen(function* () {
     const api = yield* client(options);
-    const records = yield* call(() => api.api.files.$get());
+    const records = yield* api.listShares();
     if (records.length === 0) return yield* Console.log("no files");
     for (const record of records) {
       yield* Console.log(
@@ -147,7 +140,7 @@ const rm = Command.make(
   (options) =>
     Effect.gen(function* () {
       const api = yield* client(options);
-      yield* call(() => api.api.files[":id"].$delete({ param: { id: options.id } }));
+      yield* api.deleteShare(options.id);
       yield* Console.log(`✔ deleted ${options.id}`);
     }),
 ).pipe(Command.withDescription("Delete a file or a whole bundle"));
@@ -165,17 +158,19 @@ const fileDownload = Command.make(
   (options) =>
     Effect.gen(function* () {
       const api = yield* client(options);
-      const records = yield* call(() => api.api.files[":id"].$get({ param: { id: options.id } }));
+      const records = yield* api.getShare(options.id);
       const bundle = isBundleId(options.id);
       const dest = Option.getOrElse(options.dest, () => (bundle ? options.id : (records[0]?.name ?? options.id)));
-      for (const record of records) {
-        const bytes = yield* download(() =>
-          api.api.files[":id"].download.$get({ param: { id: options.id }, query: { name: record.name } }),
-        );
-        if (bundle) yield* writeInto(dest, record.name, bytes);
-        else yield* writeFile(dest, bytes);
-        yield* Console.log(`↓ ${record.name} (${formatBytes(record.size)})`);
-      }
+      yield* Effect.forEach(
+        records,
+        (record) =>
+          Effect.gen(function* () {
+            const bytes = yield* api.downloadShareFile(options.id, record.name);
+            const write = bundle ? writeInto(dest, record.name, bytes) : Effect.as(writeFile(dest, bytes), true);
+            if (yield* write) yield* Console.log(`↓ ${record.name} (${formatBytes(record.size)})`);
+          }),
+        { concurrency: TRANSFER_CONCURRENCY, discard: true },
+      );
       yield* Console.log(`✔ ${records.length} file${records.length === 1 ? "" : "s"} → ${dest}${bundle ? "/" : ""}`);
     }),
 ).pipe(Command.withDescription("Download a file or a whole bundle (private ones too, when they are yours)"));

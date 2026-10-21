@@ -10,8 +10,7 @@ import * as Schema from "effect/Schema";
 
 import { capture, exec, run, UserError } from "./runtime.ts";
 
-const RepoView = Schema.Struct({ nameWithOwner: Schema.String, sshUrl: Schema.String });
-const decodeRepoView = Schema.decodeUnknownSync(Schema.fromJsonString(RepoView));
+const RepoView = Schema.fromJsonString(Schema.Struct({ nameWithOwner: Schema.String, sshUrl: Schema.String }));
 
 /** Where clones land: `$BP_PROJECTS` or `~/Projects`, then `<owner>/<repo>` */
 const projectsRoot = () => process.env.BP_PROJECTS ?? `${homedir()}/Projects`;
@@ -83,7 +82,9 @@ export const clone = Command.make(
         stderr: "inherit",
       });
       if (view === null) return yield* new UserError({ message: `gh could not resolve "${repo}"` });
-      const { nameWithOwner, sshUrl } = decodeRepoView(view);
+      const { nameWithOwner, sshUrl } = yield* Schema.decodeUnknownEffect(RepoView)(view).pipe(
+        Effect.mapError(() => new UserError({ message: `unexpected output from \`gh repo view ${repo}\`` })),
+      );
 
       const destination = path.join(projectsRoot(), nameWithOwner);
       if (yield* fs.exists(destination)) return yield* update(destination);
