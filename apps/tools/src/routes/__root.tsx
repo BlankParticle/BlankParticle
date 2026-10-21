@@ -11,7 +11,7 @@ import { useSuspenseQuery, type QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, HeadContent, Link, Outlet, Scripts, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
-import { dashboardQuery } from "../lib/queries.ts";
+import { meQuery } from "../lib/queries.ts";
 
 import appCss from "../app.css?url";
 
@@ -28,7 +28,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(dashboardQuery),
+  loader: ({ context }) => context.queryClient.ensureQueryData(meQuery),
   shellComponent: RootDocument,
   component: RootLayout,
 });
@@ -51,7 +51,7 @@ function NavigationIndicator() {
 }
 
 function UserMenu() {
-  const { data } = useSuspenseQuery(dashboardQuery);
+  const { data } = useSuspenseQuery(meQuery);
   if (!data.user) return null;
   return (
     <form method="post" action="/auth/logout" className="flex items-center gap-3">
@@ -66,7 +66,7 @@ function UserMenu() {
 }
 
 function RootLayout() {
-  const { data } = useSuspenseQuery(dashboardQuery);
+  const { data } = useSuspenseQuery(meQuery);
   return (
     <AppShell
       brand={

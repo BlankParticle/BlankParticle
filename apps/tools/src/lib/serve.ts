@@ -1,10 +1,9 @@
 import * as Effect from "effect/Effect";
 
+import type { Viewer } from "../api/identity.ts";
 import type { Site } from "../api/spec.ts";
-import { WorkerEnv } from "./env.ts";
-import { renderMarkdown } from "./markdown.ts";
-import { sitePage } from "./not-found.ts";
-import { getFile, getSite, type StoredFile } from "./store.ts";
+import { interstitial } from "./not-found.ts";
+import { getSite, indexedFiles, readBytes } from "./store.ts";
 
 const decodePath = (path: string) => {
   try {
@@ -14,80 +13,87 @@ const decodePath = (path: string) => {
   }
 };
 
-const fileResponse = (request: Request, file: StoredFile, site: Site, status = 200) => {
-  const etag = `"${file.meta.etag}"`;
-  const headers = new Headers({
-    "content-type": file.meta.type,
-    etag,
-    "cache-control": site.visibility === "private" ? "private, no-store" : "public, max-age=60, must-revalidate",
-    "x-content-type-options": "nosniff",
-  });
-  if (request.headers.get("if-none-match") === etag) return new Response(null, { status: 304, headers });
-  return new Response(request.method === "HEAD" ? null : file.value, { status, headers });
-};
-
-const markdownResponse = (request: Request, path: string, source: StoredFile) =>
-  new Response(request.method === "HEAD" ? null : renderMarkdown(path, new TextDecoder().decode(source.value)), {
-    headers: {
-      "content-type": "text/html; charset=utf-8",
-      "cache-control": "no-store",
+/**
+ * One indexed page. The index row carries the type and etag, so a revalidation (304) or a HEAD never reads KV;
+ * markdown sources are rendered on the way out and tagged by their source's hash, cached like any other page.
+ * Null when the index has the path but KV lost the bytes.
+ */
+const pageResponse = (
+  request: Request,
+  site: Site,
+  file: { path: string; type: string; etag: string },
+  options: { render: boolean; status: number },
+) =>
+  Effect.gen(function* () {
+    const etag = options.render ? `"${file.etag}-md"` : `"${file.etag}"`;
+    const headers = new Headers({
+      "content-type": options.render ? "text/html; charset=utf-8" : file.type,
+      etag,
+      "cache-control": site.visibility === "private" ? "private, no-store" : "public, max-age=60, must-revalidate",
       "x-content-type-options": "nosniff",
-    },
-  });
-
-/** The interstitial pages for this host; `private` carries the sign-in link (the button navigates, we never redirect) */
-export const missing = (request: Request, kind: "site" | "page" | "public-page" | "private") =>
-  Effect.map(WorkerEnv, (env) => {
-    const signIn = new URL(`https://${env.ORIGINS.tools}/auth/login`);
-    signIn.searchParams.set("return_to", request.url);
-    return sitePage({
-      host: new URL(request.url).host,
-      kind,
-      toolsOrigin: env.ORIGINS.tools,
-      rootDomain: env.ROOT_DOMAIN,
-      signInUrl: signIn.toString(),
+    });
+    if (options.status === 200 && request.headers.get("if-none-match") === etag)
+      return new Response(null, { status: 304, headers });
+    if (request.method === "HEAD") return new Response(null, { status: options.status, headers });
+    const bytes = yield* readBytes(site.slug, file.path);
+    if (bytes === null) return null;
+    if (!options.render) return new Response(bytes, { status: options.status, headers });
+    // the renderer and its highlighter are heavy; only markdown requests load them
+    const { renderMarkdown } = yield* Effect.promise(() => import("./markdown.ts"));
+    return new Response(renderMarkdown(file.path, new TextDecoder().decode(bytes)), {
+      status: options.status,
+      headers,
     });
   });
 
-/** Who is looking: `login` is the allow-listed owner identity if any; `signedIn` covers any valid session */
-export type Viewer = { signedIn: boolean; login: string | undefined };
-
 /**
- * Serves `<slug>.sites.<root>/<path>` straight from KV, never touching the React app.
- * Returns null when there is no such site so the caller can fall through.
+ * Serves `<slug>.sites.<root>/<path>` from KV, never touching the React app. `viewer` is only resolved for
+ * private sites. Returns null when there is no such site so the caller can fall through.
  */
-export const serveSite = (request: Request, slug: string, rest: string, viewer: Viewer) =>
+export const serveSite = (request: Request, slug: string, rest: string, viewer: Effect.Effect<Viewer>) =>
   Effect.gen(function* () {
-    const site = yield* getSite(slug);
-    if (site === null) return null;
-
-    if (site.visibility === "private" && viewer.login !== site.owner) {
-      // signed in as someone else: nothing to see; anonymous: a page with a sign-in button (the auth cookie is
-      // scoped to the root domain, so one sign-in through tools covers every site)
-      return yield* missing(request, viewer.signedIn ? "site" : "private");
-    }
-
     const path = decodePath(rest);
     if (path === null) return new Response("bad request", { status: 400 });
 
-    // exact files first (an explicit `.md` request gets the raw markdown), then prerendered markdown
+    // exact files first (an explicit `.md` request gets the raw markdown), then rendered markdown, then the
+    // site's own 404 page; one index query covers every candidate
     const directory = path === "" || path.endsWith("/");
-    const files = directory ? [`${path}index.html`] : [path, `${path}.html`, `${path}/index.html`];
-    for (const candidate of files) {
-      const file = yield* getFile(slug, candidate);
-      if (file !== null) return fileResponse(request, file, site);
-    }
-    const rendered = directory
-      ? [`${path}index.md`, `${path}README.md`]
-      : [`${path}.md`, `${path}/index.md`, `${path}/README.md`];
-    for (const candidate of rendered) {
-      const source = yield* getFile(slug, candidate);
-      if (source === null) continue;
-      return markdownResponse(request, candidate, source);
+    const candidates = [
+      ...(directory ? [`${path}index.html`] : [path, `${path}.html`, `${path}/index.html`]).map((candidate) => ({
+        path: candidate,
+        render: false,
+        status: 200,
+      })),
+      ...(directory
+        ? [`${path}index.md`, `${path}README.md`]
+        : [`${path}.md`, `${path}/index.md`, `${path}/README.md`]
+      ).map((candidate) => ({ path: candidate, render: true, status: 200 })),
+      { path: "404.html", render: false, status: 404 },
+    ];
+    const [site, indexed] = yield* Effect.all(
+      [
+        getSite(slug),
+        indexedFiles(
+          slug,
+          candidates.map((candidate) => candidate.path),
+        ),
+      ],
+      { concurrency: "unbounded" },
+    );
+    if (site === null) return null;
+
+    if (site.visibility === "private") {
+      const { signedIn, login } = yield* viewer;
+      // signed in as someone else: nothing to see; anonymous: a page with a sign-in button (the auth cookie is
+      // scoped to the root domain, so one sign-in through tools covers every site)
+      if (login !== site.owner) return yield* interstitial(request, signedIn ? "site" : "private");
     }
 
-    const custom = yield* getFile(slug, "404.html");
-    return custom !== null
-      ? fileResponse(request, custom, site, 404)
-      : yield* missing(request, site.visibility === "public" ? "public-page" : "page");
+    for (const candidate of candidates) {
+      const file = indexed.find((row) => row.path === candidate.path);
+      if (file === undefined) continue;
+      const response = yield* pageResponse(request, site, file, candidate);
+      if (response !== null) return response;
+    }
+    return yield* interstitial(request, site.visibility === "public" ? "public-page" : "page");
   });

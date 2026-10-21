@@ -126,9 +126,7 @@ export const pendingLogins = sqliteTable(
 );
 
 export type SiteRow = typeof sites.$inferSelect;
-export type SiteFileRow = typeof siteFiles.$inferSelect;
 export type ShareRow = typeof shares.$inferSelect;
 export type ShareFileRow = typeof shareFiles.$inferSelect;
 export type EmailRuleRow = typeof emailRules.$inferSelect;
-export type EmailZoneDefaultRow = typeof emailZoneDefaults.$inferSelect;
 export type EmailActivityRow = typeof emailActivity.$inferSelect;

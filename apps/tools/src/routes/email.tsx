@@ -30,7 +30,7 @@ import { useState } from "react";
 
 import { ActionBadge } from "#/components/action-badge.tsx";
 import { useAppForm } from "#/components/form.tsx";
-import { formatTimestamp, SignedOut } from "#/components/signed-out.tsx";
+import { SignedOut } from "#/components/signed-out.tsx";
 import {
   addDestination,
   clearActivity,
@@ -39,13 +39,14 @@ import {
   type DestinationAddress,
   type ZoneOverview,
 } from "#/lib/email-api.ts";
-import { dashboardQuery, emailConfigQuery } from "#/lib/queries.ts";
-import type { ActivityEntry, EmailRule, RuleAction, RuleSet } from "#/lib/rules.ts";
+import { formatTimestamp } from "#/lib/format.ts";
+import { emailConfigQuery, meQuery } from "#/lib/queries.ts";
+import type { EmailRule, LoggedActivity, RuleAction, RuleSet } from "#/lib/rules.ts";
 
 export const Route = createFileRoute("/email")({
   loader: async ({ context }) => {
-    const dashboard = await context.queryClient.ensureQueryData(dashboardQuery);
-    if (dashboard.user) await context.queryClient.ensureQueryData(emailConfigQuery);
+    const me = await context.queryClient.ensureQueryData(meQuery);
+    if (me.user) await context.queryClient.ensureQueryData(emailConfigQuery);
   },
   component: EmailPage,
 });
@@ -66,13 +67,14 @@ function actionItems(forwardTargets: readonly string[]): Record<string, string> 
 }
 
 /**
- * Rule saves are scoped: the next ruleset is computed from the freshest cache
- * inside the mutation, and the server's response is patched back into the query
- * cache directly — no full refetch of zones/destinations/activity.
+ * Rule saves are scoped: every instance shares one mutation scope, so saves run one at a time and each computes
+ * the next ruleset from the freshest cache (the previous save's response) instead of clobbering it. The server's
+ * response is patched back into the query cache directly — no full refetch of zones/destinations/activity.
  */
 function useSaveRules() {
   const queryClient = useQueryClient();
   return useMutation({
+    scope: { id: "email-ruleset" },
     mutationFn: ({ update }: { update: (current: RuleSet) => RuleSet; source: string }) => {
       const config = queryClient.getQueryData(emailConfigQuery.queryKey);
       if (!config) throw new Error("email config not loaded");
@@ -415,7 +417,7 @@ function DestinationsCard({ destinations }: { destinations: DestinationAddress[]
   );
 }
 
-function ActivityCard({ activity }: { activity: readonly ActivityEntry[] }) {
+function ActivityCard({ activity }: { activity: readonly LoggedActivity[] }) {
   const queryClient = useQueryClient();
   const clear = useMutation({
     mutationFn: () => clearActivity(),
@@ -460,7 +462,7 @@ function ActivityCard({ activity }: { activity: readonly ActivityEntry[] }) {
             </TableHeader>
             <TableBody>
               {activity.map((entry) => (
-                <TableRow key={`${entry.ts}-${entry.to}-${entry.from}`}>
+                <TableRow key={entry.id}>
                   <TableCell className="text-muted-foreground font-mono text-xs">{formatTimestamp(entry.ts)}</TableCell>
                   <TableCell className="max-w-52 truncate font-mono text-xs">{entry.from}</TableCell>
                   <TableCell className="max-w-52 truncate font-mono text-xs">{entry.to}</TableCell>
@@ -487,8 +489,8 @@ function ActivityCard({ activity }: { activity: readonly ActivityEntry[] }) {
 }
 
 function EmailPage() {
-  const { data: dashboard } = useSuspenseQuery(dashboardQuery);
-  if (!dashboard.user) return <SignedOut denied={dashboard.denied} />;
+  const { data: me } = useSuspenseQuery(meQuery);
+  if (!me.user) return <SignedOut denied={me.denied} />;
   return <EmailTool />;
 }
 

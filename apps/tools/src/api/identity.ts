@@ -43,6 +43,14 @@ export const currentIdentity = Effect.gen(function* () {
   );
 });
 
+/** Who is looking: `login` is the allow-listed owner identity if any; `signedIn` covers any valid session */
+export type Viewer = { signedIn: boolean; login: string | undefined };
+
+export const currentViewer = Effect.map(currentIdentity, (identity): Viewer => ({
+  signedIn: identity !== undefined,
+  login: identity?.allowed ? identity.login : undefined,
+}));
+
 export const apiUser = Effect.gen(function* () {
   const env = yield* WorkerEnv;
   const request = yield* HttpServerRequest.HttpServerRequest;

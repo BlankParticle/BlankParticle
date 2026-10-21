@@ -10,7 +10,9 @@ import {
   HttpServerResponse,
 } from "effect/http";
 import * as Schema from "effect/Schema";
+import { base64url } from "jose";
 
+import { isLoopback } from "#/api/host.ts";
 import { isSafeNext } from "#/api/spec.ts";
 import { database } from "#/db/index.ts";
 import { pendingLogins } from "#/db/schema.ts";
@@ -18,19 +20,13 @@ import { WorkerEnv } from "#/lib/env.ts";
 
 const Tokens = Schema.Struct({ id_token: Schema.String, expires_in: Schema.Number });
 const random = () => crypto.randomUUID().replaceAll("-", "");
-const base64url = (bytes: Uint8Array<ArrayBuffer> | ArrayBuffer) =>
-  btoa(String.fromCharCode(...(bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes))))
-    .replaceAll("+", "-")
-    .replaceAll("/", "_")
-    .replaceAll("=", "");
 
 /**
  * In prod the cookie is shared across the tools/files/sites subdomains via `Domain=.<root>`.
  * A browser on loopback (`alchemy dev`) rejects that domain, so there it is host-only and plain http.
  */
 const cookie = (request: HttpServerRequest.HttpServerRequest, domain: string, value: string, maxAge: number) => {
-  const host = new URL(request.originalUrl).hostname;
-  const loopback = host === "localhost" || host === "127.0.0.1" || host.endsWith(".localhost");
+  const loopback = isLoopback(new URL(request.originalUrl).hostname);
   return [
     `bp_auth=${value}`,
     ...(loopback ? [] : [`Domain=.${domain}`, "Secure"]),
@@ -49,9 +45,9 @@ const Login = HttpRouter.add(
   Effect.gen(function* () {
     const env = yield* WorkerEnv;
     const request = yield* HttpServerRequest.HttpServerRequest;
-    const verifier = base64url(crypto.getRandomValues(new Uint8Array(32)));
-    const challenge = base64url(
-      yield* Effect.promise(() => crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier))),
+    const verifier = base64url.encode(crypto.getRandomValues(new Uint8Array(32)));
+    const challenge = base64url.encode(
+      new Uint8Array(yield* Effect.promise(() => crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)))),
     );
     const state = random();
     const callback = `${new URL(request.originalUrl).origin}/auth/callback`;

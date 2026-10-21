@@ -1,6 +1,7 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import * as Effect from "effect/Effect";
 
+import { badRequest, forbidden, noSuchSite } from "../api/errors.ts";
 import type { Site, SiteFile, Visibility } from "../api/spec.ts";
 import { query } from "../db/index.ts";
 import { siteFiles, sites, type SiteRow } from "../db/schema.ts";
@@ -8,13 +9,14 @@ import { WorkerEnv } from "./env.ts";
 
 /**
  * Sites and their file index live in D1; the bytes stay in KV:
- *   file:<slug>/<path>   raw bytes, metadata { type, size, etag } so serving is one KV read
- * Markdown is rendered on demand from its source (see `serve.ts`), nothing derived is stored.
+ *   file:<slug>/<path>   raw bytes, metadata { type, size, etag } mirroring the index row
+ * Serving resolves the path against the index, then reads the bytes once. Markdown is rendered on demand from
+ * its source (see `serve.ts`), nothing derived is stored.
  */
 
 const MAX_PATH_LENGTH = 512;
 
-export const filePrefix = (slug: string) => `file:${slug}/`;
+const filePrefix = (slug: string) => `file:${slug}/`;
 const fileKey = (slug: string, path: string) => `${filePrefix(slug)}${path}`;
 
 export type FileMeta = { type: string; size: number; etag: string };
@@ -28,7 +30,7 @@ const toSite = (env: { ORIGINS: { sites: string } }, row: SiteRow): Site => ({
 const kv = Effect.map(WorkerEnv, (env) => env.KV);
 
 /** Every key under `prefix`, following pagination */
-export const listKeys = (prefix: string) =>
+const listKeys = (prefix: string) =>
   Effect.flatMap(kv, (store) =>
     Effect.promise(async () => {
       const names: string[] = [];
@@ -46,9 +48,8 @@ export const listKeys = (prefix: string) =>
 const storedPaths = (slug: string) =>
   Effect.map(listKeys(filePrefix(slug)), (names) => names.map((name) => name.slice(filePrefix(slug).length)));
 
-export const sha256 = (data: Uint8Array | string) =>
+const sha256 = (bytes: Uint8Array) =>
   Effect.promise(async () => {
-    const bytes = typeof data === "string" ? new TextEncoder().encode(data) : data;
     const digest = await crypto.subtle.digest("SHA-256", bytes as BufferSource);
     return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
   });
@@ -69,6 +70,12 @@ export const normalizePath = (input: string): string | null => {
   return path.length > MAX_PATH_LENGTH ? null : path;
 };
 
+/** `normalizePath` for a client-supplied path, or a 400 */
+export const pathFrom = (path: string) => {
+  const normalized = normalizePath(path);
+  return normalized === null ? Effect.fail(badRequest("invalid file path")) : Effect.succeed(normalized);
+};
+
 // ─── Sites ──────────────────────────────────────────────────────────
 
 export const getSite = (slug: string) =>
@@ -76,6 +83,22 @@ export const getSite = (slug: string) =>
     const env = yield* WorkerEnv;
     const row = yield* query((d) => d.select().from(sites).where(eq(sites.slug, slug)).get());
     return row === undefined ? null : toSite(env, row);
+  });
+
+/** Public sites are readable by any signed-in user of the API; private ones only by their owner */
+export const readableSite = (slug: string, login: string) =>
+  Effect.gen(function* () {
+    const site = yield* getSite(slug);
+    if (site === null || (site.visibility === "private" && site.owner !== login)) return yield* noSuchSite;
+    return site;
+  });
+
+export const ownedSite = (slug: string, login: string) =>
+  Effect.gen(function* () {
+    const site = yield* getSite(slug);
+    if (site === null) return yield* noSuchSite;
+    if (site.owner !== login) return yield* forbidden("site");
+    return site;
   });
 
 export const listSites = (owner: string) =>
@@ -103,14 +126,8 @@ export const saveSite = (existing: Site | null, slug: string, owner: string, vis
     return toSite(env, row);
   });
 
-export const touchSite = (site: Site) =>
-  Effect.gen(function* () {
-    const env = yield* WorkerEnv;
-    const row = yield* query((d) =>
-      d.update(sites).set({ updatedAt: Date.now() }).where(eq(sites.slug, site.slug)).returning().get(),
-    );
-    return toSite(env, row ?? { ...site, updatedAt: Date.now() });
-  });
+export const touchSite = (slug: string) =>
+  query((d) => d.update(sites).set({ updatedAt: Date.now() }).where(eq(sites.slug, slug)));
 
 const removeKeys = (keys: ReadonlyArray<string>) =>
   Effect.flatMap(kv, (store) =>
@@ -163,6 +180,19 @@ export const putFile = (slug: string, path: string, bytes: Uint8Array, type: str
   });
 
 export const getFile = (slug: string, path: string) => read(fileKey(slug, path));
+
+/** Just the bytes, for when the index row already says what they are */
+export const readBytes = (slug: string, path: string) =>
+  Effect.flatMap(kv, (store) => Effect.promise(() => store.get(fileKey(slug, path), "arrayBuffer")));
+
+/** The indexed files among `paths` (at most a handful: one D1 query instead of a KV read per candidate) */
+export const indexedFiles = (slug: string, paths: ReadonlyArray<string>) =>
+  query((d) =>
+    d
+      .select({ path: siteFiles.path, type: siteFiles.type, etag: siteFiles.etag })
+      .from(siteFiles)
+      .where(and(eq(siteFiles.siteSlug, slug), inArray(siteFiles.path, [...paths]))),
+  );
 
 export const listFiles = (slug: string) =>
   query((d) =>

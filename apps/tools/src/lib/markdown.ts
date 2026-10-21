@@ -16,10 +16,8 @@ import { createThemeRule, themeTokenClasses } from "@tanstack/highlight/theme";
 import { githubLightTheme } from "@tanstack/highlight/themes/github-light";
 import { renderHtml } from "@tanstack/markdown/html";
 
+import { escapeHtml } from "./not-found.ts";
 import { FONT_LINKS, TOKENS } from "./page-style.ts";
-
-const escapeHtml = (text: string) =>
-  text.replace(/[&<>"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[char] ?? char);
 
 const titleOf = (source: string, fallback: string) => {
   const heading = source.match(/^#\s+(.+?)\s*#*\s*$/m);

@@ -7,9 +7,12 @@
  * - `private`: the site is private and you are not signed in — a button starts sign-in, nothing redirects by itself
  */
 
+import * as Effect from "effect/Effect";
+
+import { WorkerEnv } from "./env.ts";
 import { FONT_LINKS, TOKENS } from "./page-style.ts";
 
-const escapeHtml = (text: string) =>
+export const escapeHtml = (text: string) =>
   text.replace(/[&<>"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[char] ?? char);
 
 const STYLE = `${TOKENS}
@@ -76,11 +79,9 @@ ${options.body}
   });
 }
 
-export { escapeHtml };
+type SitePageKind = "site" | "page" | "public-page" | "private" | "files";
 
-export type SitePageKind = "site" | "page" | "public-page" | "private" | "files";
-
-export function sitePage(options: {
+function sitePage(options: {
   host: string;
   kind: SitePageKind;
   toolsOrigin: string;
@@ -159,3 +160,17 @@ export function sitePage(options: {
 <div class="actions reveal d2">${v.actions}</div>`,
   });
 }
+
+/** The interstitial for the request's host; `private` carries the sign-in link (the button navigates, we never redirect) */
+export const interstitial = (request: Request, kind: SitePageKind) =>
+  Effect.map(WorkerEnv, (env) => {
+    const signIn = new URL(`https://${env.ORIGINS.tools}/auth/login`);
+    signIn.searchParams.set("return_to", request.url);
+    return sitePage({
+      host: new URL(request.url).host,
+      kind,
+      toolsOrigin: env.ORIGINS.tools,
+      rootDomain: env.ROOT_DOMAIN,
+      signInUrl: signIn.toString(),
+    });
+  });

@@ -13,7 +13,13 @@ function FieldErrors({ errors }: { errors: ReadonlyArray<unknown> }) {
   return (
     <p className="text-destructive text-xs font-medium">
       {errors
-        .map((error) => (typeof error === "string" ? error : ((error as { message?: string })?.message ?? "")))
+        .map((error) =>
+          typeof error === "string"
+            ? error
+            : typeof error === "object" && error !== null && "message" in error && typeof error.message === "string"
+              ? error.message
+              : "",
+        )
         .join(", ")}
     </p>
   );

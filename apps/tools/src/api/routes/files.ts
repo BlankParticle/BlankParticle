@@ -4,9 +4,9 @@ import * as Schema from "effect/Schema";
 
 import { WorkerEnv } from "#/lib/env.ts";
 import * as files from "#/lib/files.ts";
-import { normalizePath } from "#/lib/store.ts";
+import { pathFrom } from "#/lib/store.ts";
 
-import { ApiError, badRequest, forbidden, noSuchShare, respond } from "../errors.ts";
+import { ApiError, badRequest, noSuchFile, noSuchShare, respond } from "../errors.ts";
 import { apiUser } from "../identity.ts";
 import {
   DEFAULT_FILE_TTL_SECONDS,
@@ -31,11 +31,6 @@ const Manifest = Schema.Struct({
   visibility: Schema.optional(Visibility),
 });
 
-const pathFrom = (path: string) => {
-  const normalized = normalizePath(path);
-  return normalized === null ? Effect.fail(badRequest("invalid file path")) : Effect.succeed(normalized);
-};
-
 const ttlSeconds = (ttl: "never" | number | undefined): Effect.Effect<number | null, ApiError> => {
   if (ttl === undefined) return Effect.succeed(DEFAULT_FILE_TTL_SECONDS);
   if (ttl === "never") return Effect.succeed(null);
@@ -46,7 +41,7 @@ const ttlSeconds = (ttl: "never" | number | undefined): Effect.Effect<number | n
 
 const readableShare = (id: string, user: User) =>
   Effect.gen(function* () {
-    const list = yield* files.findFile(id);
+    const list = yield* files.uploadedFiles(id);
     const owner = list[0]?.owner;
     if (owner === undefined || (list[0]?.visibility === "private" && owner !== user.login)) return yield* noSuchShare;
     return list;
@@ -104,11 +99,17 @@ const Upload = HttpRouter.add(
       const request = yield* HttpServerRequest.HttpServerRequest;
       const { id } = yield* HttpRouter.schemaPathParams(ShareParam);
       const query = yield* HttpServerRequest.schemaSearchParams(NameQuery);
-      const bytes = new Uint8Array(yield* request.arrayBuffer);
-      if (bytes.byteLength > MAX_FILE_BYTES)
+      const { body } = yield* HttpServerRequest.toWeb(request);
+      // the body streams into R2, so its size has to be known up front (no body at all is an empty file)
+      const length = request.headers["content-length"];
+      const size = length === undefined && body === null ? 0 : Number(length);
+      if (!Number.isSafeInteger(size) || size < 0) return yield* badRequest("content-length is required");
+      if (size > MAX_FILE_BYTES)
         return yield* badRequest(`file is over ${MiB(MAX_FILE_BYTES)}, the most one upload request can carry`);
       const name = yield* pathFrom(query.name);
-      const record = yield* files.uploadFile(user.login, id, name, bytes).pipe(
+      // a fixed-length stream is what R2 needs to accept a stream, and it fails the write if the body runs short or long
+      const bytes = body === null ? null : body.pipeThrough(new FixedLengthStream(size));
+      const record = yield* files.uploadFile(user.login, id, name, bytes, size).pipe(
         Effect.catchTag("NoSuchShare", () => noSuchShare),
         Effect.catchTag("NotInManifest", () =>
           badRequest(`"${name}" does not match the manifest (hash differs); send the manifest again`),
@@ -141,15 +142,12 @@ const Download = HttpRouter.add(
       const query = yield* HttpServerRequest.schemaSearchParams(NameQuery);
       const list = yield* readableShare(id, user);
       const name = yield* pathFrom(query.name);
-      const found = list.some((file) => file.name === name) ? yield* files.getFile(id, name) : null;
-      if (found === null) return yield* new ApiError({ status: 404, message: "no such file" });
+      const file = list.find((candidate) => candidate.name === name);
+      const object = file === undefined ? null : yield* files.openFile(file);
+      if (file === undefined || object === null) return yield* noSuchFile;
       return HttpServerResponse.fromWeb(
-        new Response(found.object.body, {
-          headers: {
-            "content-type": found.record.type,
-            "content-length": String(found.object.size),
-            etag: found.object.httpEtag,
-          },
+        new Response(object.body, {
+          headers: { "content-type": file.type, "content-length": String(object.size), etag: object.httpEtag },
         }),
       );
     }),
@@ -163,9 +161,7 @@ const Delete = HttpRouter.add(
     Effect.gen(function* () {
       const user = yield* apiUser;
       const { id } = yield* HttpRouter.schemaPathParams(ShareParam);
-      const owner = yield* files.ownerOf(id);
-      if (owner === null) return yield* noSuchShare;
-      if (owner !== user.login) return yield* forbidden;
+      yield* files.ownedShare(id, user.login);
       yield* files.deleteFile(id);
       return HttpServerResponse.empty();
     }),

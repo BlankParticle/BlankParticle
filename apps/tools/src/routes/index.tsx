@@ -2,8 +2,7 @@ import { CodeBlock } from "@blankparticle/ui/components/code-block.tsx";
 import { ConfirmDialog } from "@blankparticle/ui/components/confirm-dialog.tsx";
 import { EmptyState } from "@blankparticle/ui/components/empty-state.tsx";
 import { PageHeader } from "@blankparticle/ui/components/page-header.tsx";
-import { ArrowSquareOutIcon, GlobeIcon, LockSimpleIcon, SpinnerGapIcon, TrashIcon } from "@blankparticle/ui/icons";
-import { Badge } from "@blankparticle/ui/primitives/badge.tsx";
+import { ArrowSquareOutIcon, GlobeIcon, SpinnerGapIcon, TrashIcon } from "@blankparticle/ui/icons";
 import { Button } from "@blankparticle/ui/primitives/button.tsx";
 import { Card, CardContent } from "@blankparticle/ui/primitives/card.tsx";
 import { Switch } from "@blankparticle/ui/primitives/switch.tsx";
@@ -12,25 +11,23 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { createFileRoute } from "@tanstack/react-router";
 
 import type { Site } from "#/api/spec.ts";
-import { formatTimestamp, SignedOut } from "#/components/signed-out.tsx";
-import { dashboardQuery } from "#/lib/queries.ts";
+import { SignedOut } from "#/components/signed-out.tsx";
+import { VisibilityBadge } from "#/components/visibility-badge.tsx";
+import { formatTimestamp } from "#/lib/format.ts";
+import { meQuery, sitesQuery } from "#/lib/queries.ts";
 import { removeSite, setSiteVisibility } from "#/lib/server-fns.ts";
 
-export const Route = createFileRoute("/")({ component: SitesPage });
-
-export function VisibilityBadge({ visibility }: { visibility: "public" | "private" }) {
-  return visibility === "private" ? (
-    <Badge variant="destructive">
-      <LockSimpleIcon /> private
-    </Badge>
-  ) : (
-    <Badge variant="secondary">public</Badge>
-  );
-}
+export const Route = createFileRoute("/")({
+  loader: async ({ context }) => {
+    const me = await context.queryClient.ensureQueryData(meQuery);
+    if (me.user) await context.queryClient.ensureQueryData(sitesQuery);
+  },
+  component: SitesPage,
+});
 
 function SitesTable({ sites }: { sites: readonly Site[] }) {
   const queryClient = useQueryClient();
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: dashboardQuery.queryKey });
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: sitesQuery.queryKey });
 
   const visibility = useMutation({
     mutationFn: (site: Site) =>
@@ -112,9 +109,13 @@ function SitesTable({ sites }: { sites: readonly Site[] }) {
 }
 
 function SitesPage() {
-  const { data } = useSuspenseQuery(dashboardQuery);
-  if (!data.user) return <SignedOut denied={data.denied} />;
+  const { data: me } = useSuspenseQuery(meQuery);
+  if (!me.user) return <SignedOut denied={me.denied} />;
+  return <Sites />;
+}
 
+function Sites() {
+  const { data: sites } = useSuspenseQuery(sitesQuery);
   return (
     <>
       <PageHeader
@@ -123,7 +124,7 @@ function SitesPage() {
       />
       <Card>
         <CardContent>
-          {data.sites.length === 0 ? (
+          {sites.length === 0 ? (
             <EmptyState
               icon={<GlobeIcon />}
               title="No sites yet"
@@ -132,7 +133,7 @@ function SitesPage() {
               <CodeBlock lines={["bp site upload ./dist --slug my-site"]} className="text-left" />
             </EmptyState>
           ) : (
-            <SitesTable sites={data.sites} />
+            <SitesTable sites={sites} />
           )}
         </CardContent>
       </Card>

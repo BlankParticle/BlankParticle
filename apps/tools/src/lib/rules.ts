@@ -1,7 +1,7 @@
 import { desc, notInArray } from "drizzle-orm";
 import * as Schema from "effect/Schema";
 
-import type { Database } from "../db/index.ts";
+import { rowChunks, runBatch, type Database } from "../db/index.ts";
 import {
   emailActivity,
   emailZoneDefaults,
@@ -44,8 +44,8 @@ export type ActivityEntry = {
   forwardedTo?: string;
   ruleId?: string;
 };
-
-export const EMPTY_RULE_SET: RuleSet = { rules: [], defaults: {} };
+/** An entry as read back, with its row id */
+export type LoggedActivity = ActivityEntry & { id: number };
 
 export type Verdict = { action: RuleAction; rule?: EmailRule };
 
@@ -83,28 +83,28 @@ export async function readRuleSet(db: Database): Promise<RuleSet> {
   return { rules: rules.map(toRule), defaults: Object.fromEntries(defaults.map((row) => [row.zone, toAction(row)])) };
 }
 
-/** Replaces the whole ruleset; the UI edits and saves it as one document */
+/** Replaces the whole ruleset in one atomic batch; the UI edits and saves it as one document */
 export async function writeRuleSet(db: Database, ruleSet: RuleSet) {
-  await db.delete(emailRules);
-  await db.delete(emailZoneDefaults);
-  if (ruleSet.rules.length > 0)
-    await db.insert(emailRules).values(
-      ruleSet.rules.map((rule, position) => ({
-        id: rule.id,
-        zone: rule.zone,
-        address: rule.address,
-        ...fromAction(rule.action),
-        enabled: rule.enabled,
-        note: rule.note ?? null,
-        position,
-      })),
-    );
-  const defaults = Object.entries(ruleSet.defaults);
-  if (defaults.length > 0)
-    await db.insert(emailZoneDefaults).values(defaults.map(([zone, action]) => ({ zone, ...fromAction(action) })));
+  const rules = ruleSet.rules.map((rule, position) => ({
+    id: rule.id,
+    zone: rule.zone,
+    address: rule.address,
+    ...fromAction(rule.action),
+    enabled: rule.enabled,
+    note: rule.note ?? null,
+    position,
+  }));
+  const defaults = Object.entries(ruleSet.defaults).map(([zone, action]) => ({ zone, ...fromAction(action) }));
+  await runBatch(db, [
+    db.delete(emailRules),
+    db.delete(emailZoneDefaults),
+    ...rowChunks(rules, 8).map((chunk) => db.insert(emailRules).values(chunk)),
+    ...rowChunks(defaults, 3).map((chunk) => db.insert(emailZoneDefaults).values(chunk)),
+  ]);
 }
 
-const toEntry = (row: EmailActivityRow): ActivityEntry => ({
+const toEntry = (row: EmailActivityRow): LoggedActivity => ({
+  id: row.id,
   ts: row.receivedAt,
   from: row.from,
   to: row.to,
@@ -114,7 +114,7 @@ const toEntry = (row: EmailActivityRow): ActivityEntry => ({
   ...(row.ruleId !== null && { ruleId: row.ruleId }),
 });
 
-export async function readActivity(db: Database): Promise<ActivityEntry[]> {
+export async function readActivity(db: Database): Promise<LoggedActivity[]> {
   const rows = await db.select().from(emailActivity).orderBy(desc(emailActivity.receivedAt)).limit(ACTIVITY_LOG_LIMIT);
   return rows.map(toEntry);
 }

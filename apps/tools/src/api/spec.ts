@@ -3,7 +3,7 @@ import * as Schema from "effect/Schema";
 /** Shared constants and schemas for the worker and the `bp` CLI. Runtime-safe, no worker imports. */
 
 /** A site slug is the subdomain label of `<slug>.sites.<root>`: a DNS label, lowercase, no leading dash */
-export const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{0,62}$/;
+const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{0,62}$/;
 export const isValidSlug = (slug: string) => SLUG_PATTERN.test(slug) && !slug.endsWith("-");
 
 /** Post-login redirect targets: same-site paths, or absolute URLs on our own domains (dev: localhost) */
@@ -35,14 +35,13 @@ export const User = Schema.Struct({ login: Schema.String });
 export type User = typeof User.Type;
 
 /** What's persisted in D1 */
-export const SiteRecord = Schema.Struct({
+const SiteRecord = Schema.Struct({
   slug: Schema.String,
   owner: Schema.String,
   visibility: Visibility,
   createdAt: Schema.Number,
   updatedAt: Schema.Number,
 });
-export type SiteRecord = typeof SiteRecord.Type;
 
 /** What the API returns: the record plus where it's served */
 export const Site = Schema.Struct({ ...SiteRecord.fields, url: Schema.String });

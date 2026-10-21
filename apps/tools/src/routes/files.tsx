@@ -10,13 +10,19 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { createFileRoute } from "@tanstack/react-router";
 
 import { isBundleId, type SharedFile } from "#/api/spec.ts";
-import { formatBytes, formatTimestamp, SignedOut } from "#/components/signed-out.tsx";
-import { dashboardQuery } from "#/lib/queries.ts";
+import { SignedOut } from "#/components/signed-out.tsx";
+import { VisibilityBadge } from "#/components/visibility-badge.tsx";
+import { formatBytes, formatTimestamp } from "#/lib/format.ts";
+import { filesQuery, meQuery } from "#/lib/queries.ts";
 import { removeFile } from "#/lib/server-fns.ts";
 
-import { VisibilityBadge } from "./index.tsx";
-
-export const Route = createFileRoute("/files")({ component: FilesPage });
+export const Route = createFileRoute("/files")({
+  loader: async ({ context }) => {
+    const me = await context.queryClient.ensureQueryData(meQuery);
+    if (me.user) await context.queryClient.ensureQueryData(filesQuery);
+  },
+  component: FilesPage,
+});
 
 /** A drop is every file sharing an id; a multi-file drop is shown as a folder with its `/<id>/` listing link */
 type Bundle = {
@@ -29,28 +35,34 @@ type Bundle = {
 };
 
 function bundlesOf(files: readonly SharedFile[]): Bundle[] {
-  const byId = new Map<string, SharedFile[]>();
-  for (const file of files) byId.set(file.id, [...(byId.get(file.id) ?? []), file]);
-  return [...byId.entries()].map(([id, members]) => {
-    const first = members[0]!;
-    const url = new URL(first.url);
-    url.pathname = url.pathname.slice(0, url.pathname.indexOf(id) + id.length + 1);
-    return {
-      id,
-      files: members,
+  const byId = new Map<string, Bundle>();
+  for (const file of files) {
+    const bundle = byId.get(file.id);
+    if (bundle !== undefined) {
+      bundle.files.push(file);
+      bundle.size += file.size;
+      continue;
+    }
+    // the folder link is the file's URL cut after `/<id>/`
+    const url = new URL(file.url);
+    url.pathname = url.pathname.slice(0, url.pathname.indexOf(file.id) + file.id.length + 1);
+    byId.set(file.id, {
+      id: file.id,
+      files: [file],
       url: url.toString(),
-      size: members.reduce((sum, file) => sum + file.size, 0),
-      visibility: first.visibility,
-      expiresAt: first.expiresAt,
-    };
-  });
+      size: file.size,
+      visibility: file.visibility,
+      expiresAt: file.expiresAt,
+    });
+  }
+  return [...byId.values()];
 }
 
 function FilesTable({ files }: { files: readonly SharedFile[] }) {
   const queryClient = useQueryClient();
   const remove = useMutation({
     mutationFn: (id: string) => removeFile({ data: { id } }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: dashboardQuery.queryKey }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: filesQuery.queryKey }),
   });
 
   return (
@@ -139,13 +151,14 @@ function FilesTable({ files }: { files: readonly SharedFile[] }) {
 }
 
 function FilesPage() {
-  const { data } = useSuspenseQuery({
-    ...dashboardQuery,
-    refetchInterval: 3_000,
-    refetchOnWindowFocus: "always",
-  });
-  if (!data.user) return <SignedOut denied={data.denied} />;
+  const { data: me } = useSuspenseQuery(meQuery);
+  if (!me.user) return <SignedOut denied={me.denied} />;
+  return <Files />;
+}
 
+function Files() {
+  // uploads from the CLI land while this is open; a slow poll picks them up
+  const { data: files } = useSuspenseQuery({ ...filesQuery, refetchInterval: 15_000, refetchOnWindowFocus: "always" });
   return (
     <>
       <PageHeader
@@ -154,7 +167,7 @@ function FilesPage() {
       />
       <Card>
         <CardContent>
-          {data.files.length === 0 ? (
+          {files.length === 0 ? (
             <EmptyState
               icon={<FileIcon />}
               title="No files yet"
@@ -166,7 +179,7 @@ function FilesPage() {
               />
             </EmptyState>
           ) : (
-            <FilesTable files={data.files} />
+            <FilesTable files={files} />
           )}
         </CardContent>
       </Card>
