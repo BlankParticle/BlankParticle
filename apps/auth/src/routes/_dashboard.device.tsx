@@ -24,27 +24,23 @@ function DevicePage() {
   const [state, setState] = useState<State>({ step: "enter", code: "" });
   const [busy, setBusy] = useState(false);
 
-  const lookup = async (code: string) => {
+  const lookup = (code: string) => {
     setBusy(true);
-    try {
-      const request = await lookupDeviceCode({ data: { code } });
-      setState(
-        request === null
-          ? { step: "enter", code, error: "That code isn't right, or it has expired." }
-          : { step: "confirm", code, request },
-      );
-    } finally {
-      setBusy(false);
-    }
+    return lookupDeviceCode({ data: { code } })
+      .then((request) =>
+        setState(
+          request === null
+            ? { step: "enter", code, error: "That code isn't right, or it has expired." }
+            : { step: "confirm", code, request },
+        ),
+      )
+      .finally(() => setBusy(false));
   };
-  const decide = async (code: string, request: DeviceRequest, decision: "approved" | "denied") => {
+  const decide = (code: string, request: DeviceRequest, decision: "approved" | "denied") => {
     setBusy(true);
-    try {
-      await decideDevice({ data: { code, decision } });
-      setState({ step: "done", decision, request });
-    } finally {
-      setBusy(false);
-    }
+    return decideDevice({ data: { code, decision } })
+      .then(() => setState({ step: "done", decision, request }))
+      .finally(() => setBusy(false));
   };
 
   if (state.step === "done")

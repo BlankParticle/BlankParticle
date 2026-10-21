@@ -100,14 +100,11 @@ export function ActionButton({ label, action }: { label: string; action: () => P
       variant="ghost"
       size="sm"
       disabled={busy}
-      onClick={async () => {
+      onClick={() => {
         setBusy(true);
-        try {
-          await action();
-          await router.invalidate();
-        } finally {
-          setBusy(false);
-        }
+        return action()
+          .then(() => router.invalidate())
+          .finally(() => setBusy(false));
       }}
     >
       {busy ? <SpinnerGapIcon className="animate-spin" /> : label}
