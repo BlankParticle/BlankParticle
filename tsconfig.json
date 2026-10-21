@@ -1,20 +1,4 @@
 {
-  "include": ["stacks"],
-  "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "lib": ["esnext"],
-    "types": ["node"],
-    "jsx": "react-jsx",
-    "noEmit": true,
-    "strict": true,
-    "alwaysStrict": true,
-    "exactOptionalPropertyTypes": true,
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "verbatimModuleSyntax": true,
-    "allowImportingTsExtensions": true,
-    "allowArbitraryExtensions": true
-  }
+  "extends": "./tsconfig.base.json",
+  "include": ["stacks", "alchemy.run.ts", "apps/static/alchemy.config.ts", "vite.config.ts"]
 }

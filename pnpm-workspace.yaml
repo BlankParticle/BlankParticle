@@ -16,7 +16,7 @@ minimumReleaseAgeExclude:
 catalog:
   "@base-ui/react": "^1.9.0"
   "@cloudflare/workers-types": "^5.20261019.1"
-  "@distilled.cloud/cloudflare": "1.0.0-rc.13"
+  "@distilled.cloud/cloudflare": "1.0.0-rc.15"
   "@effect/platform-node": "^4.0.5"
   "@fontsource-variable/figtree": "^5.3.0"
   "@fontsource-variable/jetbrains-mono": "^5.3.0"
@@ -38,26 +38,19 @@ catalog:
   alchemy: "^2.0.0-beta.83"
   class-variance-authority: "^0.7.1"
   clsx: "^2.1.1"
-  cmdk: "^1.1.1"
-  date-fns: "^4.4.0"
   drizzle-kit: "1.0.0-rc.5-ab785fc"
   drizzle-orm: "1.0.0-rc.5-ab785fc"
   effect: "^4.0.5"
-  embla-carousel-react: "^8.6.0"
   fumadocs-core: "^16.17.7"
   fumadocs-mdx: "^15.4.9"
   input-otp: "^1.5.0"
   jose: "^6.2.13"
   mrmime: "^2.0.1"
-  oxc-transform-react: "^0.145.0"
+  oxc-transform-react: "^0.152.0"
   react: "^19.3.1"
-  react-day-picker: "^10.0.2"
   react-dom: "^19.3.1"
-  react-resizable-panels: "^4.14.7"
-  recharts: "3.8.0"
   rehype-autolink-headings: "^7.1.0"
   rehype-external-links: "^3.0.0"
-  sonner: "^2.0.8"
   tailwind-merge: "^3.7.0"
   tailwindcss: "^4.3.3"
   takumi-js: "^2.17.1"
@@ -71,11 +64,16 @@ catalogMode: "prefer"
 catalogPrune: true
 
 overrides:
+  # @prisma/dev (via alchemy) pins hono 4.11.4 and @hono/node-server 1.19.9, both with published advisories
   "hono": "^4.13.13"
   "@hono/node-server": "2.0.12"
+  # chevrotain (via @prisma/dev) pins lodash 4.17.21, which has code injection and prototype pollution advisories
   "lodash": "4.18.1"
+  # capnp-es only declares typescript ^5 || ^6 as an optional peer; reuse the workspace's TypeScript 7
   "capnp-es>typescript": "^7.0.2"
-  vite@*: "catalog:"
+  # every vite in the graph is vite-plus-core; overrides do not reach auto-installed peers, so packages that
+  # depend on alchemy (optional vite peer) also declare vite, or pnpm installs a second, real vite + rolldown
+  vite: "catalog:"
 
 blockExoticSubdeps: false
 
@@ -85,8 +83,7 @@ packageExtensions:
     peerDependencies:
       drizzle-orm: "*"
 
+# vite-plus-core is versioned 1.x, outside the vite ^7 || ^8 range plugins declare
 peerDependencyRules:
   allowAny:
     - vite
-  allowedVersions:
-    vite: "*"

@@ -7,7 +7,18 @@
     "./alchemy": "./src/alchemy.ts",
     "./vite": "./src/vite.ts"
   },
-  "dependencies": {
+  "scripts": {
+    "typecheck": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "alchemy": "catalog:",
+    "effect": "catalog:",
+    "typescript": "catalog:",
     "vite": "catalog:"
+  },
+  "peerDependencies": {
+    "alchemy": "catalog:",
+    "effect": "catalog:"
   }
 }

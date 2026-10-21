@@ -4,6 +4,14 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+# never cancel a deploy midway, queue the next one behind it
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -12,6 +20,15 @@ jobs:
       - uses: voidzero-dev/setup-vp@v1.21.2
         with:
           cache: true
+      # www imports its content collections from the gitignored .source folder
+      - name: Generate content collections
+        run: vp exec -F @blankparticle/www fumadocs-mdx
+      - name: Typecheck
+        run: vpr typecheck
+      - name: Lint
+        run: vp lint
+      - name: Format
+        run: vp fmt --check
       - name: Deploy
         run: vpr deploy --stage prod --yes
         env:
@@ -20,4 +37,3 @@ jobs:
           CLOUDFLARE_ACCOUNT_EMAIL: ${{ secrets.CLOUDFLARE_ACCOUNT_EMAIL }}
           GITHUB_CLIENT_ID: ${{ secrets.GH_CLIENT_ID }}
           GITHUB_CLIENT_SECRET: ${{ secrets.GH_CLIENT_SECRET }}
-          GITHUB_CI_COMMIT_SHA: ${{ github.sha }}

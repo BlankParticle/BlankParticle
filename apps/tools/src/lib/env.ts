@@ -4,6 +4,7 @@ import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import type * as HttpClient from "effect/http/HttpClient";
 import * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
+import * as Redacted from "effect/Redacted";
 
 import type { ToolsAppEnv } from "../../alchemy.config.ts";
 
@@ -11,10 +12,14 @@ import type { ToolsAppEnv } from "../../alchemy.config.ts";
 export class WorkerEnv extends Context.Service<WorkerEnv, ToolsAppEnv>()("tools/WorkerEnv") {}
 
 export type WorkerServices = WorkerEnv | HttpClient.HttpClient | Credentials;
-export type WorkerRuntime = ManagedRuntime.ManagedRuntime<WorkerServices, never>;
+type WorkerRuntime = ManagedRuntime.ManagedRuntime<WorkerServices, never>;
 
-export const workerLayer = (env: ToolsAppEnv) =>
-  Layer.mergeAll(Layer.succeed(WorkerEnv, env), FetchHttpClient.layer, fromApiToken({ apiToken: env.CF_API_TOKEN }));
+const workerLayer = (env: ToolsAppEnv) =>
+  Layer.mergeAll(
+    Layer.succeed(WorkerEnv, env),
+    FetchHttpClient.layer,
+    fromApiToken({ apiToken: Redacted.make(env.CF_API_TOKEN) }),
+  );
 
 let cached: { env: ToolsAppEnv; runtime: WorkerRuntime } | undefined;
 

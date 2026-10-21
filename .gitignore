@@ -2,9 +2,7 @@ node_modules
 
 # Output
 .output
-.vercel
 build
-.build
 dist
 .wrangler
 .tanstack
@@ -22,8 +20,6 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
-
-worker-configuration.d.ts
 
 .source
 .alchemy

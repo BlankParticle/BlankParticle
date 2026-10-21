@@ -8,9 +8,7 @@
   },
   "scripts": {
     "build": "vp build",
-    "typecheck": "tsc",
-    "format": "vpr -w format",
-    "lint": "vpr -w lint"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@blankparticle/ui": "workspace:*",
@@ -20,9 +18,7 @@
     "fumadocs-core": "catalog:",
     "fumadocs-mdx": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:",
-    "rehype-autolink-headings": "catalog:",
-    "rehype-external-links": "catalog:"
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
@@ -36,6 +32,8 @@
     "alchemy": "catalog:",
     "effect": "catalog:",
     "oxc-transform-react": "catalog:",
+    "rehype-autolink-headings": "catalog:",
+    "rehype-external-links": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
   }

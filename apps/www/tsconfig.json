@@ -1,6 +1,6 @@
 {
-  "extends": "../../tsconfig.json",
-  "include": ["src", "src/**/*.mdx", "alchemy.config.ts", "vite.config.ts"],
+  "extends": "../../tsconfig.base.json",
+  "include": ["src", "alchemy.config.ts", "vite.config.ts"],
   "compilerOptions": {
     "lib": ["esnext", "dom", "dom.iterable"],
     "types": ["node", "vite/client", "@cloudflare/workers-types"]

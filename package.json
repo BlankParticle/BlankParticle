@@ -12,7 +12,7 @@
     "lint": "vp lint",
     "lint:fix": "vp lint --fix",
     "deps": "vpx taze -r -w -I",
-    "typecheck": "vpr -r typecheck"
+    "typecheck": "tsc && vpr -r typecheck"
   },
   "devDependencies": {
     "@blankparticle/bp": "workspace:*",

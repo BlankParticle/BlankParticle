@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "include": ["src", "alchemy.config.ts", "vite.config.ts"],
   "compilerOptions": {
     "lib": ["esnext", "dom", "dom.iterable"],

@@ -50,9 +50,8 @@ const BlankParticle = Effect.gen(function* () {
           "Email Routing Addresses Write",
           "Account API Tokens Read",
           "Account API Tokens Write",
-          // The admin app provisions a scoped token that manages account-level Access
-          // applications and policies. These permission names also exist at zone scope,
-          // so use the account-scoped permission-group IDs to avoid ambiguous lookup.
+          // Account-level Access applications and policies; nothing in alchemy.run.ts manages them today.
+          // These permission names also exist at zone scope, so use the account-scoped IDs to avoid ambiguous lookup.
           { id: "7ea222f6d5064cfa89ea366d7c1fee89" }, // Access: Apps and Policies Read
           { id: "1e13c5124ca64b72b1969a67e8829049" }, // Access: Apps and Policies Write
         ],

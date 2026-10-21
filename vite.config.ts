@@ -14,7 +14,7 @@ export default defineConfig({
   lint: {
     plugins: ["typescript", "react"],
     categories: {
-      correctness: "off",
+      correctness: "error",
     },
     env: {
       builtin: true,
@@ -51,34 +51,14 @@ export default defineConfig({
       "react/no-direct-mutation-state": "error",
       "react/rules-of-hooks": "error",
       "react/exhaustive-deps": "warn",
+      "no-var": "error",
+      "prefer-const": "error",
+      "prefer-rest-params": "error",
+      "prefer-spread": "error",
     },
-    overrides: [
-      {
-        files: ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
-        rules: {
-          "constructor-super": "off",
-          "no-class-assign": "off",
-          "no-const-assign": "off",
-          "no-dupe-class-members": "off",
-          "no-dupe-keys": "off",
-          "no-func-assign": "off",
-          "no-import-assign": "off",
-          "no-new-native-nonconstructor": "off",
-          "no-obj-calls": "off",
-          "no-redeclare": "off",
-          "no-setter-return": "off",
-          "no-this-before-super": "off",
-          "no-unsafe-negation": "off",
-          "no-var": "error",
-          "no-with": "off",
-          "prefer-const": "error",
-          "prefer-rest-params": "error",
-          "prefer-spread": "error",
-        },
-      },
-    ],
   },
   staged: {
-    "*": "vpr format && vpr lint:fix",
+    // lint-staged appends the staged paths, so this formats and lint-fixes only those files
+    "*": "vp check --fix",
   },
 });

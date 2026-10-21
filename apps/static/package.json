@@ -5,6 +5,7 @@
   "devDependencies": {
     "@effect/platform-node": "catalog:",
     "alchemy": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "vite": "catalog:"
   }
 }

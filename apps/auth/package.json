@@ -7,9 +7,7 @@
   },
   "scripts": {
     "build": "vp build",
-    "typecheck": "tsc",
-    "format": "vpr -w format",
-    "lint": "vpr -w lint"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@blankparticle/ui": "workspace:*",
@@ -23,7 +21,6 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
-    "@effect/platform-node": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
