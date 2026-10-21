@@ -13,13 +13,10 @@
     "./icons": "./src/lib/icons.ts",
     "./icons-ssr": "./src/lib/icons-ssr.ts",
     "./primitives/*": "./src/primitives/*",
-    "./components/*": "./src/components/*",
-    "./hooks/*": "./src/hooks/*"
+    "./components/*": "./src/components/*"
   },
   "scripts": {
-    "typecheck": "tsc",
-    "format": "vpr -w format",
-    "lint": "vpr -w lint"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@base-ui/react": "catalog:",
@@ -29,14 +26,7 @@
     "@phosphor-icons/react": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
-    "cmdk": "catalog:",
-    "date-fns": "catalog:",
-    "embla-carousel-react": "catalog:",
     "input-otp": "catalog:",
-    "react-day-picker": "catalog:",
-    "react-resizable-panels": "catalog:",
-    "recharts": "catalog:",
-    "sonner": "catalog:",
     "tailwind-merge": "catalog:",
     "tw-animate-css": "catalog:"
   },
