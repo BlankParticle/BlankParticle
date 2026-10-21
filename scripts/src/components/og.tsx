@@ -18,7 +18,7 @@ function OgImage() {
         flexDirection: "column",
         color: themedInk.text,
         backgroundColor: themedInk.paper,
-        fontFamily: "Karla",
+        fontFamily: "Figtree",
       }}
     >
       <div
@@ -52,7 +52,7 @@ function OgImage() {
           <div style={{ fontSize: 30, fontWeight: 700, color: themedInk.muted, letterSpacing: 1 }}>Hello, I'm</div>
           <div
             style={{
-              fontFamily: "Bricolage Grotesque",
+              fontFamily: "Plus Jakarta Sans",
               fontSize: 110,
               fontWeight: 800,
               lineHeight: 0.95,
@@ -66,7 +66,7 @@ function OgImage() {
             <span>also known as</span>
             <span
               style={{
-                backgroundColor: themedInk.lime,
+                backgroundColor: themedInk.highlight,
                 color: themedInk.text,
                 fontWeight: 700,
                 padding: "2px 10px",
@@ -96,7 +96,7 @@ function OgImage() {
               position: "absolute",
               bottom: -18,
               left: 70,
-              backgroundColor: themedInk.lime,
+              backgroundColor: themedInk.highlight,
               border: `4px solid ${themedInk.text}`,
               padding: "4px 14px",
               fontSize: 22,

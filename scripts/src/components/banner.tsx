@@ -52,14 +52,14 @@ function Banner() {
         backgroundColor: themedInk.paper,
         backgroundImage: `url("${noiseDataUrl}")`,
         backgroundSize: `${WIDTH}px ${HEIGHT}px`,
-        fontFamily: "Karla",
+        fontFamily: "Figtree",
       }}
     >
       <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 760 }}>
         <div style={{ fontSize: 26, fontWeight: 700, color: themedInk.muted, letterSpacing: 1 }}>Hello, I'm</div>
         <div
           style={{
-            fontFamily: "Bricolage Grotesque",
+            fontFamily: "Plus Jakarta Sans",
             fontSize: 92,
             fontWeight: 800,
             lineHeight: 0.95,
@@ -73,7 +73,7 @@ function Banner() {
           <span>also known as</span>
           <span
             style={{
-              backgroundColor: themedInk.lime,
+              backgroundColor: themedInk.highlight,
               color: themedInk.text,
               fontWeight: 700,
               padding: "2px 10px",
@@ -84,9 +84,9 @@ function Banner() {
           </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12 }}>
-          <Tag label="TypeScript" color={themedInk.lime} />
+          <Tag label="TypeScript" color={themedInk.highlight} />
           <Tag label="Cloudflare" color="#ffffff" />
-          <Tag label="AI" color={themedInk.lime} />
+          <Tag label="AI" color={themedInk.highlight} />
         </div>
       </div>
 
@@ -107,7 +107,7 @@ function Banner() {
             position: "absolute",
             bottom: -16,
             left: 58,
-            backgroundColor: themedInk.lime,
+            backgroundColor: themedInk.highlight,
             border: `4px solid ${themedInk.text}`,
             padding: "4px 14px",
             fontSize: 20,

@@ -29,19 +29,21 @@ export const scaledDimensions = (
   devicePixelRatio: DEVICE_PIXEL_RATIO,
 });
 
+/** sRGB renderings of the palette in `@blankparticle/ui/setup` (packages/ui/src/styles/styles.css) */
 export const themedInk = {
-  paper: "#f8f9f5",
-  text: "#292333",
-  muted: "#5a5467",
-  violet: "#682dac",
-  orange: "#f3680f",
-  orangeDeep: "#ae3200",
-  lime: "#ccf77a",
+  paper: "#fbfaf6",
+  text: "#1d1b28",
+  muted: "#525060",
+  violet: "#623bab",
+  orange: "#ea6f2f",
+  orangeDeep: "#b13e06",
+  highlight: "#ddf092",
 };
 
+/** The design system's body and display faces */
 export const fonts = await googleFonts([
-  { name: "Karla", weight: [400, 700], style: "normal" },
-  { name: "Bricolage Grotesque", weight: [800], style: "normal" },
+  { name: "Figtree", weight: [400, 700], style: "normal" },
+  { name: "Plus Jakarta Sans", weight: [800], style: "normal" },
 ]);
 
 export const profileImage = await readImage(join(REPO_ROOT, "apps/www/public/me.png"));

@@ -4,16 +4,16 @@
   "type": "module",
   "scripts": {
     "render": "tsx ./src/render.ts",
-    "typecheck": "tsc",
-    "format": "vpr -w format",
-    "lint": "vpr -w lint"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "react": "catalog:",
     "takumi-js": "catalog:"
   },
   "devDependencies": {
+    "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "tsx": "catalog:"
+    "tsx": "catalog:",
+    "typescript": "catalog:"
   }
 }
