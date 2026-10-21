@@ -22,6 +22,24 @@ export const capture = (command: string, args: string[], options: { stderr?: "pi
     }),
   ).pipe(Effect.catch(() => Effect.succeed(null)));
 
+/** Runs a local command with its output piped and returns the exit code with trimmed stdout and stderr. */
+export const run = (command: string, args: string[]) =>
+  Effect.scoped(
+    Effect.gen(function* () {
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      const handle = yield* spawner.spawn(ChildProcess.make(command, args, { stdout: "pipe", stderr: "pipe" }));
+      const [exitCode, stdout, stderr] = yield* Effect.all(
+        [
+          handle.exitCode,
+          Stream.mkString(Stream.decodeText(handle.stdout)),
+          Stream.mkString(Stream.decodeText(handle.stderr)),
+        ],
+        { concurrency: "unbounded" },
+      );
+      return { exitCode: Number(exitCode), stdout: stdout.trim(), stderr: stderr.trim() };
+    }),
+  ).pipe(Effect.mapError((cause) => new UserError({ message: `could not run ${command}: ${cause}` })));
+
 /** Runs a local command with the terminal attached and returns its exit code. */
 export const exec = (command: string, args: string[]) =>
   Effect.scoped(
