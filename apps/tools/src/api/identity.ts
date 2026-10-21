@@ -1,10 +1,11 @@
-import { Effect } from "effect";
+import { Effect, Layer, Redacted } from "effect";
 import { HttpServerRequest } from "effect/http";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 
 import { WorkerEnv } from "#/lib/env.ts";
 
-import { ApiError } from "./errors.ts";
+import type { ToolsAppEnv } from "../../alchemy.config.ts";
+import { Authorization, CurrentUser, Forbidden, NotFound, Unauthorized } from "./spec.ts";
 
 export type AuthUser = { sub: string; login: string; email: string | undefined; allowed: boolean };
 
@@ -15,14 +16,9 @@ const signingKeys = (origin: string) => {
   return jwks.keys;
 };
 
-export const currentIdentity = Effect.gen(function* () {
-  const env = yield* WorkerEnv;
-  const request = yield* HttpServerRequest.HttpServerRequest;
-  const bearer = request.headers.authorization?.match(/^Bearer (.+)$/)?.[1];
-  const token = bearer ?? request.cookies.bp_auth;
-  if (token === undefined) return undefined;
-
-  return yield* Effect.tryPromise(() =>
+/** The identity a session token carries, or undefined unless it is one of ours and still valid */
+const verify = (env: ToolsAppEnv, token: string) =>
+  Effect.tryPromise(() =>
     jwtVerify(token, signingKeys(env.AUTH_ORIGIN), {
       issuer: env.AUTH_ORIGIN,
       audience: `origin:https://${env.ORIGINS.tools}`,
@@ -41,6 +37,13 @@ export const currentIdentity = Effect.gen(function* () {
     }),
     Effect.catch(() => Effect.succeed(undefined)),
   );
+
+export const currentIdentity = Effect.gen(function* () {
+  const env = yield* WorkerEnv;
+  const request = yield* HttpServerRequest.HttpServerRequest;
+  const bearer = request.headers.authorization?.match(/^Bearer (.+)$/)?.[1];
+  const token = bearer ?? request.cookies.bp_auth;
+  return token === undefined ? undefined : yield* verify(env, token);
 });
 
 /** Who is looking: `login` is the allow-listed owner identity if any; `signedIn` covers any valid session */
@@ -51,17 +54,25 @@ export const currentViewer = Effect.map(currentIdentity, (identity): Viewer => (
   login: identity?.allowed ? identity.login : undefined,
 }));
 
-export const apiUser = Effect.gen(function* () {
-  const env = yield* WorkerEnv;
-  const request = yield* HttpServerRequest.HttpServerRequest;
-  if (new URL(request.originalUrl).hostname !== env.ORIGINS.tools)
-    return yield* new ApiError({ status: 404, message: "not found" });
-  const identity = yield* currentIdentity;
-  if (identity === undefined) return yield* new ApiError({ status: 401, message: "unauthorized" });
-  if (!identity.allowed)
-    return yield* new ApiError({
-      status: 403,
-      message: `forbidden: ${identity.email ?? identity.login} is not allowed here`,
+/** The API's bearer auth: only on the tools host, and only for the allow-listed owner */
+export const AuthorizationLive = Layer.effect(
+  Authorization,
+  Effect.gen(function* () {
+    const env = yield* WorkerEnv;
+    return Authorization.of({
+      bearer: Effect.fn(function* (httpEffect, { credential }) {
+        const request = yield* HttpServerRequest.HttpServerRequest;
+        if (new URL(request.originalUrl).hostname !== env.ORIGINS.tools)
+          return yield* new NotFound({ message: "not found" });
+        const token = Redacted.value(credential);
+        const identity = token === "" ? undefined : yield* verify(env, token);
+        if (identity === undefined) return yield* new Unauthorized({ message: "unauthorized" });
+        if (!identity.allowed)
+          return yield* new Forbidden({
+            message: `forbidden: ${identity.email ?? identity.login} is not allowed here`,
+          });
+        return yield* Effect.provideService(httpEffect, CurrentUser, { login: identity.login });
+      }),
     });
-  return { login: identity.login };
-});
+  }),
+);

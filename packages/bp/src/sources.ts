@@ -2,6 +2,7 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
+import * as Stream from "effect/Stream";
 import { lookup as lookupMime } from "mrmime";
 
 /** Turning what the shell hands us into a flat list of files to upload. Shared by `site upload` and `file upload`. */
@@ -60,10 +61,10 @@ export const collectSources = (sources: ReadonlyArray<string>) =>
   );
 
 /**
- * Writes `relative` under `dest`, creating folders as needed. A path that would escape `dest` is skipped
+ * Streams `bytes` to `relative` under `dest`, creating folders as needed. A path that would escape `dest` is skipped
  * with a warning; returns whether the file was written.
  */
-export const writeInto = (dest: string, relative: string, bytes: Uint8Array) =>
+export const writeInto = <E>(dest: string, relative: string, bytes: Stream.Stream<Uint8Array, E>) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
@@ -73,15 +74,15 @@ export const writeInto = (dest: string, relative: string, bytes: Uint8Array) =>
       return false;
     }
     yield* fs.makeDirectory(path.dirname(target), { recursive: true });
-    yield* fs.writeFile(target, bytes);
+    yield* Stream.run(bytes, fs.sink(target));
     return true;
   });
 
-/** Writes one file at `target`, creating folders as needed */
-export const writeFile = (target: string, bytes: Uint8Array) =>
+/** Streams `bytes` to `target`, creating folders as needed */
+export const writeFile = <E>(target: string, bytes: Stream.Stream<Uint8Array, E>) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     yield* fs.makeDirectory(path.dirname(path.resolve(target)), { recursive: true });
-    yield* fs.writeFile(target, bytes);
+    yield* Stream.run(bytes, fs.sink(target));
   });

@@ -88,10 +88,12 @@ const upload = Command.make(
         { concurrency: TRANSFER_CONCURRENCY },
       );
       const api = yield* client(options);
-      const manifest = yield* api.registerManifest({
-        files: entries.map(({ name, size, type, hash }) => ({ name, size, type, hash })),
-        ttl: seconds === "never" ? "never" : String(seconds),
-        visibility: options.private ? "private" : "public",
+      const manifest = yield* api.files.registerManifest({
+        payload: {
+          files: entries.map(({ name, size, type, hash }) => ({ name, size, type, hash })),
+          ttl: seconds,
+          visibility: options.private ? "private" : "public",
+        },
       });
       const pending = new Set(manifest.files.filter((file) => !file.uploaded).map((file) => file.name));
       let last: { url: string; visibility: string; expiresAt: number | null } | undefined;
@@ -117,7 +119,7 @@ const upload = Command.make(
 const ls = Command.make("ls", shared, (options) =>
   Effect.gen(function* () {
     const api = yield* client(options);
-    const records = yield* api.listShares();
+    const records = yield* api.files.list();
     if (records.length === 0) return yield* Console.log("no files");
     for (const record of records) {
       yield* Console.log(
@@ -140,7 +142,7 @@ const rm = Command.make(
   (options) =>
     Effect.gen(function* () {
       const api = yield* client(options);
-      yield* api.deleteShare(options.id);
+      yield* api.files.delete({ params: { id: options.id } });
       yield* Console.log(`✔ deleted ${options.id}`);
     }),
 ).pipe(Command.withDescription("Delete a file or a whole bundle"));
@@ -158,14 +160,14 @@ const fileDownload = Command.make(
   (options) =>
     Effect.gen(function* () {
       const api = yield* client(options);
-      const records = yield* api.getShare(options.id);
+      const records = yield* api.files.get({ params: { id: options.id } });
       const bundle = isBundleId(options.id);
       const dest = Option.getOrElse(options.dest, () => (bundle ? options.id : (records[0]?.name ?? options.id)));
       yield* Effect.forEach(
         records,
         (record) =>
           Effect.gen(function* () {
-            const bytes = yield* api.downloadShareFile(options.id, record.name);
+            const bytes = yield* api.files.download({ params: { id: options.id }, query: { name: record.name } });
             const write = bundle ? writeInto(dest, record.name, bytes) : Effect.as(writeFile(dest, bytes), true);
             if (yield* write) yield* Console.log(`↓ ${record.name} (${formatBytes(record.size)})`);
           }),

@@ -1,6 +1,6 @@
-import { Effect, Layer } from "effect";
-import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/http";
-import * as Schema from "effect/Schema";
+import { Effect } from "effect";
+import { HttpServerResponse } from "effect/http";
+import { HttpApiBuilder } from "effect/http-api";
 
 import {
   deleteFile,
@@ -18,145 +18,77 @@ import {
   touchSite,
 } from "#/lib/store.ts";
 
-import { badRequest, forbidden, noSuchFile, respond } from "../errors.ts";
-import { apiUser } from "../identity.ts";
-import { isMarkdown, isValidSlug, MAX_SITE_FILE_BYTES, MiB, Slug, Visibility } from "../spec.ts";
+import { badRequest, forbidden, noSuchFile } from "../errors.ts";
+import { CurrentUser, isMarkdown, isValidSlug, MAX_SITE_FILE_BYTES, MiB, ToolsApi } from "../spec.ts";
 
-const SlugParam = Schema.Struct({ slug: Slug });
-const FileQuery = Schema.Struct({ path: Schema.String });
-const ContentType = Schema.String.check(Schema.isPattern(/^[\w.+-]+\/[\w.+-]+(;[\w\s=.+-]*)?$/));
-
-const List = HttpRouter.add(
-  "GET",
-  "/api/sites",
-  respond(
-    Effect.gen(function* () {
-      const user = yield* apiUser;
-      return HttpServerResponse.jsonUnsafe(yield* listSites(user.login));
-    }),
-  ),
+export const SitesLive = HttpApiBuilder.group(ToolsApi, "sites", (handlers) =>
+  handlers
+    .handle("list", () => Effect.flatMap(CurrentUser, (user) => listSites(user.login)))
+    .handle("get", ({ params }) =>
+      Effect.gen(function* () {
+        const user = yield* CurrentUser;
+        const site = yield* readableSite(params.slug, user.login);
+        return { site, files: yield* listFiles(params.slug) };
+      }),
+    )
+    .handle("put", ({ params: { slug }, payload }) =>
+      Effect.gen(function* () {
+        const user = yield* CurrentUser;
+        if (!isValidSlug(slug)) return yield* badRequest(`"${slug}" is not a valid site name`);
+        const existing = yield* getSite(slug);
+        if (existing !== null && existing.owner !== user.login) return yield* forbidden("site");
+        return yield* saveSite(existing, slug, user.login, payload.visibility);
+      }),
+    )
+    .handle("delete", ({ params }) =>
+      Effect.gen(function* () {
+        const user = yield* CurrentUser;
+        yield* ownedSite(params.slug, user.login);
+        yield* deleteSite(params.slug);
+      }),
+    )
+    .handle("putFile", ({ params, query, request }) =>
+      Effect.gen(function* () {
+        const user = yield* CurrentUser;
+        yield* ownedSite(params.slug, user.login);
+        const path = yield* pathFrom(query.path);
+        // KV metadata needs the hash before the write, so the body is buffered; an announced oversized one is refused
+        // unread, and a chunked one once it's in
+        const oversized = badRequest(
+          `"${path}" is over ${MiB(MAX_SITE_FILE_BYTES)}, the most a site page can be (the KV limit). Share it with \`bp file upload\` instead.`,
+        );
+        if (Number(request.headers["content-length"] ?? 0) > MAX_SITE_FILE_BYTES) return yield* oversized;
+        const bytes = new Uint8Array(yield* Effect.orDie(request.arrayBuffer));
+        if (bytes.byteLength > MAX_SITE_FILE_BYTES) return yield* oversized;
+        const type = query.type ?? (isMarkdown(path) ? "text/markdown; charset=utf-8" : "application/octet-stream");
+        return yield* putFile(params.slug, path, bytes, type);
+      }),
+    )
+    .handle("getFile", ({ params, query }) =>
+      Effect.gen(function* () {
+        const user = yield* CurrentUser;
+        yield* readableSite(params.slug, user.login);
+        const file = yield* getFile(params.slug, yield* pathFrom(query.path));
+        if (file === null) return yield* noSuchFile;
+        return HttpServerResponse.uint8Array(new Uint8Array(file.value), {
+          headers: { "content-type": file.meta.type, etag: `"${file.meta.etag}"` },
+        });
+      }),
+    )
+    .handle("deleteFile", ({ params, query }) =>
+      Effect.gen(function* () {
+        const user = yield* CurrentUser;
+        yield* ownedSite(params.slug, user.login);
+        yield* deleteFile(params.slug, yield* pathFrom(query.path));
+      }),
+    )
+    .handle("sync", ({ params, payload }) =>
+      Effect.gen(function* () {
+        const user = yield* CurrentUser;
+        yield* ownedSite(params.slug, user.login);
+        const removed = yield* syncFiles(params.slug, payload.keep);
+        yield* touchSite(params.slug);
+        return { removed };
+      }),
+    ),
 );
-
-const Get = HttpRouter.add(
-  "GET",
-  "/api/sites/:slug",
-  respond(
-    Effect.gen(function* () {
-      const user = yield* apiUser;
-      const { slug } = yield* HttpRouter.schemaPathParams(SlugParam);
-      const site = yield* readableSite(slug, user.login);
-      return HttpServerResponse.jsonUnsafe({ site, files: yield* listFiles(slug) });
-    }),
-  ),
-);
-
-const Put = HttpRouter.add(
-  "PUT",
-  "/api/sites/:slug",
-  respond(
-    Effect.gen(function* () {
-      const user = yield* apiUser;
-      const { slug } = yield* HttpRouter.schemaPathParams(SlugParam);
-      const { visibility } = yield* HttpServerRequest.schemaBodyJson(
-        Schema.Struct({ visibility: Schema.optional(Visibility) }),
-      );
-      if (!isValidSlug(slug)) return yield* badRequest(`"${slug}" is not a valid site name`);
-      const existing = yield* getSite(slug);
-      if (existing !== null && existing.owner !== user.login) return yield* forbidden("site");
-      return HttpServerResponse.jsonUnsafe(yield* saveSite(existing, slug, user.login, visibility));
-    }),
-  ),
-);
-
-const Delete = HttpRouter.add(
-  "DELETE",
-  "/api/sites/:slug",
-  respond(
-    Effect.gen(function* () {
-      const user = yield* apiUser;
-      const { slug } = yield* HttpRouter.schemaPathParams(SlugParam);
-      yield* ownedSite(slug, user.login);
-      yield* deleteSite(slug);
-      return HttpServerResponse.empty();
-    }),
-  ),
-);
-
-const PutFile = HttpRouter.add(
-  "PUT",
-  "/api/sites/:slug/files",
-  respond(
-    Effect.gen(function* () {
-      const user = yield* apiUser;
-      const request = yield* HttpServerRequest.HttpServerRequest;
-      const { slug } = yield* HttpRouter.schemaPathParams(SlugParam);
-      const query = yield* HttpServerRequest.schemaSearchParams(
-        Schema.Struct({ path: Schema.String, type: Schema.optional(ContentType) }),
-      );
-      yield* ownedSite(slug, user.login);
-      const path = yield* pathFrom(query.path);
-      // KV metadata needs the hash before the write, so the body is buffered; an announced oversized one is refused
-      // unread, and a chunked one once it's in
-      const oversized = badRequest(
-        `"${path}" is over ${MiB(MAX_SITE_FILE_BYTES)}, the most a site page can be (the KV limit). Share it with \`bp file upload\` instead.`,
-      );
-      if (Number(request.headers["content-length"] ?? 0) > MAX_SITE_FILE_BYTES) return yield* oversized;
-      const bytes = new Uint8Array(yield* request.arrayBuffer);
-      if (bytes.byteLength > MAX_SITE_FILE_BYTES) return yield* oversized;
-      const type = query.type ?? (isMarkdown(path) ? "text/markdown; charset=utf-8" : "application/octet-stream");
-      return HttpServerResponse.jsonUnsafe(yield* putFile(slug, path, bytes, type));
-    }),
-  ),
-);
-
-const GetFile = HttpRouter.add(
-  "GET",
-  "/api/sites/:slug/files",
-  respond(
-    Effect.gen(function* () {
-      const user = yield* apiUser;
-      const { slug } = yield* HttpRouter.schemaPathParams(SlugParam);
-      const query = yield* HttpServerRequest.schemaSearchParams(FileQuery);
-      yield* readableSite(slug, user.login);
-      const path = yield* pathFrom(query.path);
-      const file = yield* getFile(slug, path);
-      if (file === null) return yield* noSuchFile;
-      return HttpServerResponse.uint8Array(new Uint8Array(file.value), {
-        headers: { "content-type": file.meta.type, etag: `"${file.meta.etag}"` },
-      });
-    }),
-  ),
-);
-
-const DeleteFile = HttpRouter.add(
-  "DELETE",
-  "/api/sites/:slug/files",
-  respond(
-    Effect.gen(function* () {
-      const user = yield* apiUser;
-      const { slug } = yield* HttpRouter.schemaPathParams(SlugParam);
-      const query = yield* HttpServerRequest.schemaSearchParams(FileQuery);
-      yield* ownedSite(slug, user.login);
-      yield* deleteFile(slug, yield* pathFrom(query.path));
-      return HttpServerResponse.empty();
-    }),
-  ),
-);
-
-const Sync = HttpRouter.add(
-  "POST",
-  "/api/sites/:slug/sync",
-  respond(
-    Effect.gen(function* () {
-      const user = yield* apiUser;
-      const { slug } = yield* HttpRouter.schemaPathParams(SlugParam);
-      const { keep } = yield* HttpServerRequest.schemaBodyJson(Schema.Struct({ keep: Schema.Array(Schema.String) }));
-      yield* ownedSite(slug, user.login);
-      const removed = yield* syncFiles(slug, keep);
-      yield* touchSite(slug);
-      return HttpServerResponse.jsonUnsafe({ removed });
-    }),
-  ),
-);
-
-export const SiteRoutes = Layer.mergeAll(List, Get, Put, Delete, PutFile, GetFile, DeleteFile, Sync);

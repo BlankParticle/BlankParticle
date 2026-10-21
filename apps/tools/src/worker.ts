@@ -18,7 +18,10 @@ import { evaluate, readRuleSet, recordActivity } from "./lib/rules.ts";
  */
 export default {
   fetch(request, env, ctx) {
-    return toolsHandler.handler(request, Context.make(WorkerEnv, env).pipe(Context.add(WorkerExecutionContext, ctx)));
+    return toolsHandler(env).handler(
+      request,
+      Context.make(WorkerEnv, env).pipe(Context.add(WorkerExecutionContext, ctx)),
+    );
   },
 
   async scheduled(_event, env) {

@@ -20,7 +20,11 @@ const freshSlug = (api: Client) =>
   Effect.gen(function* () {
     for (let attempt = 0; attempt < 5; attempt++) {
       const slug = randomSlug();
-      if (!(yield* api.siteTaken(slug))) return slug;
+      const taken = yield* api.sites.get({ params: { slug } }).pipe(
+        Effect.as(true),
+        Effect.catchTag("NotFound", () => Effect.succeed(false)),
+      );
+      if (!taken) return slug;
     }
     return yield* fail("could not find a free slug, pass one with --slug");
   });
@@ -66,7 +70,7 @@ const upload = Command.make(
 
       const api = yield* client(options);
       const slug = Option.isSome(options.slug) ? options.slug.value : yield* freshSlug(api);
-      const site = yield* api.putSite(slug, visibility);
+      const site = yield* api.sites.put({ params: { slug }, payload: { visibility } });
       yield* Console.log(`→ ${site.visibility} site ${site.url} · ${files.length} file(s)`);
 
       yield* Effect.forEach(
@@ -79,10 +83,10 @@ const upload = Command.make(
         { concurrency: TRANSFER_CONCURRENCY, discard: true },
       );
 
-      const { removed } = yield* api.syncSite(
-        slug,
-        files.map((file) => file.relative),
-      );
+      const { removed } = yield* api.sites.sync({
+        params: { slug },
+        payload: { keep: files.map((file) => file.relative) },
+      });
       if (removed.length > 0) yield* Console.log(`  ✕ removed ${removed.length} stale file(s)`);
 
       yield* Console.log(`\n✔ ${site.url}`);
@@ -101,7 +105,7 @@ const upload = Command.make(
 const ls = Command.make("ls", shared, (options) =>
   Effect.gen(function* () {
     const api = yield* client(options);
-    const sites = yield* api.listSites();
+    const sites = yield* api.sites.list();
     if (sites.length === 0) return yield* Console.log("no sites yet");
     for (const site of sites) {
       yield* Console.log(`${site.visibility.padEnd(8)} ${formatUtc(site.updatedAt)}  ${site.url}`);
@@ -115,7 +119,7 @@ const rm = Command.make(
   (options) =>
     Effect.gen(function* () {
       const api = yield* client(options);
-      yield* api.deleteSite(options.slug);
+      yield* api.sites.delete({ params: { slug: options.slug } });
       yield* Console.log(`✔ deleted ${options.slug}`);
     }),
 ).pipe(Command.withDescription("Delete a site and all of its files"));
@@ -141,7 +145,7 @@ const login = Command.make(
     Effect.gen(function* () {
       const token = yield* oauthLogin(options.url, { device: options.device });
       yield* Console.log("Verifying the authenticated identity with the tools API…");
-      const user = yield* makeClient(options.url, token).me();
+      const user = yield* Effect.flatMap(makeClient(options.url, token), (api) => api.me());
       yield* Console.log(`✔ signed in as @${user.login}`);
     }),
 ).pipe(Command.withDescription("Sign the CLI in through auth.blankparticle.com"));
@@ -159,13 +163,13 @@ const siteDownload = Command.make(
   (options) =>
     Effect.gen(function* () {
       const api = yield* client(options);
-      const { files } = yield* api.getSite(options.slug);
+      const { files } = yield* api.sites.get({ params: { slug: options.slug } });
       const dest = Option.getOrElse(options.dest, () => options.slug);
       yield* Effect.forEach(
         files,
         (file) =>
           Effect.gen(function* () {
-            const bytes = yield* api.getSiteFile(options.slug, file.path);
+            const bytes = yield* api.sites.getFile({ params: { slug: options.slug }, query: { path: file.path } });
             if (yield* writeInto(dest, file.path, bytes)) yield* Console.log(`↓ ${file.path}`);
           }),
         { concurrency: TRANSFER_CONCURRENCY, discard: true },

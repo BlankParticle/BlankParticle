@@ -2,8 +2,7 @@ import { createServerFn, getGlobalStartContext } from "@tanstack/react-start";
 import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 
-import { ApiError } from "../api/errors.ts";
-import { Slug, Visibility, type User } from "../api/spec.ts";
+import { Slug, Unauthorized, Visibility, type User } from "../api/spec.ts";
 import { workerRuntime, type WorkerServices } from "./env.ts";
 import * as files from "./files.ts";
 import { deleteSite, listSites, ownedSite, saveSite } from "./store.ts";
@@ -16,11 +15,11 @@ const context = () => {
 
 /**
  * Runs an Effect for the signed-in, allow-listed user; anonymous calls fail before touching anything.
- * An `ApiError` reaches the client with its message, and its status becomes the response's.
+ * An API error (`spec.ts`) reaches the client with its message, and its status becomes the response's.
  */
 export const run = <A, E>(effect: (user: User) => Effect.Effect<A, E, WorkerServices>): Promise<A> => {
   const ctx = context();
-  if (!ctx.user) throw new ApiError({ status: 401, message: "not signed in" });
+  if (!ctx.user) throw new Unauthorized({ message: "not signed in" });
   return workerRuntime(ctx.cf.env).runPromise(effect(ctx.user));
 };
 
