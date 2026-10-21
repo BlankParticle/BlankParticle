@@ -1,6 +1,5 @@
 packages:
   - "apps/*"
-  - "fleet"
   - "packages/*"
   - "scripts"
 
