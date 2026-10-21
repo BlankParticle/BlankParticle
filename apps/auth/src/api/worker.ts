@@ -1,7 +1,9 @@
 import { Context, Effect, Layer } from "effect";
-import { HttpMiddleware, HttpRouter, HttpServerRequest } from "effect/http";
+import { HttpMiddleware, HttpRouter, HttpServer, HttpServerRequest, HttpServerResponse } from "effect/http";
+import { HttpApiBuilder } from "effect/http-api";
 
 import type { AuthAppEnv } from "../../alchemy.config.ts";
+import { AuthApi } from "./api.ts";
 import { AuthDatabase, WorkerEnv, WorkerExecutionContext } from "./context.ts";
 import { sweepExpired } from "./flow.ts";
 import { AuthorizationRoutes } from "./routes/authorization.ts";
@@ -27,7 +29,24 @@ const Cors = HttpRouter.middleware(
   { global: true },
 );
 
-const Routes = Layer.mergeAll(AuthorizationRoutes, DiscoveryRoutes, SessionRoutes, TokenRoutes, PageRoutes, Cors);
+/** Responses here carry credentials, so no cache may keep them (RFC 6749 §5.1, RFC 8628 §3.2) */
+const CREDENTIAL_PATHS = /^\/(token|device\/code)$/;
+
+const NoStore = HttpRouter.middleware(
+  (httpEffect) =>
+    Effect.flatMap(HttpServerRequest.HttpServerRequest, (request) =>
+      CREDENTIAL_PATHS.test(new URL(request.originalUrl).pathname)
+        ? Effect.map(httpEffect, HttpServerResponse.setHeader("cache-control", "no-store"))
+        : httpEffect,
+    ),
+  { global: true },
+);
+
+const ApiRoutes = HttpApiBuilder.layer(AuthApi).pipe(
+  Layer.provide([DiscoveryRoutes, SessionRoutes, TokenRoutes, HttpServer.layerServices]),
+);
+
+const Routes = Layer.mergeAll(ApiRoutes, AuthorizationRoutes, PageRoutes, Cors, NoStore);
 
 const handler = HttpRouter.toWebHandler(Routes);
 

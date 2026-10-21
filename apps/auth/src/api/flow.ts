@@ -58,12 +58,6 @@ export function errorPage(issuer: string, title: string, message: string) {
   return HttpServerResponse.redirect(url);
 }
 
-/** Malformed input on an API endpoint: OAuth-style JSON error */
-export const rejectInvalidRequest = <A, E, R>(effect: Effect.Effect<A, E | SchemaError, R>) =>
-  Effect.catchTag(effect, "SchemaError", () =>
-    Effect.succeed(HttpServerResponse.jsonUnsafe({ error: "invalid_request" }, { status: 400 })),
-  );
-
 /** Malformed input on a page the browser navigates to: show the error page, not raw JSON */
 export const invalidRequestPage = <A, E, R>(effect: Effect.Effect<A, E | SchemaError, R>) =>
   Effect.catchTag(effect, "SchemaError", () =>
@@ -239,7 +233,7 @@ export function issueToken(db: AuthDatabase, env: AuthAppEnv, user: User, grant:
       issuedAt: now,
       expiresAt: now + TOKEN_TTL,
     });
-    return { id_token: idToken, pairwise_sub: subject, token_type: "Bearer", expires_in: TOKEN_TTL / 1000 };
+    return { id_token: idToken, pairwise_sub: subject, token_type: "Bearer" as const, expires_in: TOKEN_TTL / 1000 };
   });
 }
 
