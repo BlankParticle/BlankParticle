@@ -6,7 +6,12 @@ import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router"
 import { getDashboard } from "#/lib/server-fns.ts";
 
 /** Pathless layout: loads the account once for every dashboard page, or shows the sign-in card */
-export const Route = createFileRoute("/_dashboard")({ loader: () => getDashboard(), component: DashboardLayout });
+export const Route = createFileRoute("/_dashboard")({
+  loader: () => getDashboard(),
+  // Switching tabs reuses it; actions call `router.invalidate()` to refetch right away
+  staleTime: 30_000,
+  component: DashboardLayout,
+});
 
 function DashboardLayout() {
   const dashboard = Route.useLoaderData();

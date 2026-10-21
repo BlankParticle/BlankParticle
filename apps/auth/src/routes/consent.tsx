@@ -5,7 +5,9 @@ import { Button } from "@blankparticle/ui/primitives/button.tsx";
 import { Card, CardContent, CardDescription, CardHeader } from "@blankparticle/ui/primitives/card.tsx";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { AppAsking, Person, Receives } from "#/components/authorize.tsx";
+import { AppIdentity } from "#/components/app-identity.tsx";
+import { Person, Receives } from "#/components/authorize.tsx";
+import { originOf } from "#/lib/clients.ts";
 import { getConsentRequest } from "#/lib/server-fns.ts";
 
 export const Route = createFileRoute("/consent")({
@@ -32,13 +34,19 @@ function ConsentPage() {
   return (
     <Card className="mx-auto mt-6 max-w-xl">
       <CardHeader>
-        <AppAsking clientId={request.clientId} name={request.name} logo={request.logo} audience={request.audience} />
+        <AppIdentity
+          name={request.name}
+          logo={request.logo}
+          clientId={request.clientId}
+          audience={request.audience}
+          size="lg"
+        />
         <CardDescription className="pt-2">
           {request.audience === request.clientId ? (
             <>It wants to know who you are.</>
           ) : (
             <>
-              It wants to sign you in to <InlineCode>{request.audience.replace(/^origin:/, "")}</InlineCode>.
+              It wants to sign you in to <InlineCode>{originOf(request.audience)}</InlineCode>.
             </>
           )}
         </CardDescription>

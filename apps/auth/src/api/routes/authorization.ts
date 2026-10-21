@@ -1,11 +1,12 @@
-import { and, eq, gt } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { Effect, Layer } from "effect";
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/http";
 import * as S from "effect/Schema";
 
-import { apps, browserSessions, users } from "#/db/schema.ts";
-import { clientFor, clientKey, isLoopback } from "#/lib/clients.ts";
+import { browserSessions, users } from "#/db/schema.ts";
+import { clientFor, isLoopback, originClient } from "#/lib/clients.ts";
 
+import { BrowserSession } from "../browser-session.ts";
 import { AuthDatabase, WorkerEnv } from "../context.ts";
 import {
   PENDING_TTL,
@@ -15,12 +16,13 @@ import {
   continueAuthorization,
   draftFrom,
   errorPage,
+  invalidRequestPage,
   issueCode,
   randomToken,
   redirectToClient,
+  rememberApp,
   resourceAudience,
   stageRequest,
-  sweepExpiredRequests,
   type Draft,
 } from "../flow.ts";
 import { AuthorizationQuery, CallbackQuery, ConsentForm, GitHubEmails, GitHubToken, GitHubUser } from "../schema.ts";
@@ -44,7 +46,6 @@ const Authorize = HttpRouter.add(
   Effect.gen(function* () {
     const env = yield* WorkerEnv;
     const db = yield* AuthDatabase;
-    const request = yield* HttpServerRequest.HttpServerRequest;
     const query = yield* HttpServerRequest.schemaSearchParams(AuthorizationQuery);
 
     if (!URL.canParse(query.redirect_uri)) {
@@ -75,29 +76,15 @@ const Authorize = HttpRouter.add(
       audience: requestedAudience ?? clientId,
       clientState: query.state,
       codeChallenge: query.code_challenge,
-      pii: query.pii === "true" || query.pii === "1",
+      pii: query.pii,
     };
-    yield* sweepExpiredRequests(db);
 
-    const sessionId = request.cookies[SESSION_COOKIE];
-    const session =
-      sessionId === undefined
-        ? undefined
-        : yield* db
-            .select({ user: users })
-            .from(browserSessions)
-            .innerJoin(users, eq(browserSessions.userId, users.id))
-            .where(and(eq(browserSessions.id, sessionId), gt(browserSessions.expiresAt, Date.now())))
-            .get();
-    if (session !== undefined) return yield* continueAuthorization(db, env, draft, session.user);
+    const session = yield* BrowserSession;
+    if (session !== null) return yield* continueAuthorization(db, env, draft, session.user);
 
     const state = yield* stageRequest(db, draft, "pending", null, PENDING_TTL);
     return sendToGitHub(env.GITHUB_CLIENT_ID, env.ISSUER, state);
-  }).pipe(
-    Effect.catchTag("SchemaError", () =>
-      Effect.succeed(HttpServerResponse.jsonUnsafe({ error: "invalid_request" }, { status: 400 })),
-    ),
-  ),
+  }).pipe(invalidRequestPage),
 );
 
 const Login = HttpRouter.add(
@@ -109,19 +96,9 @@ const Login = HttpRouter.add(
     const request = yield* HttpServerRequest.HttpServerRequest;
     const requestedPath = new URL(request.originalUrl).searchParams.get("return_to");
     const path = requestedPath !== null && /^\/(?!\/)\S*$/.test(requestedPath) ? requestedPath : "/";
-    const sessionId = request.cookies[SESSION_COOKIE];
-    const session =
-      sessionId === undefined
-        ? undefined
-        : yield* db
-            .select({ id: browserSessions.id })
-            .from(browserSessions)
-            .where(and(eq(browserSessions.id, sessionId), gt(browserSessions.expiresAt, Date.now())))
-            .get();
-    if (session !== undefined) return HttpServerResponse.redirect(path);
+    if ((yield* BrowserSession) !== null) return HttpServerResponse.redirect(path);
 
-    yield* sweepExpiredRequests(db);
-    const homeClient = `origin:${env.ISSUER}`;
+    const homeClient = originClient(env.ISSUER);
     const state = yield* stageRequest(
       db,
       {
@@ -247,11 +224,7 @@ const Callback = HttpRouter.add(
       sessionId,
       { path: "/", httpOnly: true, secure: true, sameSite: "lax", maxAge: SESSION_TTL / 1000 },
     );
-  }).pipe(
-    Effect.catchTag("SchemaError", () =>
-      Effect.succeed(HttpServerResponse.jsonUnsafe({ error: "invalid_request" }, { status: 400 })),
-    ),
-  ),
+  }).pipe(invalidRequestPage),
 );
 
 const Consent = HttpRouter.add(
@@ -272,31 +245,9 @@ const Consent = HttpRouter.add(
     const draft = draftFrom(row);
     if (form.decision === "deny") return redirectToClient(draft, { error: "access_denied" });
 
-    const approvedApp = {
-      clientId: draft.clientId,
-      name: draft.clientName,
-      logo: draft.clientLogo,
-      pii: draft.pii,
-    };
-    yield* db
-      .insert(apps)
-      .values({
-        ...approvedApp,
-        userId: user.id,
-        clientKey: clientKey(draft.clientId),
-        audience: draft.audience,
-        createdAt: Date.now(),
-      })
-      .onConflictDoUpdate({
-        target: [apps.userId, apps.clientKey, apps.audience],
-        set: approvedApp,
-      });
+    yield* rememberApp(db, user.id, draft);
     return yield* issueCode(db, draft, user);
-  }).pipe(
-    Effect.catchTag("SchemaError", () =>
-      Effect.succeed(HttpServerResponse.jsonUnsafe({ error: "invalid_request" }, { status: 400 })),
-    ),
-  ),
+  }).pipe(invalidRequestPage),
 );
 
 export const AuthorizationRoutes = Layer.mergeAll(Authorize, Login, Logout, Callback, Consent);

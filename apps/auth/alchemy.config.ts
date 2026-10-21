@@ -56,6 +56,8 @@ export const AuthApp = Cloudflare.Website.Vite("Worker", {
     ISSUER: Cloudflare.Worker.URL,
   },
   domain: { name: `auth.${ROOT_DOMAIN}` },
+  // hourly sweep of expired sign-ins, device codes, tokens and browser sessions
+  crons: ["0 * * * *"],
   workersDev: false,
   dev: { port: 9001 },
 });

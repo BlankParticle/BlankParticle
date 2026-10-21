@@ -74,7 +74,7 @@ export const tokens = sqliteTable(
     expiresAt: integer("expires_at").notNull(),
     revokedAt: integer("revoked_at"),
   },
-  (t) => [index("tokens_user_id").on(t.userId)],
+  (t) => [index("tokens_user_id").on(t.userId), index("tokens_expires_at").on(t.expiresAt)],
 );
 
 /** Browsers holding the broker's `auth_session` cookie */
@@ -89,7 +89,7 @@ export const browserSessions = sqliteTable(
     createdAt: integer("created_at").notNull(),
     expiresAt: integer("expires_at").notNull(),
   },
-  (t) => [index("browser_sessions_user_id").on(t.userId)],
+  (t) => [index("browser_sessions_user_id").on(t.userId), index("browser_sessions_expires_at").on(t.expiresAt)],
 );
 
 /** RFC 8628 device authorization: a CLI or headless device waits while the person approves a short code here */
@@ -113,7 +113,7 @@ export const deviceCodes = sqliteTable(
     createdAt: integer("created_at").notNull(),
     expiresAt: integer("expires_at").notNull(),
   },
-  (t) => [uniqueIndex("device_codes_user_code").on(t.userCode)],
+  (t) => [uniqueIndex("device_codes_user_code").on(t.userCode), index("device_codes_expires_at").on(t.expiresAt)],
 );
 
 export type User = typeof users.$inferSelect;

@@ -1,26 +1,35 @@
 import { and, eq, gt, lt } from "drizzle-orm";
 import { Effect } from "effect";
 import { HttpServerResponse } from "effect/http";
+import type { SchemaError } from "effect/Schema";
 import { base64url } from "jose";
 
-import { apps, authorizationRequests, deviceCodes, tokens, type AuthorizationRequest, type User } from "#/db/schema.ts";
-import { clientKey } from "#/lib/clients.ts";
+import {
+  apps,
+  authorizationRequests,
+  browserSessions,
+  deviceCodes,
+  tokens,
+  type AuthorizationRequest,
+  type User,
+} from "#/db/schema.ts";
+import { clientKey, originClient } from "#/lib/clients.ts";
 import { signIdToken } from "#/lib/keys.ts";
 
 import type { AuthAppEnv } from "../../alchemy.config.ts";
-import type { AuthDatabase } from "./context.ts";
+import { WorkerEnv, type AuthDatabase } from "./context.ts";
 
 const MINUTE = 60_000;
 const DAY = 24 * 60 * MINUTE;
 
-export const TOKEN_TTL = 30 * DAY;
+const TOKEN_TTL = 30 * DAY;
 export const SESSION_TTL = 30 * DAY;
 export const PENDING_TTL = 10 * MINUTE;
-export const CODE_TTL = 2 * MINUTE;
+const CODE_TTL = 2 * MINUTE;
 export const DEVICE_TTL = 15 * MINUTE;
 export const SESSION_COOKIE = "auth_session";
 
-export type Grant = {
+type Grant = {
   clientId: string;
   clientName: string | null;
   clientLogo: string | null;
@@ -39,7 +48,7 @@ export function resourceAudience(resource: string | undefined) {
   if (url.protocol !== "https:" || url.pathname !== "/" || url.search !== "" || url.hash !== "") {
     return null;
   }
-  return `origin:${url.origin}`;
+  return originClient(url.origin);
 }
 
 export function errorPage(issuer: string, title: string, message: string) {
@@ -48,6 +57,24 @@ export function errorPage(issuer: string, title: string, message: string) {
   url.searchParams.set("message", message);
   return HttpServerResponse.redirect(url);
 }
+
+/** Malformed input on an API endpoint: OAuth-style JSON error */
+export const rejectInvalidRequest = <A, E, R>(effect: Effect.Effect<A, E | SchemaError, R>) =>
+  Effect.catchTag(effect, "SchemaError", () =>
+    Effect.succeed(HttpServerResponse.jsonUnsafe({ error: "invalid_request" }, { status: 400 })),
+  );
+
+/** Malformed input on a page the browser navigates to: show the error page, not raw JSON */
+export const invalidRequestPage = <A, E, R>(effect: Effect.Effect<A, E | SchemaError, R>) =>
+  Effect.catchTag(effect, "SchemaError", () =>
+    Effect.map(WorkerEnv, (env) =>
+      errorPage(
+        env.ISSUER,
+        "Invalid sign-in request",
+        "The sign-in request was malformed. Go back to the app and try again.",
+      ),
+    ),
+  );
 
 export function draftFrom(row: AuthorizationRequest): Draft {
   return {
@@ -109,15 +136,41 @@ export function consumeRequest(db: AuthDatabase, id: string, stage: Authorizatio
   });
 }
 
-export function sweepExpiredRequests(db: AuthDatabase) {
+/** Cron: every read already ignores expired rows, this just keeps the tables small */
+export function sweepExpired(db: AuthDatabase) {
   const now = Date.now();
   return Effect.all(
     [
       db.delete(authorizationRequests).where(lt(authorizationRequests.expiresAt, now)),
       db.delete(deviceCodes).where(lt(deviceCodes.expiresAt, now)),
+      db.delete(tokens).where(lt(tokens.expiresAt, now)),
+      db.delete(browserSessions).where(lt(browserSessions.expiresAt, now)),
     ],
     { concurrency: "unbounded", discard: true },
   );
+}
+
+/** Records an approval for the dashboard; only `origin:` clients skip consent because of it (`continueAuthorization`) */
+export function rememberApp(db: AuthDatabase, userId: number, grant: Grant) {
+  const approvedApp = {
+    clientId: grant.clientId,
+    name: grant.clientName,
+    logo: grant.clientLogo,
+    pii: grant.pii,
+  };
+  return db
+    .insert(apps)
+    .values({
+      ...approvedApp,
+      userId,
+      clientKey: clientKey(grant.clientId),
+      audience: grant.audience,
+      createdAt: Date.now(),
+    })
+    .onConflictDoUpdate({
+      target: [apps.userId, apps.clientKey, apps.audience],
+      set: approvedApp,
+    });
 }
 
 export function issueCode(db: AuthDatabase, draft: Draft, user: User) {
@@ -127,16 +180,21 @@ export function issueCode(db: AuthDatabase, draft: Draft, user: User) {
   });
 }
 
+let pairwiseKey: { secret: string; key: Promise<CryptoKey> } | undefined;
+
 function pairwiseSubject(secret: string, input: string, prefix: string) {
+  // Imported once per isolate, like the signing key
+  if (pairwiseKey?.secret !== secret) {
+    pairwiseKey = {
+      secret,
+      key: crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, [
+        "sign",
+      ]),
+    };
+  }
+  const keyPromise = pairwiseKey.key;
   return Effect.tryPromise(async () => {
-    const key = await crypto.subtle.importKey(
-      "raw",
-      new TextEncoder().encode(secret),
-      { name: "HMAC", hash: "SHA-256" },
-      false,
-      ["sign"],
-    );
-    const mac = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(input));
+    const mac = await crypto.subtle.sign("HMAC", await keyPromise, new TextEncoder().encode(input));
     return `${prefix}_${base64url.encode(new Uint8Array(mac))}`;
   });
 }
@@ -187,7 +245,7 @@ export function issueToken(db: AuthDatabase, env: AuthAppEnv, user: User, grant:
 
 export function continueAuthorization(db: AuthDatabase, env: AuthAppEnv, draft: Draft, user: User) {
   return Effect.gen(function* () {
-    if (draft.clientId === `origin:${env.ISSUER}`) {
+    if (draft.clientId === originClient(env.ISSUER)) {
       const url = new URL(draft.redirectUri);
       return HttpServerResponse.redirect(url.pathname + url.search);
     }

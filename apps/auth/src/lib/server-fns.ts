@@ -1,9 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
-import * as Drizzle from "alchemy/Drizzle/D1";
 import { and, desc, eq, gt, isNull } from "drizzle-orm";
 import { Effect } from "effect";
 import * as Schema from "effect/Schema";
 
+import { AuthDatabase, WorkerEnv } from "#/api/context.ts";
+import { rememberApp } from "#/api/flow.ts";
 import {
   apps,
   authorizationRequests,
@@ -16,15 +17,19 @@ import {
   type Token,
   type User,
 } from "#/db/schema.ts";
-import { clientKey } from "#/lib/clients.ts";
+import { USER_CODE_ALPHABET, USER_CODE_LENGTH } from "#/lib/clients.ts";
 import type { AuthRequestContext } from "#/request-context.ts";
 
-const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(Effect.scoped(effect));
+import type { AuthAppEnv } from "../../alchemy.config.ts";
 
-const requireSession = (context: AuthRequestContext) => {
-  if (context.session === null) throw new Error("not signed in");
-  return { ...context.session, env: context.cf.env };
-};
+const run = <A, E>(env: AuthAppEnv, effect: Effect.Effect<A, E, WorkerEnv>) =>
+  Effect.runPromise(effect.pipe(Effect.provideService(WorkerEnv, env), Effect.scoped));
+
+const requireSession = (context: AuthRequestContext) =>
+  context.session().then((session) => {
+    if (session === null) throw new Error("not signed in");
+    return { ...session, env: context.cf.env };
+  });
 
 export type Dashboard = {
   user: User;
@@ -33,14 +38,16 @@ export type Dashboard = {
   apps: App[];
   tokens: Token[];
   browserSessions: BrowserSession[];
-} | null;
+};
 
-export const getDashboard = createServerFn().handler(({ context }): Promise<Dashboard> => {
-  if (context.session === null) return Promise.resolve(null);
-  const { id: sessionId, user } = context.session;
+export const getDashboard = createServerFn().handler(async ({ context }): Promise<Dashboard | null> => {
+  const session = await context.session();
+  if (session === null) return null;
+  const { id: sessionId, user } = session;
   return run(
+    context.cf.env,
     Effect.gen(function* () {
-      const db = yield* Drizzle.D1(Effect.succeed(context.cf.env.DB));
+      const db = yield* AuthDatabase;
       const now = Date.now();
       const [appRows, tokenRows, sessionRows] = yield* Effect.all(
         [
@@ -68,11 +75,12 @@ const StringId = Schema.toStandardSchemaV1(Schema.Struct({ id: Schema.String }))
 /** Forgets an authorization: the app will show the authorize page again next time */
 export const removeApp = createServerFn({ method: "POST" })
   .validator(Schema.toStandardSchemaV1(Schema.Struct({ id: Schema.Number })))
-  .handler(({ data, context }) => {
-    const { user, env } = requireSession(context);
+  .handler(async ({ data, context }) => {
+    const { user, env } = await requireSession(context);
     return run(
+      env,
       Effect.gen(function* () {
-        const db = yield* Drizzle.D1(Effect.succeed(env.DB));
+        const db = yield* AuthDatabase;
         yield* db.delete(apps).where(and(eq(apps.id, data.id), eq(apps.userId, user.id)));
       }),
     );
@@ -81,11 +89,12 @@ export const removeApp = createServerFn({ method: "POST" })
 /** Kills one issued token: `/session/check` reports it revoked from now on */
 export const revokeToken = createServerFn({ method: "POST" })
   .validator(StringId)
-  .handler(({ data, context }) => {
-    const { user, env } = requireSession(context);
+  .handler(async ({ data, context }) => {
+    const { user, env } = await requireSession(context);
     return run(
+      env,
       Effect.gen(function* () {
-        const db = yield* Drizzle.D1(Effect.succeed(env.DB));
+        const db = yield* AuthDatabase;
         yield* db
           .update(tokens)
           .set({ revokedAt: Date.now() })
@@ -97,11 +106,12 @@ export const revokeToken = createServerFn({ method: "POST" })
 /** Signs a browser out of the broker; its next sign-in goes through GitHub again */
 export const revokeBrowserSession = createServerFn({ method: "POST" })
   .validator(StringId)
-  .handler(({ data, context }) => {
-    const { user, env } = requireSession(context);
+  .handler(async ({ data, context }) => {
+    const { user, env } = await requireSession(context);
     return run(
+      env,
       Effect.gen(function* () {
-        const db = yield* Drizzle.D1(Effect.succeed(env.DB));
+        const db = yield* AuthDatabase;
         yield* db
           .delete(browserSessions)
           .where(and(eq(browserSessions.id, data.id), eq(browserSessions.userId, user.id)));
@@ -110,11 +120,12 @@ export const revokeBrowserSession = createServerFn({ method: "POST" })
   });
 
 /** Every device and every token, including the current ones */
-export const signOutEverywhere = createServerFn({ method: "POST" }).handler(({ context }) => {
-  const { user, env } = requireSession(context);
+export const signOutEverywhere = createServerFn({ method: "POST" }).handler(async ({ context }) => {
+  const { user, env } = await requireSession(context);
   return run(
+    env,
     Effect.gen(function* () {
-      const db = yield* Drizzle.D1(Effect.succeed(env.DB));
+      const db = yield* AuthDatabase;
       yield* Effect.all(
         [
           db
@@ -129,7 +140,7 @@ export const signOutEverywhere = createServerFn({ method: "POST" }).handler(({ c
   );
 });
 
-export type ConsentRequest = {
+type ConsentRequest = {
   /** The app that started sign-in (`origin:…` or a reverse-DNS id), and how it introduced itself */
   clientId: string;
   name: string | null;
@@ -144,11 +155,11 @@ export type ConsentRequest = {
 /** Looks up a pending consent request; the decision itself is posted to `/consent`. */
 export const getConsentRequest = createServerFn()
   .validator(Schema.toStandardSchemaV1(Schema.Struct({ token: Schema.String })))
-  .handler(({ data, context }): Promise<ConsentRequest | null> => {
-    const { env } = context.cf;
-    return run(
+  .handler(({ data, context }): Promise<ConsentRequest | null> =>
+    run(
+      context.cf.env,
       Effect.gen(function* () {
-        const db = yield* Drizzle.D1(Effect.succeed(env.DB));
+        const db = yield* AuthDatabase;
         const row = yield* db
           .select({ request: authorizationRequests, user: users })
           .from(authorizationRequests)
@@ -172,34 +183,37 @@ export const getConsentRequest = createServerFn()
           user: { login: user.login, name: user.name, picture: user.picture, email: user.email },
         };
       }),
-    );
-  });
+    ),
+  );
 
 // ── Device flow ──────────────────────────────────────────────────────────────
 
 export type DeviceRequest = Pick<ConsentRequest, "clientId" | "name" | "logo" | "audience" | "pii">;
 
-const UserCode = Schema.String.check(Schema.isPattern(/^[A-Z]{8}$/));
+const UserCode = Schema.String.check(Schema.isPattern(new RegExp(`^[${USER_CODE_ALPHABET}]{${USER_CODE_LENGTH}}$`)));
+
+/** The device request behind a user code, if it is still waiting for a decision */
+const pendingDevice = (code: string) =>
+  Effect.gen(function* () {
+    const db = yield* AuthDatabase;
+    return yield* db
+      .select()
+      .from(deviceCodes)
+      .where(
+        and(eq(deviceCodes.userCode, code), eq(deviceCodes.status, "pending"), gt(deviceCodes.expiresAt, Date.now())),
+      )
+      .get();
+  });
 
 /** Still-pending device request behind a user code, or `null` */
 export const lookupDeviceCode = createServerFn()
   .validator(Schema.toStandardSchemaV1(Schema.Struct({ code: UserCode })))
-  .handler(({ data, context }): Promise<DeviceRequest | null> => {
-    const { env } = requireSession(context);
+  .handler(async ({ data, context }): Promise<DeviceRequest | null> => {
+    const { env } = await requireSession(context);
     return run(
+      env,
       Effect.gen(function* () {
-        const db = yield* Drizzle.D1(Effect.succeed(env.DB));
-        const row = yield* db
-          .select()
-          .from(deviceCodes)
-          .where(
-            and(
-              eq(deviceCodes.userCode, data.code),
-              eq(deviceCodes.status, "pending"),
-              gt(deviceCodes.expiresAt, Date.now()),
-            ),
-          )
-          .get();
+        const row = yield* pendingDevice(data.code);
         if (row === undefined) return null;
         return {
           clientId: row.clientId,
@@ -212,53 +226,28 @@ export const lookupDeviceCode = createServerFn()
     );
   });
 
-/** Approving also remembers the app; the waiting client picks the result up on its next `/token` poll */
+/**
+ * Approving also remembers the app; the waiting client picks the result up on its next `/token` poll.
+ * `false` when the code expired (or was decided elsewhere) in the meantime.
+ */
 export const decideDevice = createServerFn({ method: "POST" })
   .validator(
     Schema.toStandardSchemaV1(Schema.Struct({ code: UserCode, decision: Schema.Literals(["approved", "denied"]) })),
   )
-  .handler(({ data, context }) => {
-    const { user, env } = requireSession(context);
+  .handler(async ({ data, context }) => {
+    const { user, env } = await requireSession(context);
     return run(
+      env,
       Effect.gen(function* () {
-        const db = yield* Drizzle.D1(Effect.succeed(env.DB));
-        const row = yield* db
-          .select()
-          .from(deviceCodes)
-          .where(
-            and(
-              eq(deviceCodes.userCode, data.code),
-              eq(deviceCodes.status, "pending"),
-              gt(deviceCodes.expiresAt, Date.now()),
-            ),
-          )
-          .get();
-        if (row === undefined) return yield* Effect.die("that code is no longer valid");
-        if (data.decision === "approved") {
-          const approvedApp = {
-            clientId: row.clientId,
-            name: row.clientName,
-            logo: row.clientLogo,
-            pii: row.pii,
-          };
-          yield* db
-            .insert(apps)
-            .values({
-              ...approvedApp,
-              userId: user.id,
-              clientKey: clientKey(row.clientId),
-              audience: row.audience,
-              createdAt: Date.now(),
-            })
-            .onConflictDoUpdate({
-              target: [apps.userId, apps.clientKey, apps.audience],
-              set: approvedApp,
-            });
-        }
+        const db = yield* AuthDatabase;
+        const row = yield* pendingDevice(data.code);
+        if (row === undefined) return false;
+        if (data.decision === "approved") yield* rememberApp(db, user.id, row);
         yield* db
           .update(deviceCodes)
           .set({ status: data.decision, userId: user.id })
           .where(eq(deviceCodes.deviceCode, row.deviceCode));
+        return true;
       }),
     );
   });

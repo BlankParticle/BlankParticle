@@ -1,11 +1,25 @@
+import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as SchemaTransformation from "effect/SchemaTransformation";
 
 import { NATIVE_CLIENT_ID } from "#/lib/clients.ts";
+
+/** `pii=true` or `pii=1` asks for profile claims; anything else, or nothing, stays anonymous */
+const Pii = S.String.pipe(
+  S.decodeTo(
+    S.Boolean,
+    SchemaTransformation.transform({
+      decode: (value) => value === "true" || value === "1",
+      encode: (pii) => (pii ? "true" : "false"),
+    }),
+  ),
+  S.withDecodingDefaultKey(Effect.succeed("false")),
+);
 
 const ClientMetadata = S.Struct({
   client_name: S.optional(S.String.check(S.isMaxLength(64))),
   logo_uri: S.optional(S.String.check(S.isPattern(/^https:\/\/\S{1,500}$/))),
-  pii: S.optional(S.String),
+  pii: Pii,
   resource: S.optional(S.String),
 });
 

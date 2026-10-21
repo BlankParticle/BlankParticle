@@ -1,26 +1,6 @@
 import { InlineCode } from "@blankparticle/ui/components/code-block.tsx";
 
-import { AppIdentity } from "#/components/dashboard.tsx";
 import type { User } from "#/db/schema.ts";
-
-/** The app asking, as it introduced itself, and what it is asking for */
-export function AppAsking({
-  clientId,
-  name,
-  logo,
-  audience,
-}: {
-  clientId: string;
-  name: string | null;
-  logo: string | null;
-  audience: string;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <AppIdentity name={name} logo={logo} clientId={clientId} audience={audience} size="lg" />
-    </div>
-  );
-}
 
 /** Who is signing in */
 export function Person({ user }: { user: Pick<User, "login" | "name" | "picture"> }) {

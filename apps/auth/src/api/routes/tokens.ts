@@ -12,12 +12,26 @@ import {
   consumeRequest,
   issueToken,
   randomToken,
+  rejectInvalidRequest,
   resourceAudience,
-  sweepExpiredRequests,
 } from "../flow.ts";
 import { DeviceCodeForm, TokenForm } from "../schema.ts";
 
 const DEVICE_INTERVAL = 5;
+/** User codes are short, so a fresh one can collide with a live (or not yet swept) one */
+const USER_CODE_ATTEMPTS = 5;
+
+/** Uniform over the alphabet: bytes past the last whole multiple of its length are rejected, not wrapped */
+function randomUserCode() {
+  const limit = 256 - (256 % USER_CODE_ALPHABET.length);
+  let code = "";
+  while (code.length < USER_CODE_LENGTH) {
+    for (const byte of crypto.getRandomValues(new Uint8Array(USER_CODE_LENGTH - code.length))) {
+      if (byte < limit) code += USER_CODE_ALPHABET[byte % USER_CODE_ALPHABET.length];
+    }
+  }
+  return code;
+}
 
 const DeviceCode = HttpRouter.add(
   "POST",
@@ -37,23 +51,35 @@ const DeviceCode = HttpRouter.add(
       );
     }
 
-    yield* sweepExpiredRequests(db);
     const deviceCode = randomToken();
-    const bytes = crypto.getRandomValues(new Uint8Array(USER_CODE_LENGTH));
-    const userCode = Array.from(bytes, (byte) => USER_CODE_ALPHABET[byte % USER_CODE_ALPHABET.length]).join("");
     const now = Date.now();
-    yield* db.insert(deviceCodes).values({
-      deviceCode,
-      userCode,
-      clientId: form.client_id,
-      clientName: form.client_name ?? null,
-      clientLogo: form.logo_uri ?? null,
-      audience: requestedAudience ?? form.client_id,
-      pii: form.pii === "true" || form.pii === "1",
-      interval: DEVICE_INTERVAL,
-      createdAt: now,
-      expiresAt: now + DEVICE_TTL,
-    });
+    let userCode: string | undefined;
+    for (let attempt = 0; userCode === undefined && attempt < USER_CODE_ATTEMPTS; attempt++) {
+      const inserted = yield* db
+        .insert(deviceCodes)
+        .values({
+          deviceCode,
+          userCode: randomUserCode(),
+          clientId: form.client_id,
+          clientName: form.client_name ?? null,
+          clientLogo: form.logo_uri ?? null,
+          audience: requestedAudience ?? form.client_id,
+          pii: form.pii,
+          interval: DEVICE_INTERVAL,
+          createdAt: now,
+          expiresAt: now + DEVICE_TTL,
+        })
+        .onConflictDoNothing({ target: deviceCodes.userCode })
+        .returning({ userCode: deviceCodes.userCode })
+        .get();
+      userCode = inserted?.userCode;
+    }
+    if (userCode === undefined) {
+      return HttpServerResponse.jsonUnsafe(
+        { error: "temporarily_unavailable", error_description: "Could not allocate a user code." },
+        { status: 503 },
+      );
+    }
 
     const verificationUrl = new URL("/device", env.ISSUER);
     const completeUrl = new URL(verificationUrl);
@@ -66,11 +92,7 @@ const DeviceCode = HttpRouter.add(
       expires_in: DEVICE_TTL / 1000,
       interval: DEVICE_INTERVAL,
     });
-  }).pipe(
-    Effect.catchTag("SchemaError", () =>
-      Effect.succeed(HttpServerResponse.jsonUnsafe({ error: "invalid_request" }, { status: 400 })),
-    ),
-  ),
+  }).pipe(rejectInvalidRequest),
 );
 
 const Token = HttpRouter.add(
@@ -144,11 +166,7 @@ const Token = HttpRouter.add(
       return HttpServerResponse.jsonUnsafe({ error: "invalid_grant" }, { status: 401 });
     }
     return HttpServerResponse.jsonUnsafe(yield* issueToken(db, env, user, grant));
-  }).pipe(
-    Effect.catchTag("SchemaError", () =>
-      Effect.succeed(HttpServerResponse.jsonUnsafe({ error: "invalid_request" }, { status: 400 })),
-    ),
-  ),
+  }).pipe(rejectInvalidRequest),
 );
 
 export const TokenRoutes = Layer.mergeAll(DeviceCode, Token);
