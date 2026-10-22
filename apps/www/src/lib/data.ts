@@ -125,7 +125,7 @@ export const socials: Social[] = [
   {
     label: "Resume",
     icon: FileTextIcon,
-    url: "https://static.blankparticle.com/docs/resume.pdf",
+    url: "https://blankparticle.com/docs/resume.pdf",
     shortLink: ["/resume"],
     showAsSticker: false,
   },

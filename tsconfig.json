@@ -1,4 +1,4 @@
 {
   "extends": "./tsconfig.base.json",
-  "include": ["stacks", "alchemy.run.ts", "apps/static/alchemy.config.ts", "vite.config.ts"]
+  "include": ["stacks", "alchemy.run.ts", "vite.config.ts"]
 }
