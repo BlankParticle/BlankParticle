@@ -18,6 +18,7 @@
     "vite": "catalog:"
   },
   "peerDependencies": {
+    "@alchemy.run/cloudflare": "catalog:",
     "alchemy": "catalog:",
     "effect": "catalog:"
   }

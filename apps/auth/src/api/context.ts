@@ -1,4 +1,4 @@
-import * as Drizzle from "alchemy/Drizzle/D1";
+import * as Drizzle from "@alchemy.run/drizzle/D1";
 import { Context, Effect } from "effect";
 
 import type { AuthAppEnv } from "../../alchemy.config.ts";
