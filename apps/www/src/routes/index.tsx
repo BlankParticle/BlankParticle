@@ -40,12 +40,12 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: () => ({ age: new Date().getFullYear() - 2005 }),
   component: HomePage,
 });
 
-const age = new Date().getFullYear() - 2005;
-
 function HomePage() {
+  const { age } = Route.useLoaderData();
   const [openContact, setOpenContact] = useState<Contact | null>(null);
 
   const stickers = socials.filter((x) => x.showAsSticker !== false);
@@ -62,8 +62,8 @@ function HomePage() {
               @blankparticle
             </a>{" "}
             online. {/* rendered on the server, which may be a new year behind the visitor */}
-            <span suppressHydrationWarning>{age}</span> years old, software developer, and forever taking software apart
-            to see how it works. Sometimes I write about it on{" "}
+            {age} years old, software developer, and forever taking software apart to see how it works. Sometimes I
+            write about it on{" "}
             <Link to="/blog" className="link-dots text-foreground font-bold">
               the blog
             </Link>{" "}
