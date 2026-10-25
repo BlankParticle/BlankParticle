@@ -4,7 +4,6 @@ import * as Cloudflare from "@alchemy.run/cloudflare";
 import * as Drizzle from "@alchemy.run/drizzle";
 import { GithubClientId, GithubClientSecret } from "@blankparticle/utils/alchemy";
 import * as Alchemy from "alchemy";
-import * as Namespace from "alchemy/Namespace";
 import * as Output from "alchemy/Output";
 import * as RemovalPolicy from "alchemy/RemovalPolicy";
 import * as Effect from "effect/Effect";
@@ -12,16 +11,18 @@ import * as Jose from "jose";
 
 const ROOT_DOMAIN = "blankparticle.com";
 
-const Schema = Drizzle.Schema("Schema", {
+const Schema = Drizzle.Schema("AuthSchema", {
   schema: join(import.meta.dirname, "src/db/schema.ts"),
   out: join(import.meta.dirname, "migrations"),
   dialect: "sqlite",
 });
 
-const DB = Effect.flatMap(Schema, (schema) => Cloudflare.D1.Database("DB", { name: "auth-db", migrations: schema }));
+const DB = Effect.flatMap(Schema, (schema) =>
+  Cloudflare.D1.Database("AuthDB", { name: "auth-db", migrations: schema }),
+);
 
 const SigningKeys = Effect.gen(function* () {
-  const { publicKey, privateKey } = yield* Alchemy.KeyPair("SigningKey", {
+  const { publicKey, privateKey } = yield* Alchemy.KeyPair("AuthSigningKey", {
     algorithm: "ec",
     namedCurve: "P-256",
   });
@@ -40,9 +41,9 @@ const SigningKeys = Effect.gen(function* () {
   return { privateKey, jwks };
 });
 
-const PairwiseSecret = Effect.map(Alchemy.Random("PairwiseSecret", { bytes: 32 }), (secret) => secret.text);
+const PairwiseSecret = Effect.map(Alchemy.Random("AuthPairwiseSecret", { bytes: 32 }), (secret) => secret.text);
 
-export const AuthApp = Cloudflare.Website.Vite("Worker", {
+export const AuthApp = Cloudflare.Website.Vite("AuthWorker", {
   rootDir: import.meta.dirname,
   name: "auth",
   main: "src/api/worker.ts",
@@ -64,4 +65,4 @@ export const AuthApp = Cloudflare.Website.Vite("Worker", {
 
 export type AuthAppEnv = Cloudflare.InferEnv<typeof AuthApp>;
 
-export const SetupAuthApp = AuthApp.pipe(RemovalPolicy.retain(), Namespace.push("Auth"));
+export const SetupAuthApp = AuthApp.pipe(RemovalPolicy.retain());

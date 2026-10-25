@@ -1,5 +1,4 @@
 import * as Cloudflare from "@alchemy.run/cloudflare";
-import * as Namespace from "alchemy/Namespace";
 import * as RemovalPolicy from "alchemy/RemovalPolicy";
 
 const TARGET_DOMAIN = "blankparticle.com";
@@ -18,7 +17,7 @@ const ASSET_HEADERS = [
   ),
 ].join("\n");
 
-export const WwwApp = Cloudflare.Website.Vite("Worker", {
+export const WwwApp = Cloudflare.Website.Vite("WwwWorker", {
   rootDir: import.meta.dirname,
   name: "www",
   main: "src/worker.ts",
@@ -35,4 +34,4 @@ export const WwwApp = Cloudflare.Website.Vite("Worker", {
 
 export type WwwAppEnv = Cloudflare.InferEnv<typeof WwwApp>;
 
-export const SetupWwwApp = WwwApp.pipe(RemovalPolicy.retain(), Namespace.push("Www"));
+export const SetupWwwApp = WwwApp.pipe(RemovalPolicy.retain());

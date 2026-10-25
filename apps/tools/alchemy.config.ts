@@ -4,7 +4,6 @@ import * as Cloudflare from "@alchemy.run/cloudflare";
 import * as Drizzle from "@alchemy.run/drizzle";
 import { CloudflareAccountEmail, CloudflareAccountId } from "@blankparticle/utils/alchemy";
 import * as Alchemy from "alchemy";
-import * as Namespace from "alchemy/Namespace";
 import * as RemovalPolicy from "alchemy/RemovalPolicy";
 import { Option } from "effect";
 import * as Effect from "effect/Effect";
@@ -17,18 +16,18 @@ const ORIGINS = {
   email: `email.${ROOT_DOMAIN}`,
 };
 
-const KV = Cloudflare.KV.Namespace("KV", { title: "tools-kv" }).pipe(RemovalPolicy.retain());
+const KV = Cloudflare.KV.Namespace("ToolsKV", { title: "tools-kv" }).pipe(RemovalPolicy.retain());
 
-const Bucket = Cloudflare.R2.Bucket("Bucket", { name: "tools-bucket" }).pipe(RemovalPolicy.retain());
+const Bucket = Cloudflare.R2.Bucket("ToolsBucket", { name: "tools-bucket" }).pipe(RemovalPolicy.retain());
 
-const Schema = Drizzle.Schema("Schema", {
+const Schema = Drizzle.Schema("ToolsSchema", {
   schema: join(import.meta.dirname, "src/db/schema.ts"),
   out: join(import.meta.dirname, "migrations"),
   dialect: "sqlite",
 });
 
 const DB = Effect.flatMap(Schema, (schema) =>
-  Cloudflare.D1.Database("DB", { name: "tools-db", migrations: schema }).pipe(RemovalPolicy.retain()),
+  Cloudflare.D1.Database("ToolsDB", { name: "tools-db", migrations: schema }).pipe(RemovalPolicy.retain()),
 );
 
 const EmailApiToken = Effect.gen(function* () {
@@ -37,7 +36,7 @@ const EmailApiToken = Effect.gen(function* () {
 
   const token =
     stage === "prod"
-      ? yield* Cloudflare.ApiToken.AccountApiToken("CloudflareAppToken", {
+      ? yield* Cloudflare.ApiToken.AccountApiToken("ToolsCloudflareAppToken", {
           accountId,
           name: "App Token (BlankParticle/BlankParticle/Tools)",
           policies: [
@@ -63,12 +62,12 @@ const EmailApiToken = Effect.gen(function* () {
             },
           ],
         })
-      : yield* Cloudflare.ApiToken.AccountApiToken.ref("Tools/CloudflareAppToken", { stage: "prod" });
+      : yield* Cloudflare.ApiToken.AccountApiToken.ref("ToolsCloudflareAppToken", { stage: "prod" });
 
   return token.value;
 });
 
-export const ToolsApp = Cloudflare.Website.Vite("Worker", {
+export const ToolsApp = Cloudflare.Website.Vite("ToolsWorker", {
   rootDir: import.meta.dirname,
   name: "tools",
   main: "src/worker.ts",
@@ -103,14 +102,14 @@ const SetupZones = Effect.fn(function* (app: Cloudflare.Worker) {
   yield* Effect.findFirst(zones, (zone) => Effect.succeed(zone.name === ROOT_DOMAIN)).pipe(
     Effect.flatMap((zone) =>
       Option.isSome(zone)
-        ? Cloudflare.DNS.Record("sites-wildcard", {
+        ? Cloudflare.DNS.Record("ToolsSiteWildcard", {
             zoneId: zone.value.id,
             name: `*.${ORIGINS.sites}`,
             type: "CNAME",
             content: ORIGINS.sites,
             proxied: true,
             comment: "Managed by Alchemy (BlankParticle/BlankParticle/tools)",
-          }).pipe(Namespace.push("DNS"), Namespace.push("Config"), Namespace.push("Tools"))
+          })
         : Effect.die(new Error(`Zone ${ROOT_DOMAIN} not found`)),
     ),
   );
@@ -119,19 +118,18 @@ const SetupZones = Effect.fn(function* (app: Cloudflare.Worker) {
     zones,
     (zone) =>
       Effect.all([
-        Cloudflare.Email.Routing(zone.name, { zone: zone.id }).pipe(Namespace.push("EmailRouting")),
-        Cloudflare.Email.CatchAll(zone.name, {
+        Cloudflare.Email.Routing(`ToolsEmailRouting-${zone.name}`, { zone: zone.id }),
+        Cloudflare.Email.CatchAll(`ToolsEmailCatchAll-${zone.name}`, {
           zone: zone.id,
           name: `Email rule engine for ${zone.name}`,
           actions: [{ type: "worker", value: [app.workerName] }],
-        }).pipe(Namespace.push("EmailCatchAll")),
-      ]).pipe(Namespace.push("Config"), Namespace.push("Tools")),
+        }),
+      ]),
     { concurrency: "unbounded", discard: true },
   );
 });
 
 export const SetupToolsApp = ToolsApp.pipe(
   RemovalPolicy.retain(),
-  Namespace.push("Tools"),
   Effect.tap((app) => SetupZones(app)),
 );
