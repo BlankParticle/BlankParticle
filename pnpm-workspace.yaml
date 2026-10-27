@@ -19,8 +19,8 @@ catalog:
   "@alchemy.run/github": "^2.0.0-beta.84"
   "@base-ui/react": "^1.9.0"
   "@cloudflare/workers-types": "^5.20261019.1"
-  "@distilled.cloud/cloudflare": "1.0.0-rc.15"
-  "@effect/platform-node": "^4.0.5"
+  "@distilled.cloud/cloudflare": "^1.0.0-rc.17"
+  "@effect/platform-node": "^4.0.6"
   "@fontsource-variable/figtree": "^5.3.0"
   "@fontsource-variable/jetbrains-mono": "^5.3.0"
   "@fontsource-variable/plus-jakarta-sans": "^5.3.0"
@@ -43,7 +43,7 @@ catalog:
   clsx: "^2.1.1"
   drizzle-kit: "1.0.0-rc.5-ab785fc"
   drizzle-orm: "1.0.0-rc.5-ab785fc"
-  effect: "^4.0.5"
+  effect: "^4.0.6"
   fumadocs-core: "^16.17.7"
   fumadocs-mdx: "^15.4.9"
   input-otp: "^1.5.0"
@@ -90,3 +90,13 @@ packageExtensions:
 peerDependencyRules:
   allowAny:
     - vite
+
+permissions:
+  "@tanstack/highlight":
+    skills: false
+  "@tanstack/markdown":
+    skills: false
+  "@tanstack/react-start":
+    skills: false
+  drizzle-kit:
+    skills: false
